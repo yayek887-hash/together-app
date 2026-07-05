@@ -82,37 +82,68 @@ export async function fetchAllProfiles(excludeId) {
   return data;
 }
 
-/* ---------- Follows ---------- */
+/* ---------- Friendships ---------- */
 
-export async function fetchPeopleWithFollowStatus(currentUserId) {
-  const { data, error } = await supabase
+export async function fetchPeopleWithFriendStatus(currentUserId) {
+  const { data: profiles, error } = await supabase
     .from("profiles")
-    .select(`
-      id, username, avatar_color,
-      followers:follows!follows_following_id_fkey ( follower_id ),
-      following:follows!follows_follower_id_fkey ( following_id )
-    `)
+    .select("id, username, avatar_color, created_at")
     .neq("id", currentUserId)
     .order("username");
+  if (error) throw error;
+
+  const { data: friendships } = await supabase
+    .from("friendships")
+    .select("id, requester_id, receiver_id, status")
+    .or(`requester_id.eq.${currentUserId},receiver_id.eq.${currentUserId}`);
+
+  return profiles.map((p) => {
+    const f = (friendships || []).find(
+      (fr) => fr.requester_id === p.id || fr.receiver_id === p.id
+    );
+    return { ...p, friendship: f || null };
+  });
+}
+
+export async function fetchFriendCount(userId) {
+  const { count } = await supabase
+    .from("friendships")
+    .select("id", { count: "exact", head: true })
+    .eq("status", "accepted")
+    .or(`requester_id.eq.${userId},receiver_id.eq.${userId}`);
+  return count || 0;
+}
+
+export async function fetchPendingRequests(userId) {
+  const { data, error } = await supabase
+    .from("friendships")
+    .select("id, requester_id, profiles!friendships_requester_id_fkey(id, username, avatar_color)")
+    .eq("receiver_id", userId)
+    .eq("status", "pending");
   if (error) throw error;
   return data;
 }
 
-export async function fetchFollowCounts(userId) {
-  const [{ count: followersCount }, { count: followingCount }] = await Promise.all([
-    supabase.from("follows").select("follower_id", { count: "exact", head: true }).eq("following_id", userId),
-    supabase.from("follows").select("following_id", { count: "exact", head: true }).eq("follower_id", userId),
-  ]);
-  return { followersCount: followersCount || 0, followingCount: followingCount || 0 };
-}
-
-export async function followUser(followerId, followingId) {
-  const { error } = await supabase.from("follows").insert({ follower_id: followerId, following_id: followingId });
+export async function sendFriendRequest(requesterId, receiverId) {
+  const { error } = await supabase
+    .from("friendships")
+    .insert({ requester_id: requesterId, receiver_id: receiverId });
   if (error) throw error;
 }
 
-export async function unfollowUser(followerId, followingId) {
-  const { error } = await supabase.from("follows").delete().eq("follower_id", followerId).eq("following_id", followingId);
+export async function acceptFriendRequest(friendshipId) {
+  const { error } = await supabase
+    .from("friendships")
+    .update({ status: "accepted" })
+    .eq("id", friendshipId);
+  if (error) throw error;
+}
+
+export async function removeFriendship(friendshipId) {
+  const { error } = await supabase
+    .from("friendships")
+    .delete()
+    .eq("id", friendshipId);
   if (error) throw error;
 }
 

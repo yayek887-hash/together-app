@@ -1,24 +1,24 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Shield, LogOut, Users } from "lucide-react";
+import { Shield, LogOut, UserPlus } from "lucide-react";
 import UserAvatar, { AVATAR_COLORS } from "../components/UserAvatar.jsx";
 import AchievementBadge from "../components/AchievementBadge.jsx";
 import PrimaryButton from "../components/PrimaryButton.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
-import { fetchProfileStats, fetchUserBadges, fetchFollowCounts } from "../lib/api.js";
+import { fetchProfileStats, fetchUserBadges, fetchFriendCount } from "../lib/api.js";
 
 export default function ProfilePage() {
   const navigate = useNavigate();
   const { user, profile, signOut } = useAuth();
   const [stats, setStats] = useState({ postCount: 0, supportCount: 0, groupCount: 0 });
   const [badges, setBadges] = useState([]);
-  const [followCounts, setFollowCounts] = useState({ followersCount: 0, followingCount: 0 });
+  const [friendCount, setFriendCount] = useState(0);
 
   useEffect(() => {
     if (!user) return;
     fetchProfileStats(user.id).then(setStats).catch(() => {});
     fetchUserBadges(user.id).then(setBadges).catch(() => {});
-    fetchFollowCounts(user.id).then(setFollowCounts).catch(() => {});
+    fetchFriendCount(user.id).then(setFriendCount).catch(() => {});
   }, [user]);
 
   const displayName = profile?.username || user?.email?.split("@")[0] || "You";
@@ -55,7 +55,7 @@ export default function ProfilePage() {
           boxShadow: "0 6px 18px rgba(108,99,255,0.1)",
         }}
       >
-        {[[String(stats.postCount), "Posts"], [String(followCounts.followersCount), "Followers"], [String(followCounts.followingCount), "Following"]].map(([n, l]) => (
+        {[[String(stats.postCount), "Posts shared"], [String(stats.supportCount), "People helped"], [String(friendCount), "Friends"]].map(([n, l]) => (
           <div key={l} style={{ textAlign: "center" }}>
             <div style={{ fontSize: 18, fontWeight: 700, color: "var(--color-primary)" }}>{n}</div>
             <div style={{ fontSize: 11, color: "var(--color-text-soft)" }}>{l}</div>
@@ -88,7 +88,7 @@ export default function ProfilePage() {
       </div>
 
       <div style={{ padding: "22px 16px 0", display: "flex", flexDirection: "column", gap: 10 }}>
-        <PrimaryButton onClick={() => navigate("/people")} icon={Users}>
+        <PrimaryButton onClick={() => navigate("/people")} icon={UserPlus}>
           Find Friends
         </PrimaryButton>
         <PrimaryButton variant="outline" onClick={() => navigate("/help-center")} icon={Shield}>
