@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import MoodSelector from "../components/MoodSelector.jsx";
 import PostCard from "../components/PostCard.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
-import { fetchFeed, fetchGroups } from "../lib/api.js";
+import { fetchFeed, fetchGroups, joinGroup, leaveGroup } from "../lib/api.js";
 
 const DAILY_QUOTES = [
   "You belong here 💜",
@@ -18,9 +18,192 @@ const DAILY_QUOTES = [
   "Your voice matters 🕊️",
 ];
 
+const WELLNESS_TIPS = [
+  { icon: "🌬️", title: "Breathe it out", tip: "Take 3 slow, deep breaths when you feel overwhelmed. It really works." },
+  { icon: "📓", title: "Write it down", tip: "Journaling for just 5 minutes can help you process big feelings." },
+  { icon: "🚶", title: "Move your body", tip: "A short walk — even around the room — can shift your mood." },
+  { icon: "💧", title: "Stay hydrated", tip: "Drinking water is a small act of self-care that adds up." },
+  { icon: "🤗", title: "Reach out", tip: "Telling one person how you feel can make a big difference." },
+  { icon: "🌙", title: "Rest matters", tip: "Good sleep is one of the best things you can do for your emotions." },
+  { icon: "🎵", title: "Music helps", tip: "Put on a song that matches your mood, then slowly shift to something uplifting." },
+];
+
 function getDailyQuote() {
   const day = Math.floor(Date.now() / 86400000);
   return DAILY_QUOTES[day % DAILY_QUOTES.length];
+}
+
+function getWeeklyTip() {
+  const week = Math.floor(Date.now() / (86400000 * 7));
+  return WELLNESS_TIPS[week % WELLNESS_TIPS.length];
+}
+
+/* ── Community Stats strip ────────────────────── */
+function CommunityStats({ posts, groups }) {
+  const totalSupports = posts.reduce((sum, p) => sum + (p.post_supports?.length || 0), 0);
+  const totalMembers  = groups.reduce((sum, g) => sum + (g.group_members?.length || 0), 0);
+
+  const stats = [
+    { icon: "edit_note",     value: posts.length,   label: "posts shared"  },
+    { icon: "volunteer_activism", value: totalSupports, label: "supports given" },
+    { icon: "group",         value: totalMembers,   label: "members"       },
+  ];
+
+  return (
+    <div style={{ display: "flex", gap: 10, padding: "14px 16px 0", overflowX: "auto" }} className="scrollbar-none">
+      {stats.map((s) => (
+        <div
+          key={s.label}
+          style={{
+            flex: "0 0 auto",
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            background: "#fff",
+            borderRadius: 16,
+            padding: "10px 16px",
+            boxShadow: "0 2px 10px rgba(91,60,221,0.07)",
+            minWidth: 130,
+          }}
+        >
+          <span className="material-symbols-outlined" style={{ fontSize: 20, color: "var(--color-primary)" }}>{s.icon}</span>
+          <div>
+            <div style={{ fontSize: 18, fontWeight: 800, color: "var(--color-text)", lineHeight: 1 }}>{s.value}</div>
+            <div style={{ fontSize: 10, color: "var(--color-text-soft)", marginTop: 2 }}>{s.label}</div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ── Wellness tip card ────────────────────────── */
+function WellnessTip() {
+  const tip = getWeeklyTip();
+  return (
+    <div style={{ padding: "14px 16px 0" }}>
+      <span className="section-label">Wellness tip</span>
+      <div
+        style={{
+          marginTop: 10,
+          background: "linear-gradient(135deg, #d4f5f0 0%, #e8faf7 100%)",
+          borderRadius: 18,
+          padding: "14px 16px",
+          display: "flex",
+          gap: 14,
+          alignItems: "flex-start",
+          border: "1.5px solid #b2eeea",
+        }}
+      >
+        <span style={{ fontSize: 28, flexShrink: 0, lineHeight: 1 }}>{tip.icon}</span>
+        <div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "#1a8a88", marginBottom: 4 }}>{tip.title}</div>
+          <div style={{ fontSize: 13, color: "#2d7a78", lineHeight: 1.55 }}>{tip.tip}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Active Groups preview ────────────────────── */
+function GroupsPreview({ groups, currentUserId, onJoined }) {
+  const navigate = useNavigate();
+  const [busy, setBusy] = useState(null);
+
+  const handleToggle = async (g) => {
+    if (!currentUserId || busy) return;
+    const isMember = g.group_members?.some((m) => m.user_id === currentUserId);
+    setBusy(g.id);
+    try {
+      if (isMember) await leaveGroup(g.id, currentUserId);
+      else          await joinGroup(g.id, currentUserId);
+      onJoined?.();
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  if (!groups.length) return null;
+  const preview = groups.slice(0, 3);
+
+  return (
+    <div style={{ padding: "14px 16px 0" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+        <span className="section-label" style={{ marginBottom: 0 }}>Active groups</span>
+        <button
+          onClick={() => navigate("/groups")}
+          style={{ background: "none", border: "none", fontSize: 12, fontWeight: 700, color: "var(--color-primary)", cursor: "pointer", fontFamily: "Rubik, sans-serif" }}
+        >
+          See all →
+        </button>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        {preview.map((g) => {
+          const isMember = g.group_members?.some((m) => m.user_id === currentUserId);
+          const count = g.group_members?.length || 0;
+          return (
+            <div
+              key={g.id}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+                background: "#fff",
+                borderRadius: 18,
+                padding: "12px 14px",
+                boxShadow: "0 2px 10px rgba(91,60,221,0.07)",
+              }}
+            >
+              <div
+                style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: 14,
+                  background: g.color || "var(--color-primary-fixed)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 20,
+                  fontWeight: 800,
+                  color: "var(--color-primary)",
+                  flexShrink: 0,
+                }}
+              >
+                {g.name.charAt(0)}
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: "var(--color-text)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                  {g.name}
+                </div>
+                <div style={{ fontSize: 11, color: "var(--color-text-soft)", marginTop: 2 }}>
+                  {count} {count === 1 ? "member" : "members"}
+                </div>
+              </div>
+              <button
+                onClick={() => handleToggle(g)}
+                disabled={busy === g.id}
+                style={{
+                  flexShrink: 0,
+                  background: isMember ? "var(--color-primary-fixed)" : "var(--color-primary)",
+                  color: isMember ? "var(--color-primary)" : "#fff",
+                  border: isMember ? "1.5px solid var(--color-primary)" : "none",
+                  borderRadius: 999,
+                  padding: "6px 14px",
+                  fontSize: 12,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  fontFamily: "Rubik, sans-serif",
+                  transition: "all 0.15s",
+                }}
+              >
+                {isMember ? "Joined ✓" : "Join"}
+              </button>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
 }
 
 /* ── Stories / groups bar ─────────────────────── */
@@ -135,11 +318,22 @@ export default function HomePage() {
         />
       </div>
 
+      {/* ── Community stats ───────────────────────── */}
+      {!loading && <CommunityStats posts={posts} groups={groups} />}
+
       {/* ── Mood selector (Pinterest chips) ──────── */}
       <div style={{ padding: "16px 16px 0" }}>
         <span className="section-label">How are you feeling?</span>
         <MoodSelector selected={mood} onSelect={setMood} />
       </div>
+
+      {/* ── Active groups preview ─────────────────── */}
+      {!loading && (
+        <GroupsPreview groups={groups} currentUserId={user?.id} onJoined={load} />
+      )}
+
+      {/* ── Wellness tip ──────────────────────────── */}
+      <WellnessTip />
 
       {/* ── Feed ─────────────────────────────────── */}
       <div style={{ padding: "22px 16px 8px" }}>
