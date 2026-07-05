@@ -50,10 +50,42 @@ export async function removeReaction(postId, userId, type) {
 export async function fetchGroups() {
   const { data, error } = await supabase
     .from("groups")
-    .select(`id, name, description, color, group_members ( user_id )`)
+    .select(`id, name, description, color, category, privacy, min_age, max_age, city, region, owner_id, group_members ( user_id )`)
     .order("id");
   if (error) throw error;
   return data;
+}
+
+export async function fetchGroup(groupId) {
+  const { data, error } = await supabase
+    .from("groups")
+    .select(`id, name, description, color, category, privacy, min_age, max_age, city, region, rules, owner_id, created_at,
+      group_members ( user_id, profiles!group_members_user_id_fkey ( id, username, avatar_color ) )`)
+    .eq("id", groupId)
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export async function createGroup({ name, description, category, privacy, minAge, maxAge, city, region, rules, ownerId }) {
+  const { data, error } = await supabase
+    .from("groups")
+    .insert({ name, description, category, privacy, min_age: minAge, max_age: maxAge, city: city || null, region: region || null, rules: rules || null, owner_id: ownerId, color: "#5b3cdd" })
+    .select()
+    .single();
+  if (error) throw error;
+  await supabase.from("group_members").insert({ group_id: data.id, user_id: ownerId });
+  return data;
+}
+
+export async function updateGroup(groupId, fields) {
+  const { error } = await supabase.from("groups").update(fields).eq("id", groupId);
+  if (error) throw error;
+}
+
+export async function deleteGroup(groupId) {
+  const { error } = await supabase.from("groups").delete().eq("id", groupId);
+  if (error) throw error;
 }
 
 export async function joinGroup(groupId, userId) {
@@ -64,6 +96,70 @@ export async function joinGroup(groupId, userId) {
 export async function leaveGroup(groupId, userId) {
   const { error } = await supabase.from("group_members").delete().eq("group_id", groupId).eq("user_id", userId);
   if (error) throw error;
+}
+
+export async function removeGroupMember(groupId, userId) {
+  const { error } = await supabase.from("group_members").delete().eq("group_id", groupId).eq("user_id", userId);
+  if (error) throw error;
+}
+
+/* ---------- Join requests ---------- */
+
+export async function fetchJoinRequests(groupId) {
+  const { data, error } = await supabase
+    .from("group_join_requests")
+    .select(`id, user_id, message, status, created_at, profiles!group_join_requests_user_id_fkey ( id, username, avatar_color )`)
+    .eq("group_id", groupId)
+    .eq("status", "pending")
+    .order("created_at", { ascending: true });
+  if (error) throw error;
+  return data;
+}
+
+export async function sendJoinRequest(groupId, userId, message = "") {
+  const { error } = await supabase
+    .from("group_join_requests")
+    .insert({ group_id: groupId, user_id: userId, message });
+  if (error) throw error;
+}
+
+export async function approveJoinRequest(requestId, groupId, userId) {
+  await supabase.from("group_join_requests").update({ status: "approved" }).eq("id", requestId);
+  await supabase.from("group_members").insert({ group_id: groupId, user_id: userId });
+}
+
+export async function declineJoinRequest(requestId) {
+  const { error } = await supabase.from("group_join_requests").update({ status: "declined" }).eq("id", requestId);
+  if (error) throw error;
+}
+
+export async function fetchMyJoinRequest(groupId, userId) {
+  const { data } = await supabase
+    .from("group_join_requests")
+    .select("id, status")
+    .eq("group_id", groupId)
+    .eq("user_id", userId)
+    .maybeSingle();
+  return data;
+}
+
+/* ---------- Location (profiles) ---------- */
+
+export async function updateProfileLocation(userId, { city, region, country, locationVisible }) {
+  const { error } = await supabase
+    .from("profiles")
+    .update({ city: city || null, region: region || null, country: country || null, location_visible: locationVisible })
+    .eq("id", userId);
+  if (error) throw error;
+}
+
+export async function fetchNearbyGroups(city, region) {
+  if (!city && !region) return [];
+  let q = supabase.from("groups").select(`id, name, description, color, category, privacy, city, region, group_members ( user_id )`);
+  if (city) q = q.ilike("city", city);
+  else if (region) q = q.ilike("region", region);
+  const { data } = await q.limit(10);
+  return data || [];
 }
 
 /* ---------- Profiles (contacts list) ---------- */

@@ -14,6 +14,9 @@ import HelpCenterPage from "./pages/HelpCenterPage.jsx";
 import ReportIssuePage from "./pages/ReportIssuePage.jsx";
 import NewPostPage from "./pages/NewPostPage.jsx";
 import PeoplePage from "./pages/PeoplePage.jsx";
+import CreateGroupPage from "./pages/CreateGroupPage.jsx";
+import GroupDetailPage from "./pages/GroupDetailPage.jsx";
+import GroupManagePage from "./pages/GroupManagePage.jsx";
 
 const NAV_PATHS = ["/home", "/groups", "/chat", "/profile"];
 
@@ -36,6 +39,9 @@ function Shell() {
         <Route path="/report" element={<ProtectedRoute><ReportIssuePage /></ProtectedRoute>} />
         <Route path="/new-post" element={<ProtectedRoute><NewPostPage /></ProtectedRoute>} />
         <Route path="/people" element={<ProtectedRoute><PeoplePage /></ProtectedRoute>} />
+        <Route path="/create-group" element={<ProtectedRoute><CreateGroupPage /></ProtectedRoute>} />
+        <Route path="/groups/:groupId" element={<ProtectedRoute><GroupDetailPage /></ProtectedRoute>} />
+        <Route path="/groups/:groupId/manage" element={<ProtectedRoute><GroupManagePage /></ProtectedRoute>} />
         <Route path="*" element={<LandingPage />} />
       </Routes>
       {showNav && <Navbar />}
