@@ -1,21 +1,22 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Image as ImageIcon, EyeOff, Sparkles } from "lucide-react";
+import { EyeOff, Sparkles, Wand2 } from "lucide-react";
 import TopBar from "../components/TopBar.jsx";
 import MoodSelector from "../components/MoodSelector.jsx";
 import PrimaryButton from "../components/PrimaryButton.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
-import { createPost } from "../lib/api.js";
+import { createPost, kindRewrite } from "../lib/api.js";
 
 export default function NewPostPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [text, setText] = useState("");
-  const [mood, setMood] = useState(null);
-  const [anon, setAnon] = useState(false);
-  const [addImage, setAddImage] = useState(false);
+  const [text, setText]           = useState("");
+  const [mood, setMood]           = useState(null);
+  const [anon, setAnon]           = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError]         = useState(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiSuggestion, setAiSuggestion] = useState(null);
 
   const moodEmoji = { Happy: "😊", Calm: "😌", Sad: "😢", Anxious: "😰", Angry: "😡", Tired: "😴" }[mood] || null;
 
@@ -33,50 +34,136 @@ export default function NewPostPage() {
     }
   };
 
+  const handleKindRewrite = async () => {
+    if (!text.trim() || aiLoading) return;
+    setAiLoading(true);
+    setAiSuggestion(null);
+    setError(null);
+    try {
+      const kind = await kindRewrite(text.trim());
+      setAiSuggestion(kind);
+    } catch {
+      setError("AI suggestion unavailable right now — try again later.");
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
   return (
     <div className="page-scroll scrollbar-none anim-in">
       <TopBar title="New Post" showBack />
       <div style={{ padding: "0 16px" }}>
+
+        {/* Subtitle */}
         <div style={{ fontSize: 15, color: "var(--color-text-soft)", marginBottom: 14 }}>
           What's on your heart today?
         </div>
+
+        {/* Text area */}
         <textarea
           className="textarea"
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder="Share your feelings, a win, or ask for support..."
-          style={{ minHeight: 130, marginBottom: 16 }}
+          style={{ minHeight: 130, marginBottom: 12 }}
         />
 
+        {/* ── AI: Help me write kindly ── */}
+        {text.trim().length > 5 && !aiLoading && (
+          <button
+            onClick={handleKindRewrite}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              background: "linear-gradient(135deg, var(--color-primary-fixed) 0%, #e4f0ff 100%)",
+              border: "1.5px solid var(--color-primary)",
+              borderRadius: 999,
+              padding: "9px 16px",
+              cursor: "pointer",
+              fontSize: 13,
+              fontWeight: 600,
+              color: "var(--color-primary)",
+              marginBottom: 12,
+              fontFamily: "Rubik, sans-serif",
+              transition: "all 0.15s",
+            }}
+          >
+            <Wand2 size={15} />
+            Help me write kindly ✨
+          </button>
+        )}
+
+        {aiLoading && (
+          <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 0 14px", color: "var(--color-primary)", fontSize: 13, fontWeight: 500 }}>
+            <div className="loading-dots" style={{ margin: 0 }}><span /><span /><span /></div>
+            Thinking of a kinder way to say this…
+          </div>
+        )}
+
+        {/* AI suggestion card */}
+        {aiSuggestion && (
+          <div
+            style={{
+              background: "linear-gradient(135deg, var(--color-primary-fixed) 0%, #e8f4ff 100%)",
+              borderRadius: 18,
+              padding: "14px 16px",
+              marginBottom: 14,
+              border: "1.5px solid var(--color-primary)",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
+              <Sparkles size={13} color="var(--color-primary)" />
+              <span style={{ fontSize: 10, fontWeight: 700, color: "var(--color-primary)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                Kinder version ✨
+              </span>
+            </div>
+            <p style={{ margin: "0 0 12px", fontSize: 14, lineHeight: 1.65, color: "var(--color-text)" }}>
+              {aiSuggestion}
+            </p>
+            <div style={{ display: "flex", gap: 8 }}>
+              <button
+                onClick={() => { setText(aiSuggestion); setAiSuggestion(null); }}
+                style={{
+                  background: "var(--color-primary)",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: 999,
+                  padding: "7px 16px",
+                  fontSize: 13,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  fontFamily: "Rubik, sans-serif",
+                }}
+              >
+                Use this ✓
+              </button>
+              <button
+                onClick={() => setAiSuggestion(null)}
+                style={{
+                  background: "none",
+                  color: "var(--color-text-soft)",
+                  border: "1.5px solid var(--color-outline-variant)",
+                  borderRadius: 999,
+                  padding: "7px 14px",
+                  fontSize: 13,
+                  cursor: "pointer",
+                  fontFamily: "Rubik, sans-serif",
+                }}
+              >
+                Keep mine
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Mood selector */}
         <span className="t-label" style={{ color: "var(--color-text-soft)" }}>How are you feeling?</span>
         <div style={{ margin: "10px 0 18px" }}>
           <MoodSelector selected={mood} onSelect={setMood} />
         </div>
 
-        <button
-          onClick={() => setAddImage(!addImage)}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-            width: "100%",
-            background: "#fff",
-            border: "2px dashed var(--color-secondary)",
-            borderRadius: 16,
-            padding: 14,
-            cursor: "pointer",
-            marginBottom: 16,
-          }}
-        >
-          <ImageIcon size={20} color="var(--color-primary)" />
-          <span style={{ fontSize: 14, color: "var(--color-text-soft)" }}>
-            {addImage ? "Image added ✓ (demo — upload not wired yet)" : "Add a photo (optional)"}
-          </span>
-        </button>
-        {addImage && (
-          <div style={{ height: 100, borderRadius: 14, background: "var(--color-accent)", marginBottom: 16, opacity: 0.6 }} />
-        )}
-
+        {/* Anonymous toggle */}
         <div
           onClick={() => setAnon(!anon)}
           style={{
@@ -88,12 +175,15 @@ export default function NewPostPage() {
             padding: 14,
             marginBottom: 18,
             cursor: "pointer",
-            boxShadow: "0 2px 8px rgba(108,99,255,0.06)",
+            boxShadow: "0 2px 8px rgba(91,60,221,0.06)",
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <EyeOff size={18} color="var(--color-primary)" />
-            <span style={{ fontSize: 14 }}>Post anonymously</span>
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 500 }}>Post anonymously</div>
+              <div style={{ fontSize: 11, color: "var(--color-text-soft)", marginTop: 1 }}>Your name won't be shown</div>
+            </div>
           </div>
           <div
             style={{
@@ -103,6 +193,7 @@ export default function NewPostPage() {
               background: anon ? "var(--color-primary)" : "#E4E0F5",
               position: "relative",
               transition: "background .2s",
+              flexShrink: 0,
             }}
           >
             <div
@@ -115,16 +206,20 @@ export default function NewPostPage() {
                 top: 3,
                 left: anon ? 21 : 3,
                 transition: "left .2s",
+                boxShadow: "0 1px 4px rgba(0,0,0,0.18)",
               }}
             />
           </div>
         </div>
 
-        {error && <p style={{ color: "var(--color-error)", fontSize: 13, marginBottom: 12 }}>{error}</p>}
+        {error && (
+          <p style={{ color: "var(--color-error)", fontSize: 13, marginBottom: 12 }}>{error}</p>
+        )}
 
         <PrimaryButton disabled={!text.trim() || submitting} onClick={handlePublish} icon={Sparkles}>
-          {submitting ? "Publishing..." : "Publish Post"}
+          {submitting ? "Publishing…" : "Publish Post"}
         </PrimaryButton>
+
       </div>
     </div>
   );

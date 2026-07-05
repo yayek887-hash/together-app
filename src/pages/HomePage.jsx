@@ -2,16 +2,62 @@ import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import MoodSelector from "../components/MoodSelector.jsx";
 import PostCard from "../components/PostCard.jsx";
-import FloatingActionButton from "../components/FloatingActionButton.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import { fetchFeed, fetchGroups } from "../lib/api.js";
 
+const DAILY_QUOTES = [
+  "You belong here 💜",
+  "Every kind word matters 🌟",
+  "You are braver than you believe 🦋",
+  "Small steps still move you forward 🌱",
+  "Today is a new beginning ☀️",
+  "Your feelings are always valid 💙",
+  "Be the kindness you wish to see 🤝",
+  "You are never truly alone 🫂",
+  "One day at a time 🌈",
+  "Your voice matters 🕊️",
+];
+
+function getDailyQuote() {
+  const day = Math.floor(Date.now() / 86400000);
+  return DAILY_QUOTES[day % DAILY_QUOTES.length];
+}
+
+/* ── Stories / groups bar ─────────────────────── */
+function StoriesBar({ groups, onNewPost, onGroupClick }) {
+  return (
+    <div className="stories-bar">
+      {/* New post circle */}
+      <div className="story-item" onClick={onNewPost}>
+        <div className="story-new">
+          <span className="material-symbols-outlined story-new-icon" style={{ fontSize: 28, color: "var(--color-primary)" }}>
+            add
+          </span>
+        </div>
+        <span className="story-item-label">Your post</span>
+      </div>
+
+      {/* Group circles */}
+      {groups.map((g) => (
+        <div key={g.id} className="story-item" onClick={onGroupClick}>
+          <div className="story-ring">
+            <div className="story-ring-inner" style={{ background: g.color || "var(--color-primary-fixed)" }}>
+              {g.name.charAt(0)}
+            </div>
+          </div>
+          <span className="story-item-label">{g.name}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function HomePage() {
-  const [mood, setMood] = useState(null);
-  const [posts, setPosts] = useState([]);
+  const [mood, setMood]     = useState(null);
+  const [posts, setPosts]   = useState([]);
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError]   = useState(null);
   const navigate = useNavigate();
   const { profile, user } = useAuth();
 
@@ -23,7 +69,7 @@ export default function HomePage() {
       setPosts(feed);
       setGroups(groupList);
     } catch (err) {
-      setError(err.message || "Something went wrong loading your feed.");
+      setError(err.message || "Something went wrong.");
     } finally {
       setLoading(false);
     }
@@ -32,191 +78,112 @@ export default function HomePage() {
   useEffect(() => { load(); }, [load]);
 
   const displayName = profile?.username || user?.email?.split("@")[0] || "there";
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? "Morning" : hour < 17 ? "Hey" : "Evening";
 
   return (
     <div className="page-scroll scrollbar-none anim-in">
 
-      {/* ── Header ────────────────────────────────────── */}
+      {/* ── Top bar (Instagram-style) ─────────────── */}
       <div
         className="glass"
         style={{
           position: "sticky",
           top: 0,
           zIndex: 40,
-          padding: "18px 20px 12px",
-          borderBottom: "1px solid var(--color-surface-highest)",
+          padding: "14px 20px 12px",
+          borderBottom: "1px solid rgba(91,60,221,0.07)",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
         }}
       >
         <div>
-          <div className="t-h2" style={{ color: "var(--color-text)" }}>
-            Good day, {displayName} 👋
-          </div>
-          <div className="t-label-sm" style={{ color: "var(--color-text-soft)", marginTop: 2 }}>
-            How are you feeling today?
+          <span className="logo-gradient">together</span>
+          <div style={{ fontSize: 12, color: "var(--color-text-soft)", marginTop: 1 }}>
+            {greeting}, {displayName} 👋
           </div>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
-          <button
-            onClick={() => navigate("/report")}
-            aria-label="Report an issue"
-            style={{
-              background: "var(--color-surface-high)",
-              border: "none",
-              width: 40,
-              height: 40,
-              borderRadius: "50%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              cursor: "pointer",
-            }}
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: 20, color: "var(--color-error)" }}>
-              flag
-            </span>
+          <button onClick={() => navigate("/report")} aria-label="Report" className="icon-btn">
+            <span className="material-symbols-outlined" style={{ fontSize: 19, color: "var(--color-error)" }}>flag</span>
           </button>
-          <button
-            onClick={() => navigate("/help-center")}
-            aria-label="Help center"
-            style={{
-              background: "var(--color-surface-high)",
-              border: "none",
-              width: 40,
-              height: 40,
-              borderRadius: "50%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              cursor: "pointer",
-            }}
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: 20, color: "var(--color-primary)" }}>
-              help
-            </span>
+          <button onClick={() => navigate("/help-center")} aria-label="Help" className="icon-btn">
+            <span className="material-symbols-outlined" style={{ fontSize: 19, color: "var(--color-primary)" }}>help</span>
           </button>
         </div>
       </div>
 
-      {/* ── Mood selector ──────────────────────────────── */}
-      <div style={{ padding: "16px 20px 0" }}>
+      {/* ── Daily encouragement ───────────────────── */}
+      <div style={{ padding: "14px 16px 0" }}>
+        <div className="encourage-card">
+          <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--color-primary)" }}>
+            Today's thought
+          </span>
+          <p style={{ margin: "6px 0 0", fontSize: 15, fontWeight: 500, color: "var(--color-text)", lineHeight: 1.5 }}>
+            {getDailyQuote()}
+          </p>
+        </div>
+      </div>
+
+      {/* ── Stories bar (Instagram groups) ───────── */}
+      <div style={{ padding: "16px 0 0" }}>
+        <StoriesBar
+          groups={groups}
+          onNewPost={() => navigate("/new-post")}
+          onGroupClick={() => navigate("/groups")}
+        />
+      </div>
+
+      {/* ── Mood selector (Pinterest chips) ──────── */}
+      <div style={{ padding: "16px 16px 0" }}>
+        <span className="section-label">How are you feeling?</span>
         <MoodSelector selected={mood} onSelect={setMood} />
       </div>
 
-      {/* ── Groups strip ───────────────────────────────── */}
-      <div style={{ padding: "20px 20px 0" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-          <span className="t-label" style={{ color: "var(--color-text-soft)", fontWeight: 600 }}>Active groups</span>
-          <button
-            onClick={() => navigate("/groups")}
-            className="t-label"
-            style={{
-              background: "none",
-              border: "none",
-              color: "var(--color-primary)",
-              cursor: "pointer",
-              fontWeight: 500,
-            }}
-          >
-            See all
-          </button>
-        </div>
-        <div style={{ display: "flex", gap: 10, overflowX: "auto" }} className="scrollbar-none">
-          {groups.slice(0, 4).map((g) => (
-            <div
-              key={g.id}
-              onClick={() => navigate("/groups")}
-              style={{
-                minWidth: 120,
-                background: g.color || "var(--color-surface-container)",
-                borderRadius: 18,
-                padding: "12px 14px",
-                cursor: "pointer",
-                flexShrink: 0,
-              }}
-            >
-              <div className="t-label" style={{ fontWeight: 600 }}>{g.name}</div>
-              <div className="t-label-sm" style={{ color: "var(--color-text-soft)", marginTop: 3 }}>
-                {g.group_members?.length || 0} members
-              </div>
-            </div>
-          ))}
-        </div>
+      {/* ── Feed ─────────────────────────────────── */}
+      <div style={{ padding: "22px 16px 8px" }}>
+        <span className="section-label">Your feed</span>
       </div>
 
-      {/* ── CTA banner ─────────────────────────────────── */}
-      <div
-        style={{
-          margin: "20px 20px 0",
-          background: "linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-container) 100%)",
-          borderRadius: 24,
-          padding: "20px 22px",
-          position: "relative",
-          overflow: "hidden",
-        }}
-      >
-        <div style={{ position: "relative", zIndex: 1 }}>
-          <div className="t-h3" style={{ color: "#fff", marginBottom: 4 }}>Share your light ✨</div>
-          <p className="t-label" style={{ color: "rgba(255,255,255,0.85)", marginBottom: 14 }}>
-            Sometimes a simple "hello" can change someone's day.
-          </p>
-          <button
-            onClick={() => navigate("/new-post")}
-            style={{
-              background: "#fff",
-              color: "var(--color-primary)",
-              border: "none",
-              borderRadius: 999,
-              padding: "8px 18px",
-              fontWeight: 700,
-              fontSize: 14,
-              cursor: "pointer",
-            }}
-          >
-            Write a post
-          </button>
-        </div>
-        <div style={{
-          position: "absolute", right: -20, bottom: -20,
-          width: 120, height: 120, borderRadius: "50%",
-          background: "rgba(255,255,255,0.08)",
-        }} />
-      </div>
-
-      {/* ── Feed ───────────────────────────────────────── */}
-      <div style={{ padding: "20px 20px 8px" }}>
-        <span className="t-label" style={{ color: "var(--color-text-soft)", fontWeight: 600 }}>Your feed</span>
-      </div>
-      <div style={{ padding: "0 20px" }}>
+      <div style={{ padding: "0 16px" }}>
         {loading && (
-          <p className="t-body" style={{ color: "var(--color-text-soft)", textAlign: "center", marginTop: 24 }}>
-            Loading your feed...
-          </p>
+          <div style={{ textAlign: "center", padding: "44px 0" }}>
+            <div className="loading-dots"><span /><span /><span /></div>
+            <p style={{ color: "var(--color-text-soft)", fontSize: 13, marginTop: 14 }}>Loading your feed…</p>
+          </div>
         )}
         {error && (
-          <div style={{ color: "var(--color-error)", textAlign: "center", marginTop: 24 }}>
-            <p className="t-body">{error}</p>
+          <div style={{ textAlign: "center", padding: "32px 0", color: "var(--color-error)" }}>
+            <p style={{ fontSize: 14 }}>{error}</p>
             <button
               onClick={load}
-              style={{ background: "none", border: "none", color: "var(--color-primary)", cursor: "pointer", marginTop: 8 }}
+              style={{ marginTop: 10, background: "none", border: "none", color: "var(--color-primary)", cursor: "pointer", fontWeight: 700, fontSize: 14 }}
             >
-              Try again
+              Try again ↻
             </button>
           </div>
         )}
         {!loading && !error && posts.length === 0 && (
-          <p className="t-body" style={{ color: "var(--color-text-soft)", textAlign: "center", marginTop: 24 }}>
-            No posts yet — be the first to share something 💜
-          </p>
+          <div style={{ textAlign: "center", padding: "48px 20px" }}>
+            <div style={{ fontSize: 52, marginBottom: 14 }}>💜</div>
+            <p style={{ color: "var(--color-text-soft)", fontSize: 15, lineHeight: 1.6 }}>
+              No posts yet —<br />be the first to share something!
+            </p>
+            <button
+              onClick={() => navigate("/new-post")}
+              className="btn btn-primary"
+              style={{ marginTop: 20, width: "auto", padding: "0 28px" }}
+            >
+              Write a post ✨
+            </button>
+          </div>
         )}
         {!loading && posts.map((p) => (
           <PostCard key={p.id} post={p} currentUserId={user?.id} onChanged={load} />
         ))}
       </div>
 
-      <FloatingActionButton onClick={() => navigate("/new-post")} />
     </div>
   );
 }

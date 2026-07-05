@@ -45,10 +45,8 @@ team's attention first, instead of sitting in a flat, unsorted queue.
 ## AI / external integrations
 
 - **Google OAuth** (via Supabase Auth) — sign-in, no passwords stored.
-- **Anthropic Claude API**, called server-side from a **Supabase Edge Function**
-  (`triage-report`) — classifies each safety report's urgency so the safety team sees what
-  matters most first. The API key never touches the browser. Full detail in
-  [`docs/ERD.md`](docs/ERD.md#external-services--integrations).
+- **"Help me write kindly"** — Supabase Edge Function `kind-writer` calls the Anthropic Claude API server-side to rewrite a teen's draft post to be warmer and kinder. The AI key never reaches the browser. See [`supabase/functions/kind-writer/index.ts`](supabase/functions/kind-writer/index.ts).
+- **AI Report Triage** — Supabase Edge Function `triage-report` classifies each safety report's urgency (`low / medium / urgent`) so the safety team sees what matters most first. See [`supabase/functions/triage-report/index.ts`](supabase/functions/triage-report/index.ts).
 - **Supabase Realtime** — live chat updates.
 
 Full data model & ERD: [`docs/ERD.md`](docs/ERD.md). Full SQL: [`supabase/schema.sql`](supabase/schema.sql).
@@ -133,7 +131,7 @@ npm run dev
 Open the printed local URL. Click **Continue with Google** — this creates your first profile
 row automatically (via the `handle_new_user` trigger in the schema).
 
-### 5. Deploy the AI report-triage Edge Function
+### 5. Deploy the AI Edge Functions
 
 This requires the [Supabase CLI](https://supabase.com/docs/guides/cli):
 
@@ -143,7 +141,13 @@ supabase login
 supabase link --project-ref YOUR-PROJECT-REF
 supabase secrets set ANTHROPIC_API_KEY=your-anthropic-api-key
 supabase functions deploy triage-report
+supabase functions deploy kind-writer
 ```
+
+**`triage-report`** — classifies safety reports by urgency using AI.  
+**`kind-writer`** — rewrites teen posts to be kinder ("Help me write kindly" feature).
+
+(Get an Anthropic API key at [console.anthropic.com](https://console.anthropic.com). Both functions fail-safe: reports default to "medium" priority and the kind-writer returns the original text if the AI is unavailable.)
 
 (Get an Anthropic API key at [console.anthropic.com](https://console.anthropic.com). If you
 skip this step, reports still save — they'll just default to "medium" priority instead of

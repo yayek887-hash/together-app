@@ -142,6 +142,44 @@ export async function fetchUserBadges(userId) {
   return data.map((row) => row.badges);
 }
 
+/* ---------- Comments ---------- */
+
+export async function fetchComments(postId) {
+  const { data, error } = await supabase
+    .from("comments")
+    .select(
+      `id, text, created_at,
+       author:profiles!comments_author_id_fkey ( id, username, avatar_color )`
+    )
+    .eq("post_id", postId)
+    .order("created_at", { ascending: true });
+  if (error) throw error;
+  return data;
+}
+
+export async function createComment(postId, authorId, text) {
+  const { data, error } = await supabase
+    .from("comments")
+    .insert({ post_id: postId, author_id: authorId, text })
+    .select(
+      `id, text, created_at,
+       author:profiles!comments_author_id_fkey ( id, username, avatar_color )`
+    )
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+/* ---------- AI: Kind Writer ---------- */
+
+export async function kindRewrite(text) {
+  const { data, error } = await supabase.functions.invoke("kind-writer", {
+    body: { text },
+  });
+  if (error) throw error;
+  return data?.kindText ?? text;
+}
+
 /* ---------- Reports (AI-triaged) ---------- */
 // Calls the "triage-report" Edge Function, which classifies urgency with an
 // AI model server-side and writes the row (keeps the AI API key off the client).
