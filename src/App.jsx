@@ -1,7 +1,9 @@
 import { Routes, Route, useLocation } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext.jsx";
+import { NotificationsProvider } from "./context/NotificationsContext.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import Navbar from "./components/Navbar.jsx";
+import NotificationToast from "./components/NotificationToast.jsx";
 import LandingPage from "./pages/LandingPage.jsx";
 import HomePage from "./pages/HomePage.jsx";
 import SupportGroupsPage from "./pages/SupportGroupsPage.jsx";
@@ -19,6 +21,8 @@ function Shell() {
   const showNav = NAV_PATHS.includes(location.pathname);
 
   return (
+    <NotificationsProvider>
+    <NotificationToast />
     <div className="app-shell">
       <Routes>
         <Route path="/" element={<LandingPage />} />
@@ -34,6 +38,7 @@ function Shell() {
       </Routes>
       {showNav && <Navbar />}
     </div>
+    </NotificationsProvider>
   );
 }
 

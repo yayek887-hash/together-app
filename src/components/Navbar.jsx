@@ -1,4 +1,5 @@
 import { NavLink, useNavigate } from "react-router-dom";
+import { useNotifications } from "../context/NotificationsContext.jsx";
 
 const LEFT  = [
   { to: "/home",    icon: "home",        label: "Home" },
@@ -9,7 +10,7 @@ const RIGHT = [
   { to: "/profile", icon: "person",      label: "Me" },
 ];
 
-function NavItem({ item }) {
+function NavItem({ item, badge }) {
   return (
     <NavLink to={item.to} style={{ textDecoration: "none" }}>
       {({ isActive }) => (
@@ -24,6 +25,7 @@ function NavItem({ item }) {
             borderRadius: 14,
             background: isActive ? "var(--color-primary-fixed)" : "transparent",
             transition: "all 0.2s ease",
+            position: "relative",
           }}
         >
           <span
@@ -35,6 +37,34 @@ function NavItem({ item }) {
           >
             {item.icon}
           </span>
+
+          {/* Unread badge */}
+          {badge > 0 && (
+            <span
+              className="badge-pulse"
+              style={{
+                position: "absolute",
+                top: 4,
+                right: 6,
+                background: "#e84545",
+                color: "#fff",
+                fontSize: 9,
+                fontWeight: 800,
+                minWidth: 16,
+                height: 16,
+                borderRadius: 999,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: "0 4px",
+                border: "2px solid #fff",
+                lineHeight: 1,
+              }}
+            >
+              {badge > 9 ? "9+" : badge}
+            </span>
+          )}
+
           <span style={{
             fontSize: 10,
             fontWeight: isActive ? 700 : 500,
@@ -50,6 +80,7 @@ function NavItem({ item }) {
 
 export default function Navbar() {
   const navigate = useNavigate();
+  const { unreadCount } = useNotifications();
 
   return (
     <nav
@@ -85,7 +116,13 @@ export default function Navbar() {
         <span style={{ fontSize: 10, fontWeight: 700, color: "var(--color-primary)" }}>Post</span>
       </div>
 
-      {RIGHT.map((item) => <NavItem key={item.to} item={item} />)}
+      {RIGHT.map((item) => (
+        <NavItem
+          key={item.to}
+          item={item}
+          badge={item.to === "/chat" ? unreadCount : 0}
+        />
+      ))}
     </nav>
   );
 }
