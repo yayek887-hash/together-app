@@ -520,3 +520,9 @@ a:focus-visible {
   50%       { transform: scale(1.2); }
 }
 .badge-pulse { animation: badge-pulse 1.4s ease-in-out infinite; }
+
+/* ─── Mood content fade in ────────────────────── */
+@keyframes moodFadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

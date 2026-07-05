@@ -4,6 +4,7 @@ import MoodSelector from "../components/MoodSelector.jsx";
 import PostCard from "../components/PostCard.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import { fetchFeed, fetchGroups, joinGroup, leaveGroup } from "../lib/api.js";
+import { MOOD_CONTENT } from "../data/moodContent.js";
 
 const DAILY_QUOTES = [
   { text: "You belong here, exactly as you are.", sub: "This community is glad you showed up today 💜" },
@@ -272,6 +273,167 @@ function GroupsPreview({ groups, currentUserId, onJoined }) {
   );
 }
 
+/* ── Mood-personalized content ───────────────── */
+function MoodPersonalizedContent({ mood }) {
+  const c = MOOD_CONTENT[mood];
+  if (!c) return null;
+
+  return (
+    <div
+      key={mood}
+      style={{
+        padding: "0 16px",
+        animation: "moodFadeIn 0.4s ease forwards",
+      }}
+    >
+      {/* Affirmation card */}
+      <div style={{
+        background: c.bg,
+        border: `1.5px solid ${c.border}`,
+        borderRadius: 24,
+        padding: "20px 20px 18px",
+        position: "relative",
+        overflow: "hidden",
+        marginBottom: 14,
+      }}>
+        <div style={{ position: "absolute", top: -20, right: -20, width: 100, height: 100, borderRadius: "50%", background: "rgba(0,0,0,0.04)" }} />
+        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: c.color, marginBottom: 8 }}>
+          ✦ Your affirmation for today
+        </div>
+        <p style={{ margin: "0 0 8px", fontSize: 18, fontWeight: 800, color: "#1a1833", lineHeight: 1.4, position: "relative" }}>
+          {c.affirmation}
+        </p>
+        <p style={{ margin: 0, fontSize: 12, color: "#64657a", lineHeight: 1.5, position: "relative" }}>
+          — {c.quote.text}
+        </p>
+      </div>
+
+      {/* Breathing exercise */}
+      <div style={{
+        background: "#fff",
+        borderRadius: 20,
+        padding: "16px 18px",
+        boxShadow: "0 2px 12px rgba(91,60,221,0.08)",
+        marginBottom: 14,
+        display: "flex",
+        gap: 14,
+        alignItems: "flex-start",
+      }}>
+        <div style={{
+          width: 46, height: 46, borderRadius: 14, flexShrink: 0,
+          background: c.bg, border: `1.5px solid ${c.border}`,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          fontSize: 22,
+        }}>
+          {c.breathing.emoji}
+        </div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: c.color, marginBottom: 4 }}>
+            {c.breathing.name}
+          </div>
+          <div style={{ fontSize: 13, color: "var(--color-text-soft)", lineHeight: 1.65 }}>
+            {c.breathing.instruction}
+          </div>
+        </div>
+      </div>
+
+      {/* Challenge */}
+      <div style={{
+        background: "linear-gradient(135deg, #fff7ed 0%, #fff 100%)",
+        border: "1.5px solid #fed7aa",
+        borderRadius: 20,
+        padding: "16px 18px",
+        marginBottom: 14,
+        display: "flex",
+        gap: 14,
+        alignItems: "flex-start",
+      }}>
+        <span style={{ fontSize: 26, flexShrink: 0, lineHeight: 1.1 }}>🎯</span>
+        <div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "#ea580c", marginBottom: 4 }}>
+            Today's challenge — {c.challenge.title}
+          </div>
+          <div style={{ fontSize: 13, color: "#7c4512", lineHeight: 1.65 }}>
+            {c.challenge.text}
+          </div>
+        </div>
+      </div>
+
+      {/* Wellness tip */}
+      <div style={{
+        background: c.bg,
+        border: `1.5px solid ${c.border}`,
+        borderRadius: 20,
+        padding: "16px 18px",
+        marginBottom: 14,
+        display: "flex",
+        gap: 14,
+        alignItems: "flex-start",
+      }}>
+        <span style={{ fontSize: 26, flexShrink: 0, lineHeight: 1.1 }}>{c.tip.icon}</span>
+        <div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: c.color, marginBottom: 4 }}>
+            {c.tip.title}
+          </div>
+          <div style={{ fontSize: 13, color: "var(--color-text-soft)", lineHeight: 1.65 }}>
+            {c.tip.text}
+          </div>
+        </div>
+      </div>
+
+      {/* Conversation starter */}
+      <div style={{
+        background: "linear-gradient(135deg, #5b3cdd 0%, #7c5ce9 100%)",
+        borderRadius: 20,
+        padding: "16px 18px",
+        marginBottom: 14,
+        position: "relative",
+        overflow: "hidden",
+      }}>
+        <div style={{ position: "absolute", top: -10, right: -10, width: 70, height: 70, borderRadius: "50%", background: "rgba(255,255,255,0.07)" }} />
+        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)", marginBottom: 8 }}>
+          💬 Conversation starter
+        </div>
+        <div style={{ fontSize: 15, fontWeight: 700, color: "#fff", lineHeight: 1.45, marginBottom: 6 }}>
+          "{c.starter.question}"
+        </div>
+        <div style={{ fontSize: 12, color: "rgba(255,255,255,0.75)" }}>
+          {c.starter.context}
+        </div>
+      </div>
+
+      {/* AI suggestion */}
+      <div style={{
+        background: "linear-gradient(135deg, #faf5ff 0%, #f5f0ff 100%)",
+        border: "1.5px solid #e9d5ff",
+        borderRadius: 20,
+        padding: "16px 18px",
+        marginBottom: 4,
+        display: "flex",
+        gap: 14,
+        alignItems: "flex-start",
+      }}>
+        <div style={{
+          width: 36, height: 36, borderRadius: "50%", flexShrink: 0,
+          background: "linear-gradient(135deg, #5b3cdd 0%, #7c5ce9 100%)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          fontSize: 16,
+        }}>
+          ✨
+        </div>
+        <div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "#7c3aed", marginBottom: 4 }}>
+            A thought for you
+          </div>
+          <div style={{ fontSize: 13, color: "#4a1d96", lineHeight: 1.65 }}>
+            {c.aiSuggestion}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ── Main page ────────────────────────────────── */
 export default function HomePage() {
   const [mood, setMood]       = useState(null);
@@ -312,8 +474,8 @@ export default function HomePage() {
         onHelp={() => navigate("/help-center")}
       />
 
-      {/* ── Today's thought (hero card) ───────────── */}
-      <TodaysThought />
+      {/* ── Today's thought — only when no mood selected ── */}
+      {!mood && <TodaysThought />}
 
       {/* ── Mood check-in ─────────────────────────── */}
       <div style={{ padding: "20px 16px 0" }}>
@@ -321,7 +483,19 @@ export default function HomePage() {
           🎨 How are you feeling right now?
         </div>
         <MoodSelector selected={mood} onSelect={setMood} />
+        {mood && (
+          <div style={{ marginTop: 8, fontSize: 12, color: "var(--color-text-soft)", textAlign: "center" }}>
+            Tap your mood again to clear · content is personalized for you
+          </div>
+        )}
       </div>
+
+      {/* ── Mood-personalized content ─────────────── */}
+      {mood && (
+        <div style={{ paddingTop: 16 }}>
+          <MoodPersonalizedContent mood={mood} />
+        </div>
+      )}
 
       {/* ── Write a post ──────────────────────────── */}
       <WritePostBanner onWrite={() => navigate("/new-post")} />
@@ -332,8 +506,8 @@ export default function HomePage() {
       {/* ── Support communities ───────────────────── */}
       {!loading && <GroupsPreview groups={groups} currentUserId={user?.id} onJoined={load} />}
 
-      {/* ── Wellness tip ──────────────────────────── */}
-      <WellnessTip />
+      {/* ── Wellness tip — only when no mood selected ─ */}
+      {!mood && <WellnessTip />}
 
       {/* ── Feed ─────────────────────────────────── */}
       <div style={{ padding: "24px 16px 8px" }}>
