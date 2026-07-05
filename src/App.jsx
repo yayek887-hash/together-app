@@ -6,6 +6,7 @@ import LandingPage from "./pages/LandingPage.jsx";
 import HomePage from "./pages/HomePage.jsx";
 import SupportGroupsPage from "./pages/SupportGroupsPage.jsx";
 import ChatPage from "./pages/ChatPage.jsx";
+import ConversationPage from "./pages/ConversationPage.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
 import HelpCenterPage from "./pages/HelpCenterPage.jsx";
 import ReportIssuePage from "./pages/ReportIssuePage.jsx";
@@ -24,6 +25,7 @@ function Shell() {
         <Route path="/home" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
         <Route path="/groups" element={<ProtectedRoute><SupportGroupsPage /></ProtectedRoute>} />
         <Route path="/chat" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />
+        <Route path="/chat/:userId" element={<ProtectedRoute><ConversationPage /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
         <Route path="/help-center" element={<ProtectedRoute><HelpCenterPage /></ProtectedRoute>} />
         <Route path="/report" element={<ProtectedRoute><ReportIssuePage /></ProtectedRoute>} />

@@ -70,6 +70,18 @@ export async function leaveGroup(groupId, userId) {
   if (error) throw error;
 }
 
+/* ---------- Profiles (contacts list) ---------- */
+
+export async function fetchAllProfiles(excludeId) {
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("id, username, avatar_color")
+    .neq("id", excludeId)
+    .order("username");
+  if (error) throw error;
+  return data;
+}
+
 /* ---------- Messages (single demo conversation thread) ---------- */
 
 export async function fetchConversation(userId, otherUserId) {

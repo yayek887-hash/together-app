@@ -1,105 +1,143 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import UserAvatar from "../components/UserAvatar.jsx";
-import ChatBubble from "../components/ChatBubble.jsx";
-import MessageInput from "../components/MessageInput.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
-import { fetchConversation, sendMessage, subscribeToConversation } from "../lib/api.js";
-import { supabase } from "../lib/supabaseClient.js";
-
-// Demo "support buddy" this thread talks to. In a full build this would be
-// chosen from a contacts/conversations list — kept to one thread here to
-// match the original screen design.
-const BUDDY_NAME = "Noa";
+import { fetchAllProfiles } from "../lib/api.js";
 
 export default function ChatPage() {
   const { user } = useAuth();
-  const [buddyId, setBuddyId] = useState(null);
-  const [messages, setMessages] = useState([]);
+  const navigate = useNavigate();
+  const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const endRef = useRef(null);
-
-  const findOrCreateBuddy = useCallback(async () => {
-    // Looks for any other profile to chat with; if none exists yet (e.g. a
-    // brand-new Supabase project with only one signed-up user), the thread
-    // simply stays empty until a second person joins.
-    const { data, error: err } = await supabase
-      .from("profiles")
-      .select("id, username")
-      .neq("id", user.id)
-      .limit(1)
-      .maybeSingle();
-    if (err) throw err;
-    return data?.id || null;
-  }, [user]);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     if (!user) return;
-    let unsubscribe = () => {};
+    fetchAllProfiles(user.id)
+      .then(setContacts)
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [user]);
 
-    (async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const otherId = await findOrCreateBuddy();
-        setBuddyId(otherId);
-        if (otherId) {
-          setMessages(await fetchConversation(user.id, otherId));
-          unsubscribe = subscribeToConversation(user.id, otherId, (m) =>
-            setMessages((prev) => [...prev, m])
-          );
-        }
-      } catch (err) {
-        setError(err.message || "Couldn't load this conversation.");
-      } finally {
-        setLoading(false);
-      }
-    })();
-
-    return () => unsubscribe();
-  }, [user, findOrCreateBuddy]);
-
-  useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
-  const handleSend = async (text) => {
-    if (!buddyId) return;
-    try {
-      await sendMessage(user.id, buddyId, text);
-      // No optimistic push needed — the Realtime subscription above will
-      // append it once Supabase confirms the insert.
-    } catch (err) {
-      setError(err.message || "Message didn't send — try again.");
-    }
-  };
+  const filtered = contacts.filter((c) =>
+    (c.username || "").toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
-    <div className="anim-in" style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "18px 16px 12px", borderBottom: "1px solid #F0EEFA" }}>
-        <UserAvatar name={BUDDY_NAME} size={40} />
-        <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 15, fontWeight: 500 }}>{BUDDY_NAME}</div>
-          <div style={{ fontSize: 11, color: "var(--color-success)" }}>● Online</div>
+    <div className="page-scroll scrollbar-none anim-in">
+      {/* Header */}
+      <div
+        className="glass"
+        style={{
+          position: "sticky",
+          top: 0,
+          zIndex: 40,
+          padding: "14px 20px 12px",
+          borderBottom: "1px solid rgba(91,60,221,0.07)",
+        }}
+      >
+        <div style={{ fontSize: 20, fontWeight: 800, color: "var(--color-primary)", marginBottom: 10 }}>
+          Messages
+        </div>
+        {/* Search bar */}
+        <div style={{ position: "relative" }}>
+          <span
+            className="material-symbols-outlined"
+            style={{
+              position: "absolute",
+              left: 12,
+              top: "50%",
+              transform: "translateY(-50%)",
+              fontSize: 18,
+              color: "var(--color-text-soft)",
+            }}
+          >
+            search
+          </span>
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search people…"
+            style={{
+              width: "100%",
+              boxSizing: "border-box",
+              padding: "9px 14px 9px 38px",
+              borderRadius: 999,
+              border: "1.5px solid var(--color-outline-variant)",
+              background: "var(--color-surface-low)",
+              fontSize: 13,
+              fontFamily: "Rubik, sans-serif",
+              outline: "none",
+            }}
+            onFocus={(e) => (e.target.style.borderColor = "var(--color-primary)")}
+            onBlur={(e)  => (e.target.style.borderColor = "var(--color-outline-variant)")}
+          />
         </div>
       </div>
 
-      <div style={{ flex: 1, overflowY: "auto", padding: 16, paddingBottom: 150 }} className="scrollbar-none">
-        {loading && <p style={{ color: "var(--color-text-soft)", textAlign: "center" }}>Loading conversation...</p>}
-        {error && <p style={{ color: "var(--color-error)", textAlign: "center", fontSize: 14 }}>{error}</p>}
-        {!loading && !buddyId && (
-          <p style={{ color: "var(--color-text-soft)", textAlign: "center", marginTop: 20, fontSize: 14 }}>
-            No one else has joined Together yet — once a friend signs up, your conversation will appear here.
-          </p>
+      {/* Content */}
+      <div style={{ padding: "12px 16px" }}>
+        {loading && (
+          <div style={{ textAlign: "center", padding: "44px 0" }}>
+            <div className="loading-dots"><span /><span /><span /></div>
+          </div>
         )}
-        {messages.map((m) => (
-          <ChatBubble key={m.id} msg={{ ...m, from: m.sender_id === user.id ? "me" : "them", time: new Date(m.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) }} />
-        ))}
-        <div ref={endRef} />
-      </div>
 
-      <div style={{ position: "fixed", bottom: 64, left: 0, right: 0, maxWidth: 480, margin: "0 auto" }}>
-        <MessageInput onSend={handleSend} />
+        {!loading && filtered.length === 0 && (
+          <div style={{ textAlign: "center", padding: "60px 20px" }}>
+            <div style={{ fontSize: 48, marginBottom: 14 }}>💬</div>
+            <p style={{ color: "var(--color-text-soft)", fontSize: 15, lineHeight: 1.6 }}>
+              {search ? "No one matches your search." : "No one else has joined yet — once a friend signs up, they'll appear here."}
+            </p>
+          </div>
+        )}
+
+        {filtered.map((contact) => (
+          <button
+            key={contact.id}
+            onClick={() => navigate(`/chat/${contact.id}`)}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 14,
+              width: "100%",
+              background: "#fff",
+              border: "none",
+              borderRadius: 18,
+              padding: "13px 14px",
+              marginBottom: 10,
+              cursor: "pointer",
+              textAlign: "left",
+              boxShadow: "0 2px 10px rgba(91,60,221,0.07)",
+              transition: "box-shadow 0.15s, transform 0.15s",
+              fontFamily: "Rubik, sans-serif",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.boxShadow = "0 4px 18px rgba(91,60,221,0.13)";
+              e.currentTarget.style.transform = "translateY(-1px)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.boxShadow = "0 2px 10px rgba(91,60,221,0.07)";
+              e.currentTarget.style.transform = "none";
+            }}
+          >
+            <UserAvatar name={contact.username || "?"} size={46} />
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 15, fontWeight: 700, color: "var(--color-text)" }}>
+                {contact.username || "Someone"}
+              </div>
+              <div style={{ fontSize: 12, color: "var(--color-text-soft)", marginTop: 2 }}>
+                Tap to send a message
+              </div>
+            </div>
+            <span
+              className="material-symbols-outlined"
+              style={{ fontSize: 20, color: "var(--color-primary)", flexShrink: 0 }}
+            >
+              chevron_right
+            </span>
+          </button>
+        ))}
       </div>
     </div>
   );
