@@ -8,8 +8,7 @@ export async function fetchFeed() {
     .select(
       `id, text, mood, image_url, is_anonymous, created_at,
        author:profiles!posts_author_id_fkey ( id, username, avatar_color ),
-       post_likes ( user_id ),
-       post_supports ( user_id ),
+       post_reactions ( user_id, type ),
        comments ( id )`
     )
     .order("created_at", { ascending: false })
@@ -29,24 +28,21 @@ export async function createPost({ authorId, text, mood, isAnonymous, imageUrl =
   return data;
 }
 
-export async function toggleLike(postId, userId, isLiked) {
-  if (isLiked) {
-    const { error } = await supabase.from("post_likes").delete().eq("post_id", postId).eq("user_id", userId);
-    if (error) throw error;
-  } else {
-    const { error } = await supabase.from("post_likes").insert({ post_id: postId, user_id: userId });
-    if (error) throw error;
-  }
+export async function addReaction(postId, userId, type) {
+  const { error } = await supabase
+    .from("post_reactions")
+    .insert({ post_id: postId, user_id: userId, type });
+  if (error) throw error;
 }
 
-export async function toggleSupport(postId, userId, isSupported) {
-  if (isSupported) {
-    const { error } = await supabase.from("post_supports").delete().eq("post_id", postId).eq("user_id", userId);
-    if (error) throw error;
-  } else {
-    const { error } = await supabase.from("post_supports").insert({ post_id: postId, user_id: userId });
-    if (error) throw error;
-  }
+export async function removeReaction(postId, userId, type) {
+  const { error } = await supabase
+    .from("post_reactions")
+    .delete()
+    .eq("post_id", postId)
+    .eq("user_id", userId)
+    .eq("type", type);
+  if (error) throw error;
 }
 
 /* ---------- Groups ---------- */
@@ -201,7 +197,7 @@ export async function fetchProfile(userId) {
 export async function fetchProfileStats(userId) {
   const [{ count: postCount }, { count: supportCount }, { count: groupCount }] = await Promise.all([
     supabase.from("posts").select("id", { count: "exact", head: true }).eq("author_id", userId),
-    supabase.from("post_supports").select("post_id", { count: "exact", head: true }).eq("user_id", userId),
+    supabase.from("post_reactions").select("id", { count: "exact", head: true }).eq("user_id", userId),
     supabase.from("group_members").select("group_id", { count: "exact", head: true }).eq("user_id", userId),
   ]);
   return { postCount: postCount || 0, supportCount: supportCount || 0, groupCount: groupCount || 0 };
