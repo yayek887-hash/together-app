@@ -13,6 +13,7 @@ import ProfilePage from "./pages/ProfilePage.jsx";
 import HelpCenterPage from "./pages/HelpCenterPage.jsx";
 import ReportIssuePage from "./pages/ReportIssuePage.jsx";
 import NewPostPage from "./pages/NewPostPage.jsx";
+import PeoplePage from "./pages/PeoplePage.jsx";
 
 const NAV_PATHS = ["/home", "/groups", "/chat", "/profile"];
 
@@ -34,6 +35,7 @@ function Shell() {
         <Route path="/help-center" element={<ProtectedRoute><HelpCenterPage /></ProtectedRoute>} />
         <Route path="/report" element={<ProtectedRoute><ReportIssuePage /></ProtectedRoute>} />
         <Route path="/new-post" element={<ProtectedRoute><NewPostPage /></ProtectedRoute>} />
+        <Route path="/people" element={<ProtectedRoute><PeoplePage /></ProtectedRoute>} />
         <Route path="*" element={<LandingPage />} />
       </Routes>
       {showNav && <Navbar />}

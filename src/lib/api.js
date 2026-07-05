@@ -82,6 +82,40 @@ export async function fetchAllProfiles(excludeId) {
   return data;
 }
 
+/* ---------- Follows ---------- */
+
+export async function fetchPeopleWithFollowStatus(currentUserId) {
+  const { data, error } = await supabase
+    .from("profiles")
+    .select(`
+      id, username, avatar_color,
+      followers:follows!follows_following_id_fkey ( follower_id ),
+      following:follows!follows_follower_id_fkey ( following_id )
+    `)
+    .neq("id", currentUserId)
+    .order("username");
+  if (error) throw error;
+  return data;
+}
+
+export async function fetchFollowCounts(userId) {
+  const [{ count: followersCount }, { count: followingCount }] = await Promise.all([
+    supabase.from("follows").select("follower_id", { count: "exact", head: true }).eq("following_id", userId),
+    supabase.from("follows").select("following_id", { count: "exact", head: true }).eq("follower_id", userId),
+  ]);
+  return { followersCount: followersCount || 0, followingCount: followingCount || 0 };
+}
+
+export async function followUser(followerId, followingId) {
+  const { error } = await supabase.from("follows").insert({ follower_id: followerId, following_id: followingId });
+  if (error) throw error;
+}
+
+export async function unfollowUser(followerId, followingId) {
+  const { error } = await supabase.from("follows").delete().eq("follower_id", followerId).eq("following_id", followingId);
+  if (error) throw error;
+}
+
 /* ---------- Messages (single demo conversation thread) ---------- */
 
 export async function fetchConversation(userId, otherUserId) {
