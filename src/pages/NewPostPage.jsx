@@ -6,12 +6,14 @@ import MoodSelector from "../components/MoodSelector.jsx";
 import PrimaryButton from "../components/PrimaryButton.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import { createPost, kindRewrite } from "../lib/api.js";
+import { INTERESTS } from "../data/inspireContent.js";
 
 export default function NewPostPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [text, setText]           = useState("");
   const [mood, setMood]           = useState(null);
+  const [topic, setTopic]         = useState(null);
   const [anon, setAnon]           = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError]         = useState(null);
@@ -25,7 +27,7 @@ export default function NewPostPage() {
     setSubmitting(true);
     setError(null);
     try {
-      await createPost({ authorId: user.id, text: text.trim(), mood: moodEmoji, isAnonymous: anon });
+      await createPost({ authorId: user.id, text: text.trim(), mood: moodEmoji, topic, isAnonymous: anon });
       navigate("/home");
     } catch (err) {
       setError(err.message || "Couldn't publish your post — please try again.");
@@ -161,6 +163,32 @@ export default function NewPostPage() {
         <span className="t-label" style={{ color: "var(--color-text-soft)" }}>How are you feeling?</span>
         <div style={{ margin: "10px 0 18px" }}>
           <MoodSelector selected={mood} onSelect={setMood} />
+        </div>
+
+        {/* Topic selector */}
+        <span className="t-label" style={{ color: "var(--color-text-soft)" }}>Tag a topic (optional)</span>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8, margin: "10px 0 18px" }}>
+          {INTERESTS.map(i => {
+            const active = topic === i.key;
+            return (
+              <button
+                key={i.key}
+                onClick={() => setTopic(active ? null : i.key)}
+                style={{
+                  display: "flex", alignItems: "center", gap: 6,
+                  padding: "7px 14px", borderRadius: 999, fontSize: 13, fontWeight: 600,
+                  border: "none", cursor: "pointer", fontFamily: "Rubik, sans-serif",
+                  background: active ? i.color : "#fff",
+                  color: active ? "#fff" : "var(--color-text-soft)",
+                  boxShadow: active ? `0 4px 10px ${i.color}44` : "0 2px 6px rgba(0,0,0,0.06)",
+                  transition: "all 0.15s",
+                }}
+              >
+                <span style={{ fontSize: 15 }}>{i.emoji}</span>
+                {i.label}
+              </button>
+            );
+          })}
         </div>
 
         {/* Anonymous toggle */}

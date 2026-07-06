@@ -2,11 +2,11 @@ import { supabase } from "./supabaseClient.js";
 
 /* ---------- Posts ---------- */
 
-export async function fetchFeed() {
-  const { data, error } = await supabase
+export async function fetchFeed(topic = null) {
+  let query = supabase
     .from("posts")
     .select(
-      `id, text, mood, image_url, is_anonymous, created_at,
+      `id, text, mood, topic, image_url, is_anonymous, created_at,
        author:profiles!posts_author_id_fkey ( id, username, avatar_color ),
        post_reactions ( user_id, type ),
        comments ( id )`
@@ -14,14 +14,22 @@ export async function fetchFeed() {
     .order("created_at", { ascending: false })
     .limit(30);
 
+  if (topic) query = query.eq("topic", topic);
+
+  const { data, error } = await query;
   if (error) throw error;
   return data;
 }
 
-export async function createPost({ authorId, text, mood, isAnonymous, imageUrl = null }) {
+export async function updateInterests(userId, interests) {
+  const { error } = await supabase.from("profiles").update({ interests }).eq("id", userId);
+  if (error) throw error;
+}
+
+export async function createPost({ authorId, text, mood, topic = null, isAnonymous, imageUrl = null }) {
   const { data, error } = await supabase
     .from("posts")
-    .insert({ author_id: authorId, text, mood, is_anonymous: isAnonymous, image_url: imageUrl })
+    .insert({ author_id: authorId, text, mood, topic, is_anonymous: isAnonymous, image_url: imageUrl })
     .select()
     .single();
   if (error) throw error;
