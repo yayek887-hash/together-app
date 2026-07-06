@@ -349,6 +349,76 @@ export async function kindRewrite(text) {
   return data?.kindText ?? text;
 }
 
+/* ---------- My Space ---------- */
+
+export async function logMood(userId, mood, visibility = "private") {
+  const today = new Date().toISOString().split("T")[0];
+  const { data: existing } = await supabase
+    .from("mood_logs")
+    .select("id")
+    .eq("user_id", userId)
+    .gte("created_at", `${today}T00:00:00`)
+    .maybeSingle();
+
+  if (existing) {
+    const { data, error } = await supabase.from("mood_logs").update({ mood, visibility }).eq("id", existing.id).select().single();
+    if (error) throw error;
+    return data;
+  }
+  const { data, error } = await supabase.from("mood_logs").insert({ user_id: userId, mood, visibility }).select().single();
+  if (error) throw error;
+  return data;
+}
+
+export async function fetchTodayMood(userId) {
+  const today = new Date().toISOString().split("T")[0];
+  const { data } = await supabase.from("mood_logs").select("*").eq("user_id", userId).gte("created_at", `${today}T00:00:00`).order("created_at", { ascending: false }).limit(1).maybeSingle();
+  return data;
+}
+
+export async function saveJournalEntry(userId, content, entryType = "journal") {
+  const today = new Date().toISOString().split("T")[0];
+  const { data: existing } = await supabase.from("journal_entries").select("id").eq("user_id", userId).eq("entry_type", entryType).gte("created_at", `${today}T00:00:00`).maybeSingle();
+
+  if (existing) {
+    const { data, error } = await supabase.from("journal_entries").update({ content }).eq("id", existing.id).select().single();
+    if (error) throw error;
+    return data;
+  }
+  const { data, error } = await supabase.from("journal_entries").insert({ user_id: userId, content, entry_type: entryType }).select().single();
+  if (error) throw error;
+  return data;
+}
+
+export async function fetchTodayEntry(userId, entryType = "journal") {
+  const today = new Date().toISOString().split("T")[0];
+  const { data } = await supabase.from("journal_entries").select("*").eq("user_id", userId).eq("entry_type", entryType).gte("created_at", `${today}T00:00:00`).order("created_at", { ascending: false }).limit(1).maybeSingle();
+  return data;
+}
+
+export async function fetchGoals(userId) {
+  const { data, error } = await supabase.from("personal_goals").select("*").eq("user_id", userId).order("created_at", { ascending: true });
+  if (error) throw error;
+  return data || [];
+}
+
+export async function addGoal(userId, title) {
+  const { data, error } = await supabase.from("personal_goals").insert({ user_id: userId, title }).select().single();
+  if (error) throw error;
+  return data;
+}
+
+export async function toggleGoal(goalId, completed) {
+  const { data, error } = await supabase.from("personal_goals").update({ completed }).eq("id", goalId).select().single();
+  if (error) throw error;
+  return data;
+}
+
+export async function deleteGoal(goalId) {
+  const { error } = await supabase.from("personal_goals").delete().eq("id", goalId);
+  if (error) throw error;
+}
+
 /* ---------- Reports (AI-triaged) ---------- */
 // Calls the "triage-report" Edge Function, which classifies urgency with an
 // AI model server-side and writes the row (keeps the AI API key off the client).

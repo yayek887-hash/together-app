@@ -1,17 +1,26 @@
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useNotifications } from "../context/NotificationsContext.jsx";
 
-const NAV_PATHS = ["/home", "/groups", "/chat", "/profile"];
+const NAV_PATHS = ["/home", "/groups", "/chat", "/profile", "/my-space"];
 
-const ALL_NAV = [
-  { to: "/home",    icon: "home",        label: "Home" },
-  { to: "/groups",  icon: "group",       label: "Communities" },
+// Desktop sidebar: all 5 destinations
+const SIDEBAR_NAV = [
+  { to: "/home",      icon: "home",            label: "Home" },
+  { to: "/groups",    icon: "group",           label: "Communities" },
+  { to: "/my-space",  icon: "self_improvement", label: "My Space" },
+  { to: "/chat",      icon: "chat_bubble",     label: "Chat" },
+  { to: "/profile",   icon: "person",          label: "Me" },
+];
+
+// Mobile bottom bar: Home | My Space | + | Chat | Profile
+const LEFT  = [
+  { to: "/home",     icon: "home",            label: "Home" },
+  { to: "/my-space", icon: "self_improvement", label: "My Space" },
+];
+const RIGHT = [
   { to: "/chat",    icon: "chat_bubble", label: "Chat" },
   { to: "/profile", icon: "person",      label: "Me" },
 ];
-
-const LEFT  = ALL_NAV.slice(0, 2);
-const RIGHT = ALL_NAV.slice(2);
 
 /* ── Sidebar item (desktop) ─────────────────────── */
 function SidebarItem({ item, badge }) {
@@ -99,7 +108,7 @@ export default function Navbar() {
           together
         </div>
 
-        {ALL_NAV.map(item => (
+        {SIDEBAR_NAV.map(item => (
           <SidebarItem
             key={item.to}
             item={item}
