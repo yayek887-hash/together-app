@@ -38,9 +38,10 @@ export default function ConversationPage() {
   useEffect(() => {
     if (!user || !otherId) return;
     loadConversation();
-    const unsubscribe = subscribeToConversation(user.id, otherId, (m) =>
-      setMessages((prev) => [...prev, m])
-    );
+    const unsubscribe = subscribeToConversation(user.id, otherId, (m) => {
+      // Deduplicate: ignore if message id already in list (optimistic already added it)
+      setMessages((prev) => prev.some((p) => p.id === m.id) ? prev : [...prev, m]);
+    });
     return () => unsubscribe();
   }, [user, otherId, loadConversation]);
 
@@ -49,9 +50,24 @@ export default function ConversationPage() {
   }, [messages]);
 
   const handleSend = async (text) => {
+    // Optimistic update — show message immediately
+    const tempId = `temp-${Date.now()}`;
+    const optimistic = {
+      id: tempId,
+      sender_id: user.id,
+      receiver_id: otherId,
+      text,
+      created_at: new Date().toISOString(),
+    };
+    setMessages((prev) => [...prev, optimistic]);
+
     try {
-      await sendMessage(user.id, otherId, text);
+      const sent = await sendMessage(user.id, otherId, text);
+      // Replace temp with real message from DB (has correct id)
+      setMessages((prev) => prev.map((m) => m.id === tempId ? sent : m));
     } catch (err) {
+      // Remove optimistic on failure
+      setMessages((prev) => prev.filter((m) => m.id !== tempId));
       setError(err.message || "Message didn't send — try again.");
     }
   };
