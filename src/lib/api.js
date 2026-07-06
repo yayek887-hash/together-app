@@ -187,7 +187,7 @@ export async function fetchAllProfiles(excludeId) {
 export async function fetchPeopleWithFriendStatus(currentUserId) {
   const { data: profiles, error } = await supabase
     .from("profiles")
-    .select("id, username, avatar_color, created_at")
+    .select("id, username, avatar_color, created_at, interests")
     .neq("id", currentUserId)
     .order("username");
   if (error) throw error;

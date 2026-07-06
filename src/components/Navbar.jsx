@@ -1,21 +1,22 @@
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useNotifications } from "../context/NotificationsContext.jsx";
 
-const NAV_PATHS = ["/home", "/groups", "/chat", "/profile", "/my-space"];
+const NAV_PATHS = ["/home", "/connect", "/groups", "/chat", "/profile", "/my-space"];
 
-// Desktop sidebar: all 5 destinations
+// Desktop sidebar
 const SIDEBAR_NAV = [
   { to: "/home",      icon: "home",            label: "Home" },
+  { to: "/connect",   icon: "handshake",       label: "Connect" },
   { to: "/groups",    icon: "group",           label: "Communities" },
   { to: "/my-space",  icon: "self_improvement", label: "My Space" },
   { to: "/chat",      icon: "chat_bubble",     label: "Chat" },
   { to: "/profile",   icon: "person",          label: "Me" },
 ];
 
-// Mobile bottom bar: Home | My Space | + | Chat | Profile
+// Mobile bottom bar: Home | Connect | + | Chat | Me
 const LEFT  = [
-  { to: "/home",     icon: "home",            label: "Home" },
-  { to: "/my-space", icon: "self_improvement", label: "My Space" },
+  { to: "/home",    icon: "home",      label: "Home" },
+  { to: "/connect", icon: "handshake", label: "Connect" },
 ];
 const RIGHT = [
   { to: "/chat",    icon: "chat_bubble", label: "Chat" },
