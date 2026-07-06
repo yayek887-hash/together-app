@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, useCallback } from "react";
+import { createContext, useContext, useEffect, useState, useCallback, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient.js";
 import { useAuth } from "./AuthContext.jsx";
@@ -9,10 +9,16 @@ export function NotificationsProvider({ children }) {
   const { user } = useAuth();
   const location = useLocation();
   const [unreadCount, setUnreadCount] = useState(0);
-  const [toast, setToast] = useState(null); // { senderName, text, senderId }
+  const [toast, setToast] = useState(null);
+
+  // Track current path WITHOUT causing channel to re-subscribe on every navigation
+  const pathRef = useRef(location.pathname);
+  useEffect(() => { pathRef.current = location.pathname; }, [location.pathname]);
 
   const clearUnread = useCallback(() => setUnreadCount(0), []);
+  const dismissToast = useCallback(() => setToast(null), []);
 
+  // Subscribe once per user session — never recreate on route changes
   useEffect(() => {
     if (!user) return;
 
@@ -29,37 +35,33 @@ export function NotificationsProvider({ children }) {
         async (payload) => {
           const msg = payload.new;
 
-          // Don't notify if already in that conversation
-          const inConversation = location.pathname === `/chat/${msg.sender_id}`;
-          if (!inConversation) {
-            setUnreadCount((c) => c + 1);
+          // Don't notify if already viewing that conversation
+          if (pathRef.current === `/chat/${msg.sender_id}`) return;
 
-            // Fetch sender name for toast
-            const { data: profile } = await supabase
-              .from("profiles")
-              .select("username")
-              .eq("id", msg.sender_id)
-              .single();
+          setUnreadCount((c) => c + 1);
 
-            setToast({
-              senderName: profile?.username || "Someone",
-              senderId: msg.sender_id,
-              text: msg.text,
-            });
-          }
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("username")
+            .eq("id", msg.sender_id)
+            .single();
+
+          setToast({
+            senderName: profile?.username || "Someone",
+            senderId: msg.sender_id,
+            text: msg.text,
+          });
         }
       )
       .subscribe();
 
-    return () => supabase.removeChannel(channel);
-  }, [user, location.pathname]);
+    return () => { supabase.removeChannel(channel); };
+  }, [user]); // Only user — not location, so channel stays alive across navigation
 
-  // Clear unread when entering /chat
+  // Clear unread badge when entering /chat list
   useEffect(() => {
     if (location.pathname === "/chat") clearUnread();
   }, [location.pathname, clearUnread]);
-
-  const dismissToast = useCallback(() => setToast(null), []);
 
   return (
     <NotificationsContext.Provider value={{ unreadCount, clearUnread, toast, dismissToast }}>
