@@ -107,10 +107,7 @@ export default function ConversationPage() {
       </div>
 
       {/* Messages */}
-      <div
-        style={{ flex: 1, overflowY: "auto", padding: "16px 16px 160px" }}
-        className="scrollbar-none"
-      >
+      <div className="conv-messages scrollbar-none">
         {loading && (
           <div style={{ textAlign: "center", padding: "44px 0" }}>
             <div className="loading-dots"><span /><span /><span /></div>
@@ -141,7 +138,7 @@ export default function ConversationPage() {
       </div>
 
       {/* Input */}
-      <div style={{ position: "fixed", bottom: 64, left: 0, right: 0, maxWidth: 480, margin: "0 auto" }}>
+      <div className="conv-input-wrap">
         <MessageInput onSend={handleSend} />
       </div>
     </div>

@@ -18,33 +18,33 @@ import CreateGroupPage from "./pages/CreateGroupPage.jsx";
 import GroupDetailPage from "./pages/GroupDetailPage.jsx";
 import GroupManagePage from "./pages/GroupManagePage.jsx";
 
-const NAV_PATHS = ["/home", "/groups", "/chat", "/profile"];
-
 function Shell() {
   const location = useLocation();
-  const showNav = NAV_PATHS.includes(location.pathname);
+  const isLanding = location.pathname === "/";
 
   return (
     <NotificationsProvider>
     <NotificationToast />
-    <div className="app-shell">
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/home" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
-        <Route path="/groups" element={<ProtectedRoute><SupportGroupsPage /></ProtectedRoute>} />
-        <Route path="/chat" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />
-        <Route path="/chat/:userId" element={<ProtectedRoute><ConversationPage /></ProtectedRoute>} />
-        <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
-        <Route path="/help-center" element={<ProtectedRoute><HelpCenterPage /></ProtectedRoute>} />
-        <Route path="/report" element={<ProtectedRoute><ReportIssuePage /></ProtectedRoute>} />
-        <Route path="/new-post" element={<ProtectedRoute><NewPostPage /></ProtectedRoute>} />
-        <Route path="/people" element={<ProtectedRoute><PeoplePage /></ProtectedRoute>} />
-        <Route path="/create-group" element={<ProtectedRoute><CreateGroupPage /></ProtectedRoute>} />
-        <Route path="/groups/:groupId" element={<ProtectedRoute><GroupDetailPage /></ProtectedRoute>} />
-        <Route path="/groups/:groupId/manage" element={<ProtectedRoute><GroupManagePage /></ProtectedRoute>} />
-        <Route path="*" element={<LandingPage />} />
-      </Routes>
-      {showNav && <Navbar />}
+    <div className={isLanding ? "" : "app-layout"}>
+      {!isLanding && <Navbar />}
+      <div className="app-shell">
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/home" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
+          <Route path="/groups" element={<ProtectedRoute><SupportGroupsPage /></ProtectedRoute>} />
+          <Route path="/chat" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />
+          <Route path="/chat/:userId" element={<ProtectedRoute><ConversationPage /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+          <Route path="/help-center" element={<ProtectedRoute><HelpCenterPage /></ProtectedRoute>} />
+          <Route path="/report" element={<ProtectedRoute><ReportIssuePage /></ProtectedRoute>} />
+          <Route path="/new-post" element={<ProtectedRoute><NewPostPage /></ProtectedRoute>} />
+          <Route path="/people" element={<ProtectedRoute><PeoplePage /></ProtectedRoute>} />
+          <Route path="/create-group" element={<ProtectedRoute><CreateGroupPage /></ProtectedRoute>} />
+          <Route path="/groups/:groupId" element={<ProtectedRoute><GroupDetailPage /></ProtectedRoute>} />
+          <Route path="/groups/:groupId/manage" element={<ProtectedRoute><GroupManagePage /></ProtectedRoute>} />
+          <Route path="*" element={<LandingPage />} />
+        </Routes>
+      </div>
     </div>
     </NotificationsProvider>
   );
