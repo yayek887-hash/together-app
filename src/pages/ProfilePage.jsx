@@ -55,7 +55,7 @@ export default function ProfilePage() {
           {displayName}
           {profile?.age ? `, ${profile.age}` : ""}
         </div>
-        <div style={{ fontSize: 13, color: "#5b5470", marginTop: 4, padding: "0 30px" }}>
+        <div style={{ fontSize: 13, color: "#5b5470", marginTop: 4, padding: "0 16px" }}>
           {profile?.bio || "No bio yet — tell the community a little about you."}
         </div>
       </div>

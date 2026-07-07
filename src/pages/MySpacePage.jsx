@@ -201,14 +201,14 @@ export default function MySpacePage() {
         {/* ── Mood ── */}
         <div style={card}>
           <span style={sectionLbl}>How are you feeling today?</span>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 14 }}>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 14 }}>
             {MOODS.map(m => (
               <button key={m.key} onClick={() => setMood(m.key)} style={{
                 background: mood === m.key ? "var(--color-primary-fixed)" : "transparent",
-                border: `2px solid ${mood === m.key ? "var(--color-primary)" : "transparent"}`,
-                borderRadius: 16, padding: "7px 4px", cursor: "pointer",
+                border: `2px solid ${mood === m.key ? "var(--color-primary)" : "var(--color-outline-variant)"}`,
+                borderRadius: 16, padding: "7px 6px", cursor: "pointer",
                 display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
-                transition: "all 0.15s", flex: 1,
+                transition: "all 0.15s", flex: "1 1 14%", minWidth: 44,
               }}>
                 <span style={{ fontSize: 22 }}>{m.emoji}</span>
                 <span style={{ fontSize: 9, fontWeight: 600, color: mood === m.key ? "var(--color-primary)" : "var(--color-text-soft)" }}>{m.label}</span>
