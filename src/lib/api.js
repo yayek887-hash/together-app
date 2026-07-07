@@ -62,7 +62,7 @@ export async function fetchActivities(topic = null) {
   let query = supabase
     .from("activities")
     .select(`id, title, description, topic, location, activity_date, max_participants, created_at,
-      creator:profiles!activities_creator_id_fkey(id, username, avatar_color),
+      creator:profiles!activities_creator_id_fkey(id, username, avatar_color, avatar_url),
       activity_participants(user_id)`)
     .gte("activity_date", new Date().toISOString())
     .order("activity_date", { ascending: true });
@@ -103,7 +103,7 @@ export async function fetchFeed(topic = null) {
     .from("posts")
     .select(
       `id, text, mood, topic, image_url, is_anonymous, created_at,
-       author:profiles!posts_author_id_fkey ( id, username, avatar_color ),
+       author:profiles!posts_author_id_fkey ( id, username, avatar_color, avatar_url ),
        post_reactions ( user_id, type ),
        comments ( id )`
     )
@@ -271,7 +271,7 @@ export async function fetchNearbyGroups(city, region) {
 export async function fetchAllProfiles(excludeId) {
   const { data, error } = await supabase
     .from("profiles")
-    .select("id, username, avatar_color")
+    .select("id, username, avatar_color, avatar_url")
     .neq("id", excludeId)
     .order("username");
   if (error) throw error;
@@ -283,7 +283,7 @@ export async function fetchAllProfiles(excludeId) {
 export async function fetchPeopleWithFriendStatus(currentUserId) {
   const { data: profiles, error } = await supabase
     .from("profiles")
-    .select("id, username, avatar_color, created_at, interests")
+    .select("id, username, avatar_color, avatar_url, created_at, interests")
     .neq("id", currentUserId)
     .order("username");
   if (error) throw error;
@@ -313,7 +313,7 @@ export async function fetchFriendCount(userId) {
 export async function fetchPendingRequests(userId) {
   const { data, error } = await supabase
     .from("friendships")
-    .select("id, requester_id, profiles!friendships_requester_id_fkey(id, username, avatar_color)")
+    .select("id, requester_id, profiles!friendships_requester_id_fkey(id, username, avatar_color, avatar_url)")
     .eq("receiver_id", userId)
     .eq("status", "pending");
   if (error) throw error;

@@ -161,6 +161,8 @@ export default function ProfilePage() {
     try {
       const url = await uploadAvatar(user.id, file);
       setAvatarUrl(url);
+      await updateProfile(user.id, { avatar_url: url });
+      await refreshProfile();
     } catch {}
     finally { setAvatarLoading(false); }
   };

@@ -38,7 +38,7 @@ function PersonCard({ person, type, myInterests, busy, onMessage, onAdd, onRemov
   return (
     <div style={{ background: "#fff", borderRadius: 20, padding: "14px 14px", marginBottom: 10, boxShadow: "var(--shadow-card)" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-        <UserAvatar name={person.username || "?"} size={48} />
+        <UserAvatar name={person.username || "?"} size={48} avatarUrl={person.avatar_url || undefined} />
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: 15, fontWeight: 700, color: "var(--color-text)" }}>
             {person.username || "Someone"}
@@ -92,7 +92,7 @@ function PersonCard({ person, type, myInterests, busy, onMessage, onAdd, onRemov
 function RequestCard({ req, busy, onAccept, onDecline }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 12, background: "var(--color-primary-fixed)", borderRadius: 20, padding: "13px 14px", marginBottom: 10, border: "1.5px solid rgba(91,60,221,0.15)" }}>
-      <UserAvatar name={req.profiles?.username || "?"} size={44} />
+      <UserAvatar name={req.profiles?.username || "?"} size={44} avatarUrl={req.profiles?.avatar_url || undefined} />
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: "var(--color-text)" }}>{req.profiles?.username || "Someone"}</div>
         <div style={{ fontSize: 11, color: "var(--color-primary)", marginTop: 2, fontWeight: 500 }}>wants to connect 💜</div>
@@ -172,7 +172,7 @@ function MessagesTab({ userId }) {
             onClick={() => navigate(`/chat/${contact.id}`)}
             style={{ display: "flex", alignItems: "center", gap: 14, width: "100%", background: "#fff", border: "none", borderRadius: 18, padding: "13px 14px", marginBottom: 10, cursor: "pointer", textAlign: "left", boxShadow: "var(--shadow-card)", fontFamily: "Rubik, sans-serif" }}
           >
-            <UserAvatar name={contact.username || "?"} size={46} />
+            <UserAvatar name={contact.username || "?"} size={46} avatarUrl={contact.avatar_url || undefined} />
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: 15, fontWeight: 700, color: "var(--color-text)" }}>{contact.username || "Someone"}</div>
               <div style={{ fontSize: 12, color: "var(--color-text-soft)", marginTop: 2 }}>Tap to message</div>

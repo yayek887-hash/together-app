@@ -83,7 +83,7 @@ export default function PostCard({ post, currentUserId, onChanged }) {
     >
       {/* ── Author row ── */}
       <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 16px 10px" }}>
-        <UserAvatar name={displayName} size={40} />
+        <UserAvatar name={displayName} size={40} avatarUrl={post.author?.avatar_url || undefined} />
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontWeight: 700, fontSize: 14, color: "var(--color-text)" }}>{displayName}</div>
           <div style={{ fontSize: 11, color: "var(--color-text-soft)", marginTop: 1 }}>{timeAgo(post.created_at)}</div>
