@@ -79,7 +79,7 @@ export default function PeoplePage() {
                 border: "1.5px solid var(--color-primary)",
               }}
             >
-              <UserAvatar name={req.profiles?.username || "?"} size={42} />
+              <UserAvatar name={req.profiles?.username || "?"} size={42} avatarUrl={req.profiles?.avatar_url || undefined} />
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 14, fontWeight: 700, color: "var(--color-text)" }}>
                   {req.profiles?.username || "Someone"}
@@ -219,7 +219,7 @@ function PersonCard({ person, type, busy, onMessage, onAdd, onRemove }) {
       background: "#fff", borderRadius: 18, padding: "13px 14px",
       marginBottom: 10, boxShadow: "0 2px 10px rgba(91,60,221,0.07)",
     }}>
-      <UserAvatar name={person.username || "?"} size={46} />
+      <UserAvatar name={person.username || "?"} size={46} avatarUrl={person.avatar_url || undefined} />
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: 15, fontWeight: 700, color: "var(--color-text)" }}>
           {person.username || "Someone"}

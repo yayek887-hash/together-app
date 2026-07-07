@@ -65,7 +65,7 @@ export default function CommentsPanel({ postId, onCountChange }) {
       {/* Comment list */}
       {comments.map((c) => (
         <div key={c.id} style={{ display: "flex", gap: 10, marginBottom: 10, alignItems: "flex-start" }}>
-          <UserAvatar name={c.author?.username || "?"} size={30} />
+          <UserAvatar name={c.author?.username || "?"} size={30} avatarUrl={c.author?.avatar_url || undefined} />
           <div
             style={{
               flex: 1,
@@ -92,7 +92,7 @@ export default function CommentsPanel({ postId, onCountChange }) {
 
       {/* Input row */}
       <div style={{ display: "flex", gap: 8, marginTop: 8, alignItems: "center" }}>
-        <UserAvatar name={myName} size={30} />
+        <UserAvatar name={myName} size={30} avatarUrl={profile?.avatar_url || undefined} />
         <input
           value={text}
           onChange={(e) => setText(e.target.value)}

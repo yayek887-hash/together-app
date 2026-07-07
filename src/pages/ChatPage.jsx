@@ -121,7 +121,7 @@ export default function ChatPage() {
               e.currentTarget.style.transform = "none";
             }}
           >
-            <UserAvatar name={contact.username || "?"} size={46} />
+            <UserAvatar name={contact.username || "?"} size={46} avatarUrl={contact.avatar_url || undefined} />
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: 15, fontWeight: 700, color: "var(--color-text)" }}>
                 {contact.username || "Someone"}

@@ -23,7 +23,7 @@ export default function ConversationPage() {
     setError(null);
     try {
       const [{ data: profile }, msgs] = await Promise.all([
-        supabase.from("profiles").select("id, username, avatar_color").eq("id", otherId).single(),
+        supabase.from("profiles").select("id, username, avatar_color, avatar_url").eq("id", otherId).single(),
         fetchConversation(user.id, otherId),
       ]);
       setOtherProfile(profile);
@@ -99,7 +99,7 @@ export default function ConversationPage() {
             arrow_back
           </span>
         </button>
-        <UserAvatar name={displayName} size={38} />
+        <UserAvatar name={displayName} size={38} avatarUrl={otherProfile?.avatar_url || undefined} />
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: 15, fontWeight: 700, color: "var(--color-text)" }}>{displayName}</div>
           <div style={{ fontSize: 11, color: "var(--color-success)" }}>● Active</div>

@@ -98,7 +98,7 @@ function ActivityCard({ activity, userId, onChanged }) {
 
         {/* Footer: creator + participants + button */}
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <UserAvatar name={activity.creator?.username || "?"} size={28} />
+          <UserAvatar name={activity.creator?.username || "?"} size={28} avatarUrl={activity.creator?.avatar_url || undefined} />
           <span style={{ fontSize: 12, color: "var(--color-text-soft)", flex: 1 }}>
             {activity.creator?.username || "Someone"}
             {participants.length > 0 && (

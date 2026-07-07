@@ -185,7 +185,7 @@ export default function GroupDetailPage() {
             </div>
             {joinReqs.map(req => (
               <div key={req.id} style={{ display: "flex", alignItems: "center", gap: 12, background: "linear-gradient(135deg, var(--color-primary-fixed) 0%, #e8f4ff 100%)", borderRadius: 18, padding: "12px 14px", marginBottom: 10, border: "1.5px solid var(--color-primary)" }}>
-                <UserAvatar name={req.profiles?.username || "?"} size={40} />
+                <UserAvatar name={req.profiles?.username || "?"} size={40} avatarUrl={req.profiles?.avatar_url || undefined} />
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 14, fontWeight: 700 }}>{req.profiles?.username || "Someone"}</div>
                   {req.message && <div style={{ fontSize: 12, color: "var(--color-text-soft)", marginTop: 2 }}>{req.message}</div>}
@@ -214,7 +214,7 @@ export default function GroupDetailPage() {
             const isThisOwner = profile.id === group.owner_id;
             return (
               <div key={m.user_id} style={{ display: "flex", alignItems: "center", gap: 12, background: "#fff", borderRadius: 16, padding: "10px 14px", boxShadow: "0 2px 8px rgba(91,60,221,0.06)" }}>
-                <UserAvatar name={name} size={38} />
+                <UserAvatar name={name} size={38} avatarUrl={profile.avatar_url || undefined} />
                 <div style={{ flex: 1 }}>
                   <span style={{ fontSize: 14, fontWeight: 600, color: "var(--color-text)" }}>{name}</span>
                   {isThisOwner && <span style={{ marginLeft: 8, fontSize: 11, background: "var(--color-primary-fixed)", color: "var(--color-primary)", padding: "2px 8px", borderRadius: 999, fontWeight: 700 }}>Owner</span>}
