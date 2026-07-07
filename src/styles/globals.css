@@ -65,7 +65,6 @@
 html, body {
   margin: 0;
   padding: 0;
-  overflow-x: hidden;
 }
 
 body {
@@ -228,6 +227,8 @@ a:focus-visible {
 
 /* ─── App shell ──────────────────────────────── */
 .app-shell {
+  flex: 1;
+  min-width: 0;
   max-width: 480px;
   margin: 0 auto;
   min-height: 100vh;
@@ -235,6 +236,7 @@ a:focus-visible {
   position: relative;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
 }
 
 .page-scroll {
