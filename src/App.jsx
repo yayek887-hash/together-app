@@ -17,7 +17,6 @@ import PeoplePage from "./pages/PeoplePage.jsx";
 import CreateGroupPage from "./pages/CreateGroupPage.jsx";
 import GroupDetailPage from "./pages/GroupDetailPage.jsx";
 import GroupManagePage from "./pages/GroupManagePage.jsx";
-import MySpacePage from "./pages/MySpacePage.jsx";
 import ConnectPage from "./pages/ConnectPage.jsx";
 import MeetPage from "./pages/MeetPage.jsx";
 import CreateActivityPage from "./pages/CreateActivityPage.jsx";
@@ -49,7 +48,6 @@ function Shell() {
           <Route path="/create-group" element={<ProtectedRoute><CreateGroupPage /></ProtectedRoute>} />
           <Route path="/groups/:groupId" element={<ProtectedRoute><GroupDetailPage /></ProtectedRoute>} />
           <Route path="/groups/:groupId/manage" element={<ProtectedRoute><GroupManagePage /></ProtectedRoute>} />
-          <Route path="/my-space" element={<ProtectedRoute><MySpacePage /></ProtectedRoute>} />
           <Route path="*" element={<LandingPage />} />
         </Routes>
       </div>
