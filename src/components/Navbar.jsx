@@ -1,25 +1,26 @@
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useNotifications } from "../context/NotificationsContext.jsx";
 
-const NAV_PATHS = ["/home", "/connect", "/groups", "/chat", "/profile", "/my-space"];
+const NAV_PATHS = ["/home", "/connect", "/meet", "/groups", "/chat", "/profile", "/my-space"];
 
 // Desktop sidebar
 const SIDEBAR_NAV = [
-  { to: "/home",      icon: "home",            label: "Home" },
-  { to: "/connect",   icon: "handshake",       label: "Connect" },
-  { to: "/groups",    icon: "group",           label: "Communities" },
+  { to: "/home",      icon: "home",             label: "Home" },
+  { to: "/connect",   icon: "handshake",        label: "Connect" },
+  { to: "/meet",      icon: "location_on",      label: "Meet" },
+  { to: "/groups",    icon: "group",            label: "Communities" },
   { to: "/my-space",  icon: "self_improvement", label: "My Space" },
-  { to: "/chat",      icon: "chat_bubble",     label: "Chat" },
-  { to: "/profile",   icon: "person",          label: "Me" },
+  { to: "/chat",      icon: "chat_bubble",      label: "Chat" },
+  { to: "/profile",   icon: "person",           label: "Me" },
 ];
 
-// Mobile bottom bar: Home | Connect | + | Chat | Me
+// Mobile bottom bar: Home | Connect | + | Meet | Me
 const LEFT  = [
   { to: "/home",    icon: "home",      label: "Home" },
   { to: "/connect", icon: "handshake", label: "Connect" },
 ];
 const RIGHT = [
-  { to: "/chat",    icon: "chat_bubble", label: "Chat" },
+  { to: "/meet",    icon: "location_on", label: "Meet" },
   { to: "/profile", icon: "person",      label: "Me" },
 ];
 

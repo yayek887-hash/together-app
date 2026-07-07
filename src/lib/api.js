@@ -1,5 +1,45 @@
 import { supabase } from "./supabaseClient.js";
 
+/* ---------- Activities (Meet pillar) ---------- */
+
+export async function fetchActivities(topic = null) {
+  let query = supabase
+    .from("activities")
+    .select(`id, title, description, topic, location, activity_date, max_participants, created_at,
+      creator:profiles!activities_creator_id_fkey(id, username, avatar_color),
+      activity_participants(user_id)`)
+    .gte("activity_date", new Date().toISOString())
+    .order("activity_date", { ascending: true });
+  if (topic) query = query.eq("topic", topic);
+  const { data, error } = await query;
+  if (error) throw error;
+  return data;
+}
+
+export async function createActivity({ creatorId, title, description, topic, location, activityDate, maxParticipants }) {
+  const { data, error } = await supabase
+    .from("activities")
+    .insert({ creator_id: creatorId, title, description: description || null, topic: topic || null, location, activity_date: activityDate, max_participants: maxParticipants || 10 })
+    .select().single();
+  if (error) throw error;
+  return data;
+}
+
+export async function joinActivity(activityId, userId) {
+  const { error } = await supabase.from("activity_participants").insert({ activity_id: activityId, user_id: userId });
+  if (error) throw error;
+}
+
+export async function leaveActivity(activityId, userId) {
+  const { error } = await supabase.from("activity_participants").delete().eq("activity_id", activityId).eq("user_id", userId);
+  if (error) throw error;
+}
+
+export async function deleteActivity(activityId) {
+  const { error } = await supabase.from("activities").delete().eq("id", activityId);
+  if (error) throw error;
+}
+
 /* ---------- Posts ---------- */
 
 export async function fetchFeed(topic = null) {
