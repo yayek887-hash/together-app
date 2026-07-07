@@ -11,6 +11,15 @@ export async function uploadAvatar(userId, file) {
   return data.publicUrl;
 }
 
+export async function uploadPostMedia(userId, file) {
+  const ext = file.name.split(".").pop();
+  const path = `${userId}/${Date.now()}.${ext}`;
+  const { error } = await supabase.storage.from("post-images").upload(path, file, { upsert: false });
+  if (error) throw error;
+  const { data } = supabase.storage.from("post-images").getPublicUrl(path);
+  return data.publicUrl;
+}
+
 export async function updateProfile(userId, fields) {
   const { error } = await supabase.from("profiles").update(fields).eq("id", userId);
   if (error) throw error;

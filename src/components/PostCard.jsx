@@ -98,9 +98,17 @@ export default function PostCard({ post, currentUserId, onChanged }) {
         )}
       </div>
 
-      {/* ── Image ── */}
+      {/* ── Media ── */}
       {post.image_url && (
-        <div style={{ width: "100%", height: 220, backgroundImage: `url(${post.image_url})`, backgroundSize: "cover", backgroundPosition: "center" }} />
+        /\.(mp4|mov|webm|ogg)$/i.test(post.image_url) ? (
+          <video
+            src={post.image_url}
+            controls
+            style={{ width: "100%", maxHeight: 320, display: "block", objectFit: "cover", background: "#000" }}
+          />
+        ) : (
+          <div style={{ width: "100%", height: 220, backgroundImage: `url(${post.image_url})`, backgroundSize: "cover", backgroundPosition: "center" }} />
+        )
       )}
 
       {/* ── Text ── */}

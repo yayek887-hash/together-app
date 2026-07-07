@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { EyeOff, Sparkles, Wand2 } from "lucide-react";
 import TopBar from "../components/TopBar.jsx";
 import MoodSelector from "../components/MoodSelector.jsx";
 import PrimaryButton from "../components/PrimaryButton.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
-import { createPost, kindRewrite } from "../lib/api.js";
+import { createPost, kindRewrite, uploadPostMedia } from "../lib/api.js";
 import { INTERESTS } from "../data/inspireContent.js";
 
 export default function NewPostPage() {
@@ -19,15 +19,32 @@ export default function NewPostPage() {
   const [error, setError]         = useState(null);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiSuggestion, setAiSuggestion] = useState(null);
+  const [media, setMedia]         = useState(null);   // File
+  const [preview, setPreview]     = useState(null);   // data URL
+  const mediaRef = useRef(null);
 
   const moodEmoji = { Happy: "😊", Calm: "😌", Sad: "😢", Anxious: "😰", Angry: "😡", Tired: "😴" }[mood] || null;
+
+  const handleMediaPick = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setMedia(file);
+    const reader = new FileReader();
+    reader.onload = (ev) => setPreview(ev.target.result);
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  };
+
+  const removeMedia = () => { setMedia(null); setPreview(null); };
 
   const handlePublish = async () => {
     if (!text.trim() || submitting) return;
     setSubmitting(true);
     setError(null);
     try {
-      await createPost({ authorId: user.id, text: text.trim(), mood: moodEmoji, topic, isAnonymous: anon });
+      let imageUrl = null;
+      if (media) imageUrl = await uploadPostMedia(user.id, media);
+      await createPost({ authorId: user.id, text: text.trim(), mood: moodEmoji, topic, isAnonymous: anon, imageUrl });
       navigate("/home");
     } catch (err) {
       setError(err.message || "Couldn't publish your post — please try again.");
@@ -69,6 +86,54 @@ export default function NewPostPage() {
           placeholder="Share your feelings, a win, or ask for support..."
           style={{ minHeight: 130, marginBottom: 12 }}
         />
+
+        {/* ── Media picker ── */}
+        <input
+          ref={mediaRef}
+          type="file"
+          accept="image/*,video/*"
+          style={{ display: "none" }}
+          onChange={handleMediaPick}
+        />
+
+        {preview ? (
+          <div style={{ position: "relative", borderRadius: 18, overflow: "hidden", marginBottom: 12, background: "#000" }}>
+            {media?.type.startsWith("video") ? (
+              <video src={preview} controls style={{ width: "100%", maxHeight: 300, display: "block", objectFit: "cover" }} />
+            ) : (
+              <img src={preview} alt="preview" style={{ width: "100%", maxHeight: 300, objectFit: "cover", display: "block" }} />
+            )}
+            <button
+              onClick={removeMedia}
+              style={{
+                position: "absolute", top: 10, right: 10,
+                background: "rgba(0,0,0,0.55)", color: "#fff",
+                border: "none", borderRadius: "50%", width: 34, height: 34,
+                cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: 17 }}>close</span>
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={() => mediaRef.current?.click()}
+            style={{
+              display: "flex", alignItems: "center", gap: 12,
+              width: "100%", padding: "13px 16px", marginBottom: 12,
+              background: "#fff", borderRadius: 16,
+              border: "2px dashed var(--color-outline-variant)",
+              cursor: "pointer", fontFamily: "Rubik, sans-serif",
+              transition: "border-color 0.15s",
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: 24, color: "var(--color-primary)" }}>add_photo_alternate</span>
+            <div style={{ textAlign: "left" }}>
+              <div style={{ fontSize: 14, fontWeight: 600, color: "var(--color-text)" }}>Add photo or video</div>
+              <div style={{ fontSize: 11, color: "var(--color-text-soft)", marginTop: 1 }}>JPG, PNG, MP4 · up to 50MB</div>
+            </div>
+          </button>
+        )}
 
         {/* ── AI: Help me write kindly ── */}
         {text.trim().length > 5 && !aiLoading && (
