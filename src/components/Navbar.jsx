@@ -19,7 +19,7 @@ const LEFT  = [
   { to: "/connect", icon: "handshake", label: "Connect" },
 ];
 const RIGHT = [
-  { to: "/chat",    icon: "chat_bubble", label: "Chat" },
+  { to: "/meet",    icon: "location_on", label: "Meet" },
   { to: "/profile", icon: "person",      label: "Me" },
 ];
 
@@ -141,7 +141,9 @@ export default function Navbar() {
             zIndex: 50,
           }}
         >
-          {LEFT.map(item => <NavItem key={item.to} item={item} />)}
+          {LEFT.map(item => (
+            <NavItem key={item.to} item={item} badge={item.to === "/connect" ? unreadCount : 0} />
+          ))}
 
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, paddingBottom: 2 }}>
             <button
@@ -154,13 +156,7 @@ export default function Navbar() {
             <span style={{ fontSize: 10, fontWeight: 700, color: "var(--color-primary)" }}>Post</span>
           </div>
 
-          {RIGHT.map(item => (
-            <NavItem
-              key={item.to}
-              item={item}
-              badge={item.to === "/chat" ? unreadCount : 0}
-            />
-          ))}
+          {RIGHT.map(item => <NavItem key={item.to} item={item} />)}
         </nav>
       )}
     </>
