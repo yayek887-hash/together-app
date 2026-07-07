@@ -7,25 +7,31 @@ export function avatarColor(seed) {
   return AVATAR_COLORS[i];
 }
 
-export default function UserAvatar({ name, size = 46, color }) {
+export default function UserAvatar({ name, size = 46, color, avatarUrl }) {
   const isAnon = name === "Anonymous";
-  const initials = isAnon ? "?" : name.slice(0, 1).toUpperCase();
-  const bg = isAnon ? "var(--color-surface-highest)" : (color || avatarColor(name));
+  const initials = isAnon ? "?" : (name || "?").slice(0, 1).toUpperCase();
+  const bg = isAnon ? "var(--color-surface-highest)" : (color || avatarColor(name || "?"));
+
+  if (avatarUrl) {
+    return (
+      <img
+        src={avatarUrl}
+        alt={name}
+        style={{
+          width: size, height: size, borderRadius: "50%",
+          objectFit: "cover", flexShrink: 0,
+          border: "2px solid rgba(91,60,221,0.12)",
+        }}
+      />
+    );
+  }
 
   return (
     <div
       style={{
-        width: size,
-        height: size,
-        borderRadius: "50%",
-        background: bg,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        color: "#fff",
-        fontWeight: 700,
-        fontSize: size * 0.38,
-        flexShrink: 0,
+        width: size, height: size, borderRadius: "50%", background: bg,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        color: "#fff", fontWeight: 700, fontSize: size * 0.38, flexShrink: 0,
       }}
     >
       {isAnon ? (

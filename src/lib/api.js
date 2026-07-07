@@ -1,5 +1,52 @@
 import { supabase } from "./supabaseClient.js";
 
+/* ---------- Profile (extended) ---------- */
+
+export async function uploadAvatar(userId, file) {
+  const ext = file.name.split(".").pop();
+  const path = `${userId}/avatar.${ext}`;
+  const { error } = await supabase.storage.from("avatars").upload(path, file, { upsert: true });
+  if (error) throw error;
+  const { data } = supabase.storage.from("avatars").getPublicUrl(path);
+  return data.publicUrl;
+}
+
+export async function updateProfile(userId, fields) {
+  const { error } = await supabase.from("profiles").update(fields).eq("id", userId);
+  if (error) throw error;
+}
+
+export async function fetchUserGroups(userId) {
+  const { data, error } = await supabase
+    .from("group_members")
+    .select("groups(id, name, color, category)")
+    .eq("user_id", userId);
+  if (error) throw error;
+  return (data || []).map(d => d.groups).filter(Boolean);
+}
+
+export async function fetchUserActivities(userId) {
+  const [{ data: created }, { data: participations }] = await Promise.all([
+    supabase.from("activities").select("id, title, topic, location, activity_date")
+      .eq("creator_id", userId).gte("activity_date", new Date().toISOString())
+      .order("activity_date", { ascending: true }).limit(6),
+    supabase.from("activity_participants").select("activity_id").eq("user_id", userId),
+  ]);
+  const createdIds = new Set((created || []).map(a => a.id));
+  const joinedIds = (participations || []).map(p => p.activity_id).filter(id => !createdIds.has(id));
+  let joined = [];
+  if (joinedIds.length) {
+    const { data } = await supabase.from("activities")
+      .select("id, title, topic, location, activity_date")
+      .in("id", joinedIds).gte("activity_date", new Date().toISOString())
+      .order("activity_date", { ascending: true }).limit(6);
+    joined = data || [];
+  }
+  return [...(created || []), ...joined]
+    .sort((a, b) => new Date(a.activity_date) - new Date(b.activity_date))
+    .slice(0, 6);
+}
+
 /* ---------- Activities (Meet pillar) ---------- */
 
 export async function fetchActivities(topic = null) {

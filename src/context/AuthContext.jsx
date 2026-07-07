@@ -43,12 +43,18 @@ export function AuthProvider({ children }) {
     });
   };
 
+  const refreshProfile = async () => {
+    if (!session?.user) return;
+    const { data, error } = await supabase.from("profiles").select("*").eq("id", session.user.id).single();
+    if (!error) setProfile(data);
+  };
+
   const signOut = async () => {
     await supabase.auth.signOut();
   };
 
   return (
-    <AuthContext.Provider value={{ session, user: session?.user ?? null, profile, loading, signInWithGoogle, signOut }}>
+    <AuthContext.Provider value={{ session, user: session?.user ?? null, profile, loading, signInWithGoogle, signOut, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );
