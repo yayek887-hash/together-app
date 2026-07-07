@@ -75,7 +75,7 @@ export default function ConversationPage() {
   const displayName = otherProfile?.username || "Someone";
 
   return (
-    <div className="anim-in" style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+    <div className="conv-page anim-in">
       {/* Header */}
       <div
         className="glass"

@@ -582,18 +582,6 @@ a:focus-visible {
 
   /* No bottom nav to avoid */
   .page-scroll { padding-bottom: 40px; }
-
-  /* Conversation input — sits in the content area */
-  .conv-input-wrap {
-    bottom: 0 !important;
-    left: 240px !important;
-    right: 0 !important;
-    max-width: 760px !important;
-    margin: 0 auto !important;
-  }
-
-  /* Conversation message area — less bottom padding on desktop */
-  .conv-messages { padding-bottom: 80px !important; }
 }
 
 /* ─── Sidebar item styles ────────────────────── */
@@ -648,19 +636,28 @@ a:focus-visible {
 .sidebar-post-btn:active { transform: scale(0.97); }
 
 /* ─── Conversation page ──────────────────────── */
-.conv-input-wrap {
+.conv-page {
   position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  max-width: 480px;
-  margin: 0 auto;
-  z-index: 30;
-  padding-bottom: env(safe-area-inset-bottom, 0px);
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg, #f8f7ff);
 }
 
 .conv-messages {
   flex: 1;
   overflow-y: auto;
-  padding: 16px 16px 90px;
+  padding: 16px 16px 8px;
+}
+
+.conv-input-wrap {
+  flex-shrink: 0;
+  padding: 6px 12px;
+  padding-bottom: max(10px, env(safe-area-inset-bottom));
+  background: var(--color-bg, #f8f7ff);
+}
+
+@media (min-width: 768px) {
+  .conv-page { left: 240px; }
 }
