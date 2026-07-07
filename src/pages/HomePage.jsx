@@ -94,28 +94,96 @@ function InspireCard({ topic }) {
   const card = getDailyCard(topic);
   if (!interest || !card) return null;
 
-  const typeLabel = { challenge: "Today's challenge", quote: "Inspire", tip: "Quick tip" }[card.type] || "Inspire";
-
-  return (
-    <div style={{
-      background: card.type === "quote"
-        ? `linear-gradient(135deg, ${interest.color}22 0%, ${interest.bg} 100%)`
-        : interest.bg,
-      border: `1.5px solid ${interest.color}33`,
-      borderRadius: 22, padding: "18px 18px", marginBottom: 14,
-    }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
-        <span style={{ fontSize: 22 }}>{card.emoji}</span>
-        <div>
-          <div style={{ fontSize: 10, fontWeight: 700, color: interest.color, letterSpacing: "0.08em", textTransform: "uppercase" }}>
-            {interest.label} · {typeLabel}
-          </div>
-          <div style={{ fontSize: 15, fontWeight: 700, color: "var(--color-text)", marginTop: 1 }}>{card.title}</div>
+  // Bold solid poster — feels like a challenge notice on a corkboard
+  if (card.type === "challenge") {
+    return (
+      <div style={{
+        background: interest.color,
+        borderRadius: 22, padding: "22px 20px", marginBottom: 14,
+        position: "relative", overflow: "hidden",
+      }}>
+        <div style={{ position: "absolute", right: -30, top: -30, width: 140, height: 140, borderRadius: "50%", background: "rgba(255,255,255,0.1)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", right: 50, bottom: -50, width: 100, height: 100, borderRadius: "50%", background: "rgba(255,255,255,0.06)", pointerEvents: "none" }} />
+        <div style={{ fontSize: 10, fontWeight: 800, color: "rgba(255,255,255,0.7)", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 12 }}>
+          {interest.emoji} {interest.label} · Today's challenge
+        </div>
+        <div style={{ fontSize: 22, fontWeight: 900, color: "#fff", lineHeight: 1.2, marginBottom: 12, letterSpacing: "-0.02em" }}>
+          {card.title}
+        </div>
+        <p style={{ margin: "0 0 18px", fontSize: 14, color: "rgba(255,255,255,0.88)", lineHeight: 1.65 }}>
+          {card.text}
+        </p>
+        <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.15)", borderRadius: 20, padding: "8px 14px" }}>
+          <span style={{ fontSize: 18 }}>{card.emoji}</span>
+          <span style={{ fontSize: 12, color: "rgba(255,255,255,0.9)", fontWeight: 700 }}>Try it today</span>
         </div>
       </div>
-      <p style={{ margin: 0, fontSize: 14, color: "var(--color-text)", lineHeight: 1.65 }}>
-        {card.text}
-      </p>
+    );
+  }
+
+  // Editorial quote — magazine pull-quote feel
+  if (card.type === "quote") {
+    return (
+      <div style={{
+        background: interest.bg,
+        borderRadius: 22, padding: "24px 20px", marginBottom: 14,
+        position: "relative", overflow: "hidden",
+        border: `1px solid ${interest.color}22`,
+      }}>
+        <div style={{
+          position: "absolute", right: 10, top: -16,
+          fontSize: 130, fontWeight: 900, color: interest.color,
+          opacity: 0.08, lineHeight: 1, userSelect: "none",
+          fontFamily: "Georgia, 'Times New Roman', serif",
+          pointerEvents: "none",
+        }}>
+          "
+        </div>
+        <div style={{ fontSize: 10, fontWeight: 800, color: interest.color, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 16 }}>
+          {interest.emoji} {interest.label}
+        </div>
+        <p style={{
+          margin: "0 0 18px", fontSize: 18, fontWeight: 700,
+          color: "var(--color-text)", lineHeight: 1.45,
+          letterSpacing: "-0.01em", fontStyle: "italic",
+        }}>
+          "{card.text}"
+        </p>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ width: 28, height: 3, background: interest.color, borderRadius: 2 }} />
+          <span style={{ fontSize: 12, color: interest.color, fontWeight: 700 }}>{card.title}</span>
+        </div>
+      </div>
+    );
+  }
+
+  // Tip: horizontal layout, icon block on left, left accent border
+  return (
+    <div style={{
+      background: "#fff",
+      borderRadius: 22, padding: "18px 18px", marginBottom: 14,
+      boxShadow: "0 1px 3px rgba(0,0,0,0.06), 0 4px 14px rgba(0,0,0,0.07)",
+      display: "flex", alignItems: "flex-start", gap: 14,
+      borderLeft: `4px solid ${interest.color}`,
+    }}>
+      <div style={{
+        width: 52, height: 52, borderRadius: 16, flexShrink: 0,
+        background: interest.bg, display: "flex", alignItems: "center", justifyContent: "center",
+        fontSize: 26,
+      }}>
+        {card.emoji}
+      </div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 10, fontWeight: 800, color: interest.color, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 4 }}>
+          {interest.label} · Quick tip
+        </div>
+        <div style={{ fontSize: 15, fontWeight: 800, color: "var(--color-text)", marginBottom: 6, lineHeight: 1.3, letterSpacing: "-0.01em" }}>
+          {card.title}
+        </div>
+        <p style={{ margin: 0, fontSize: 13, color: "var(--color-text-soft)", lineHeight: 1.65 }}>
+          {card.text}
+        </p>
+      </div>
     </div>
   );
 }
@@ -126,21 +194,22 @@ function WritePostBanner({ onWrite }) {
     <div
       onClick={onWrite}
       style={{
-        background: "linear-gradient(135deg, #f0ebff 0%, #e8f4ff 100%)",
-        borderRadius: 20, padding: "16px 18px",
-        border: "2px dashed rgba(91,60,221,0.2)",
+        background: "#1a1523",
+        borderRadius: 22, padding: "18px 18px",
         cursor: "pointer", display: "flex", alignItems: "center", gap: 14,
-        transition: "all 0.2s ease", marginBottom: 14,
+        marginBottom: 14, position: "relative", overflow: "hidden",
+        transition: "opacity 0.15s",
       }}
     >
-      <div style={{ width: 44, height: 44, borderRadius: "50%", background: "var(--color-primary)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, boxShadow: "0 4px 14px rgba(91,60,221,0.3)" }}>
-        <span className="material-symbols-outlined" style={{ fontSize: 20, color: "#fff" }}>edit</span>
+      <div style={{ position: "absolute", right: -20, top: -20, width: 110, height: 110, borderRadius: "50%", background: "rgba(91,60,221,0.25)", pointerEvents: "none" }} />
+      <div style={{ width: 46, height: 46, borderRadius: 14, background: "var(--color-primary)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, boxShadow: "0 4px 16px rgba(91,60,221,0.4)" }}>
+        <span className="material-symbols-outlined" style={{ fontSize: 22, color: "#fff" }}>edit</span>
       </div>
-      <div style={{ flex: 1 }}>
-        <div style={{ fontSize: 14, fontWeight: 700, color: "var(--color-primary)", marginBottom: 2 }}>Share something inspiring 💜</div>
-        <div style={{ fontSize: 12, color: "var(--color-text-soft)" }}>Your post might be exactly what someone needs today.</div>
+      <div style={{ flex: 1, position: "relative" }}>
+        <div style={{ fontSize: 15, fontWeight: 800, color: "#fff", marginBottom: 3, letterSpacing: "-0.01em" }}>Share something today</div>
+        <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", lineHeight: 1.5 }}>Your words might be exactly what someone needs</div>
       </div>
-      <span className="material-symbols-outlined" style={{ fontSize: 20, color: "var(--color-primary)", flexShrink: 0 }}>arrow_forward</span>
+      <span className="material-symbols-outlined" style={{ fontSize: 18, color: "rgba(255,255,255,0.35)", flexShrink: 0, position: "relative" }}>arrow_forward</span>
     </div>
   );
 }
@@ -193,16 +262,16 @@ export default function HomePage() {
     <div className="page-scroll scrollbar-none anim-in" style={{ paddingBottom: 100 }}>
 
       {/* ── Header ── */}
-      <div style={{ padding: "18px 16px 14px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+      <div style={{ padding: "22px 18px 14px", display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
         <div>
-          <div style={{ fontSize: 13, color: "var(--color-text-soft)", fontWeight: 500 }}>
+          <div style={{ fontSize: 13, color: "var(--color-text-soft)", fontWeight: 500, marginBottom: 5 }}>
             {greeting}, <strong style={{ color: "var(--color-primary)" }}>{displayName}</strong> 👋
           </div>
-          <div style={{ fontSize: 20, fontWeight: 800, color: "var(--color-text)", marginTop: 2 }}>
-            What inspires you today?
+          <div style={{ fontSize: 26, fontWeight: 900, color: "var(--color-text)", letterSpacing: "-0.03em", lineHeight: 1.15 }}>
+            What inspires<br />you today?
           </div>
         </div>
-        <div style={{ display: "flex", gap: 8 }}>
+        <div style={{ display: "flex", gap: 8, paddingTop: 2 }}>
           <button onClick={() => navigate("/help-center")} className="icon-btn" aria-label="Help">
             <span className="material-symbols-outlined" style={{ fontSize: 19, color: "var(--color-primary)" }}>help</span>
           </button>
@@ -213,15 +282,16 @@ export default function HomePage() {
       </div>
 
       {/* ── Category chips ── */}
-      <div style={{ display: "flex", gap: 8, padding: "0 16px 16px", overflowX: "auto" }} className="scrollbar-none">
+      <div style={{ display: "flex", gap: 8, padding: "0 18px 16px", overflowX: "auto" }} className="scrollbar-none">
         <button
           onClick={() => setActiveTopic("all")}
           style={{
-            padding: "7px 16px", borderRadius: 999, fontSize: 13, fontWeight: 600,
+            padding: "8px 16px", borderRadius: 12, fontSize: 13, fontWeight: 700,
             border: "none", cursor: "pointer", fontFamily: "Rubik, sans-serif", whiteSpace: "nowrap",
             background: activeTopic === "all" ? "var(--color-primary)" : "#fff",
-            color: activeTopic === "all" ? "#fff" : "var(--color-text-soft)",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+            color: activeTopic === "all" ? "#fff" : "var(--color-text)",
+            boxShadow: activeTopic === "all" ? "0 4px 12px rgba(91,60,221,0.3)" : "0 1px 3px rgba(0,0,0,0.08)",
+            transition: "all 0.15s",
           }}
         >
           ✨ For you
@@ -231,11 +301,11 @@ export default function HomePage() {
             key={i.key}
             onClick={() => setActiveTopic(i.key)}
             style={{
-              padding: "7px 16px", borderRadius: 999, fontSize: 13, fontWeight: 600,
+              padding: "8px 16px", borderRadius: 12, fontSize: 13, fontWeight: 700,
               border: "none", cursor: "pointer", fontFamily: "Rubik, sans-serif", whiteSpace: "nowrap",
               background: activeTopic === i.key ? i.color : "#fff",
-              color: activeTopic === i.key ? "#fff" : "var(--color-text-soft)",
-              boxShadow: activeTopic === i.key ? `0 4px 12px ${i.color}44` : "0 2px 8px rgba(0,0,0,0.06)",
+              color: activeTopic === i.key ? "#fff" : "var(--color-text)",
+              boxShadow: activeTopic === i.key ? `0 4px 12px ${i.color}44` : "0 1px 3px rgba(0,0,0,0.08)",
               transition: "all 0.15s",
             }}
           >
@@ -244,7 +314,7 @@ export default function HomePage() {
         ))}
         <button
           onClick={() => setInterests([])}
-          style={{ padding: "7px 14px", borderRadius: 999, fontSize: 13, fontWeight: 600, border: "none", cursor: "pointer", fontFamily: "Rubik, sans-serif", whiteSpace: "nowrap", background: "transparent", color: "var(--color-text-soft)" }}
+          style={{ padding: "8px 14px", borderRadius: 12, fontSize: 13, fontWeight: 600, border: "none", cursor: "pointer", fontFamily: "Rubik, sans-serif", whiteSpace: "nowrap", background: "transparent", color: "var(--color-text-soft)" }}
         >
           Edit ✏️
         </button>
@@ -259,8 +329,12 @@ export default function HomePage() {
         <WritePostBanner onWrite={() => navigate("/new-post")} />
 
         {/* ── Community posts ── */}
-        <div style={{ fontSize: 13, fontWeight: 700, color: "var(--color-text-soft)", letterSpacing: "0.04em", marginBottom: 14 }}>
-          💜 From your community
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
+          <div style={{ height: 1, flex: 1, background: "var(--color-outline-variant)" }} />
+          <div style={{ fontSize: 11, fontWeight: 800, color: "var(--color-text-soft)", letterSpacing: "0.08em", textTransform: "uppercase", whiteSpace: "nowrap" }}>
+            💜 Community
+          </div>
+          <div style={{ height: 1, flex: 1, background: "var(--color-outline-variant)" }} />
         </div>
 
         {loading && (

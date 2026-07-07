@@ -75,14 +75,11 @@ export default function PostCard({ post, currentUserId, onChanged }) {
     <article
       style={{
         background: "var(--color-card)",
-        borderRadius: 22,
+        borderRadius: 20,
         boxShadow: "var(--shadow-card)",
-        marginBottom: 16,
+        marginBottom: 14,
         overflow: "hidden",
-        transition: "box-shadow 0.2s ease, transform 0.2s ease",
       }}
-      onMouseEnter={(e) => { e.currentTarget.style.boxShadow = "var(--shadow-card-hover)"; e.currentTarget.style.transform = "translateY(-2px)"; }}
-      onMouseLeave={(e) => { e.currentTarget.style.boxShadow = "var(--shadow-card)"; e.currentTarget.style.transform = "none"; }}
     >
       {/* ── Author row ── */}
       <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 16px 10px" }}>
@@ -113,7 +110,7 @@ export default function PostCard({ post, currentUserId, onChanged }) {
 
       {/* ── Support summary (public) ── */}
       {supportMsg && (
-        <div style={{ margin: "0 16px 10px", background: "linear-gradient(135deg, #f0ebff 0%, #e8f4ff 100%)", borderRadius: 14, padding: "9px 14px", fontSize: 13, color: "var(--color-primary)", fontWeight: 500 }}>
+        <div style={{ margin: "0 16px 10px", background: "var(--color-surface-low)", borderRadius: 12, padding: "9px 14px", fontSize: 13, color: "var(--color-text-soft)", fontWeight: 600 }}>
           {supportMsg}
         </div>
       )}
@@ -129,13 +126,12 @@ export default function PostCard({ post, currentUserId, onChanged }) {
               style={{
                 display: "flex", alignItems: "center", gap: 5,
                 background: active ? "var(--color-primary-fixed)" : "var(--color-surface-low)",
-                border: active ? "1.5px solid var(--color-primary)" : "1.5px solid var(--color-outline-variant)",
-                borderRadius: 999, padding: "7px 12px",
+                border: active ? "1.5px solid var(--color-primary)" : "1.5px solid transparent",
+                borderRadius: 12, padding: "8px 13px",
                 fontSize: 12, fontWeight: active ? 700 : 500,
                 color: active ? "var(--color-primary)" : "var(--color-text-soft)",
                 cursor: "pointer", fontFamily: "Rubik, sans-serif",
                 transition: "all 0.15s ease",
-                transform: active ? "scale(1.04)" : "scale(1)",
               }}
             >
               <span style={{ fontSize: 14, lineHeight: 1 }}>{r.emoji}</span>

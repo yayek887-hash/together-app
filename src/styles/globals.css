@@ -15,13 +15,13 @@
   --color-tertiary:           #006766;
   --color-tertiary-container: #008282;
 
-  --color-bg:                 #fdf8ff;
-  --color-surface:            #fdf8ff;
-  --color-surface-low:        #f7f1ff;
-  --color-surface-container:  #f1ecf9;
-  --color-surface-high:       #ebe6f3;
-  --color-surface-highest:    #e5e0ee;
-  --color-surface-dim:        #ddd8e5;
+  --color-bg:                 #f6f2ed;
+  --color-surface:            #f6f2ed;
+  --color-surface-low:        #efebe4;
+  --color-surface-container:  #e8e2da;
+  --color-surface-high:       #e0dbd2;
+  --color-surface-highest:    #d8d3ca;
+  --color-surface-dim:        #cec9c0;
   --color-card:               #ffffff;
 
   --color-text:               #1c1a24;
@@ -47,16 +47,16 @@
   --space:         8px;
   --radius-sm:     8px;
   --radius:        16px;
-  --radius-card:   24px;
+  --radius-card:   20px;
   --radius-pill:   9999px;
   --button-height: 52px;
 
-  /* === Shadows (purple-tinted ambient) === */
-  --shadow-soft:   0 4px 20px rgba(91, 60, 221, 0.07);
-  --shadow-card:   0 4px 20px rgba(91, 60, 221, 0.07);
-  --shadow-card-hover: 0 8px 30px rgba(91, 60, 221, 0.12);
-  --shadow-button: 0 6px 20px rgba(91, 60, 221, 0.30);
-  --shadow-nav:    0 -4px 20px rgba(91, 60, 221, 0.08);
+  /* === Shadows (real depth, no purple tint) === */
+  --shadow-soft:       0 2px 12px rgba(0, 0, 0, 0.08);
+  --shadow-card:       0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 16px rgba(0, 0, 0, 0.07);
+  --shadow-card-hover: 0 2px 8px rgba(0, 0, 0, 0.10), 0 12px 32px rgba(0, 0, 0, 0.10);
+  --shadow-button:     0 4px 18px rgba(91, 60, 221, 0.35);
+  --shadow-nav:        0 -1px 0 rgba(0, 0, 0, 0.06), 0 -4px 20px rgba(0, 0, 0, 0.07);
 }
 
 /* ─── Reset & Base ─────────────────────────────── */
@@ -69,7 +69,10 @@ html, body {
 
 body {
   font-family: 'Rubik', sans-serif;
-  background: linear-gradient(160deg, #fdf8ff 0%, #f0ebff 60%, #fdf8ff 100%);
+  background: #f6f2ed;
+  background-image:
+    radial-gradient(ellipse 700px 500px at 18% -8%, rgba(91, 60, 221, 0.06) 0%, transparent 65%),
+    radial-gradient(ellipse 500px 400px at 82% 92%, rgba(200, 80, 200, 0.04) 0%, transparent 65%);
   background-attachment: fixed;
   color: var(--color-text);
   -webkit-font-smoothing: antialiased;
@@ -173,9 +176,9 @@ a { text-decoration: none; color: inherit; }
 
 /* ─── Glass effect ───────────────────────────── */
 .glass {
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 
 /* ─── Blob decorations ───────────────────────── */
@@ -247,20 +250,20 @@ a:focus-visible {
 
 /* ─── Icon buttons ───────────────────────── */
 .icon-btn {
-  background: var(--color-surface-high);
+  background: #fff;
   border: none;
   width: 40px;
   height: 40px;
-  border-radius: 50%;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background 0.15s ease, transform 0.15s ease;
+  transition: background 0.15s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
 }
 .icon-btn:hover {
   background: var(--color-primary-fixed);
-  transform: scale(1.08);
 }
 
 /* ─── Section labels ─────────────────────── */

@@ -8,7 +8,7 @@ const SIDEBAR_NAV = [
   { to: "/home",    icon: "home",        label: "Home" },
   { to: "/connect", icon: "handshake",   label: "Connect" },
   { to: "/meet",    icon: "location_on", label: "Meet" },
-  { to: "/groups",  icon: "group",       label: "Communities" },
+  { to: "/groups",  icon: "volunteer_activism", label: "Support" },
   { to: "/chat",    icon: "chat_bubble", label: "Chat" },
   { to: "/profile", icon: "person",      label: "Me" },
 ];
