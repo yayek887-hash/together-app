@@ -19,7 +19,7 @@ const LEFT  = [
   { to: "/connect", icon: "handshake", label: "Connect" },
 ];
 const RIGHT = [
-  { to: "/meet",    icon: "location_on", label: "Meet" },
+  { to: "/chat",    icon: "chat_bubble", label: "Chat" },
   { to: "/profile", icon: "person",      label: "Me" },
 ];
 
