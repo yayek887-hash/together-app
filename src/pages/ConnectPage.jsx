@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import UserAvatar from "../components/UserAvatar.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import { INTERESTS } from "../data/inspireContent.js";
@@ -190,8 +190,9 @@ export default function ConnectPage() {
   const { user, profile } = useAuth();
   const { unreadCount }   = useNotifications();
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const [tab, setTab]       = useState("people");
+  const [tab, setTab]       = useState(location.state?.tab || "people");
   const [people, setPeople] = useState([]);
   const [pending, setPending] = useState([]);
   const [loading, setLoading] = useState(true);

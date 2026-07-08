@@ -5,15 +5,14 @@ const NAV_PATHS = ["/home", "/connect", "/meet", "/groups", "/chat", "/profile",
 
 // Desktop sidebar
 const SIDEBAR_NAV = [
-  { to: "/home",          icon: "home",              label: "Home" },
-  { to: "/connect",       icon: "handshake",         label: "Connect" },
-  { to: "/meet",          icon: "location_on",       label: "Meet" },
-  { to: "/groups",        icon: "volunteer_activism",label: "Support" },
-  { to: "/notifications", icon: "notifications",     label: "Activity" },
-  { to: "/profile",       icon: "person",            label: "Me" },
+  { to: "/home",          icon: "home",               label: "Home" },
+  { to: "/connect",       icon: "handshake",          label: "Connect" },
+  { to: "/meet",          icon: "location_on",        label: "Meet" },
+  { to: "/groups",        icon: "volunteer_activism", label: "Support" },
+  { to: "/notifications", icon: "notifications",      label: "Activity" },
+  { to: "/profile",       icon: "person",             label: "Me" },
 ];
 
-// Mobile bottom bar: Home | Connect | + | Meet | Me
 const LEFT  = [
   { to: "/home",    icon: "home",      label: "Home" },
   { to: "/connect", icon: "handshake", label: "Connect" },
@@ -58,19 +57,29 @@ function NavItem({ item, badge }) {
       {({ isActive }) => (
         <div style={{
           display: "flex", flexDirection: "column", alignItems: "center",
-          gap: 3, minWidth: 52, padding: "6px 8px", borderRadius: 14,
-          background: isActive ? "var(--color-primary-fixed)" : "transparent",
-          transition: "all 0.2s ease", position: "relative",
+          gap: 3, minWidth: 52, padding: "2px 10px",
+          position: "relative",
         }}>
           <span
             className={`material-symbols-outlined ${isActive ? "ms-filled" : ""}`}
-            style={{ fontSize: 24, color: isActive ? "var(--color-primary)" : "var(--color-outline)" }}
+            style={{
+              fontSize: 26,
+              color: isActive ? "var(--color-primary)" : "#9899a6",
+              transition: "color 0.15s",
+            }}
           >
             {item.icon}
           </span>
+          <span style={{
+            fontSize: 10, fontWeight: isActive ? 700 : 500, lineHeight: 1,
+            color: isActive ? "var(--color-primary)" : "#9899a6",
+            transition: "color 0.15s",
+          }}>
+            {item.label}
+          </span>
           {badge > 0 && (
-            <span className="badge-pulse" style={{
-              position: "absolute", top: 4, right: 6,
+            <span style={{
+              position: "absolute", top: 0, right: 6,
               background: "#e84545", color: "#fff",
               fontSize: 9, fontWeight: 800, minWidth: 16, height: 16,
               borderRadius: 999, display: "flex", alignItems: "center", justifyContent: "center",
@@ -79,12 +88,6 @@ function NavItem({ item, badge }) {
               {badge > 9 ? "9+" : badge}
             </span>
           )}
-          <span style={{
-            fontSize: 10, fontWeight: isActive ? 700 : 500,
-            color: isActive ? "var(--color-primary)" : "var(--color-outline)",
-          }}>
-            {item.label}
-          </span>
         </div>
       )}
     </NavLink>
@@ -94,13 +97,13 @@ function NavItem({ item, badge }) {
 export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { unreadCount, totalNotifCount } = useNotifications();
+  const { unreadCount, pendingCount, totalNotifCount } = useNotifications();
 
-  const showBottomBar = NAV_PATHS.includes(location.pathname);
+  const showBottomBar = NAV_PATHS.some(p => location.pathname.startsWith(p));
 
   return (
     <>
-      {/* ── Desktop sidebar (CSS hides on mobile) ── */}
+      {/* ── Desktop sidebar ── */}
       <aside className="navbar-sidebar">
         <div className="logo-gradient" style={{
           fontSize: 22, fontWeight: 900, letterSpacing: -0.5,
@@ -126,34 +129,48 @@ export default function Navbar() {
         </button>
       </aside>
 
-      {/* ── Mobile bottom bar (CSS hides on desktop) ── */}
+      {/* ── Mobile bottom bar ── */}
       {showBottomBar && (
         <nav
-          className="navbar-bottom glass"
           style={{
             position: "fixed", bottom: 0, left: 0, right: 0,
             maxWidth: 480, margin: "0 auto",
             display: "flex", justifyContent: "space-around", alignItems: "flex-end",
-            padding: "10px 8px 22px",
-            borderRadius: "24px 24px 0 0",
-            boxShadow: "var(--shadow-nav)",
-            borderTop: "1px solid rgba(91,60,221,0.07)",
+            padding: "10px 0 24px",
+            background: "#fff",
+            borderTop: "1px solid rgba(0,0,0,0.06)",
+            boxShadow: "0 -4px 24px rgba(0,0,0,0.07)",
             zIndex: 50,
           }}
         >
           {LEFT.map(item => (
-            <NavItem key={item.to} item={item} badge={item.to === "/connect" ? unreadCount : 0} />
+            <NavItem
+              key={item.to}
+              item={item}
+              badge={item.to === "/connect" ? pendingCount : 0}
+            />
           ))}
 
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, paddingBottom: 2 }}>
+          {/* ── Centre FAB ── */}
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
             <button
-              className="nav-post-btn"
               onClick={() => navigate("/new-post")}
-              aria-label="New post"
+              aria-label="Create post"
+              style={{
+                width: 52, height: 52,
+                borderRadius: 18,
+                background: "linear-gradient(135deg, #5b3cdd 0%, #7459f7 100%)",
+                border: "none",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                cursor: "pointer",
+                boxShadow: "0 4px 18px rgba(91,60,221,0.40)",
+                marginTop: -20,
+                transition: "transform 0.15s, box-shadow 0.15s",
+              }}
             >
               <span className="material-symbols-outlined" style={{ fontSize: 26, color: "#fff" }}>add</span>
             </button>
-            <span style={{ fontSize: 10, fontWeight: 700, color: "var(--color-primary)" }}>Post</span>
+            <span style={{ fontSize: 10, fontWeight: 700, color: "var(--color-primary)", lineHeight: 1 }}>Create</span>
           </div>
 
           {RIGHT.map(item => <NavItem key={item.to} item={item} />)}
