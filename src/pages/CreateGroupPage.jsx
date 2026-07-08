@@ -24,6 +24,13 @@ const field = { marginBottom: 20 };
 const label = { fontSize: 12, fontWeight: 700, color: "var(--color-text-soft)", textTransform: "uppercase", letterSpacing: "0.08em", display: "block", marginBottom: 8 };
 const input = { width: "100%", boxSizing: "border-box", padding: "11px 14px", borderRadius: 14, border: "1.5px solid var(--color-outline-variant)", background: "var(--color-surface-low)", fontSize: 14, fontFamily: "Rubik, sans-serif", outline: "none", color: "var(--color-text)" };
 
+async function reverseGeocode(lat, lon) {
+  const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`, { headers: { "Accept-Language": "en" } });
+  const d = await r.json();
+  const a = d.address || {};
+  return a.city || a.town || a.village || a.county || a.state || "";
+}
+
 export default function CreateGroupPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -36,18 +43,37 @@ export default function CreateGroupPage() {
   const [maxAge, setMaxAge]       = useState(18);
   const [city, setCity]           = useState("");
   const [region, setRegion]       = useState("");
-  const [rules, setRules]         = useState("");
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError]         = useState(null);
+  const [rules, setRules]                     = useState("");
+  const [meetingLocation, setMeetingLocation] = useState("");
+  const [meetingSchedule, setMeetingSchedule] = useState("");
+  const [geoLoading, setGeoLoading]           = useState(false);
+  const [submitting, setSubmitting]           = useState(false);
+  const [error, setError]                     = useState(null);
 
   const canSubmit = name.trim().length >= 3 && category && !submitting;
+
+  const handleGeolocate = () => {
+    if (!navigator.geolocation) return;
+    setGeoLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        try {
+          const city = await reverseGeocode(pos.coords.latitude, pos.coords.longitude);
+          if (city) setMeetingLocation(city);
+        } catch {}
+        setGeoLoading(false);
+      },
+      () => setGeoLoading(false),
+      { timeout: 8000 }
+    );
+  };
 
   const handleCreate = async () => {
     if (!canSubmit) return;
     setSubmitting(true);
     setError(null);
     try {
-      const g = await createGroup({ name: name.trim(), description: desc.trim(), category, privacy, minAge: Number(minAge), maxAge: Number(maxAge), city, region, rules, ownerId: user.id });
+      const g = await createGroup({ name: name.trim(), description: desc.trim(), category, privacy, minAge: Number(minAge), maxAge: Number(maxAge), city, region, rules, meetingLocation, meetingSchedule, ownerId: user.id });
       navigate(`/groups/${g.id}`);
     } catch (err) {
       setError(err.message || "Couldn't create the group — try again.");
@@ -136,6 +162,31 @@ export default function CreateGroupPage() {
             onFocus={e => e.target.style.borderColor = "var(--color-primary)"}
             onBlur={e => e.target.style.borderColor = "var(--color-outline-variant)"} />
           <div style={{ fontSize: 11, color: "var(--color-text-soft)", marginTop: 6 }}>📍 Only city/region — never exact address</div>
+        </div>
+
+        {/* Meeting info */}
+        <div style={field}>
+          <span style={label}>Meeting location (optional)</span>
+          <div style={{ display: "flex", gap: 8 }}>
+            <input style={{ ...input, flex: 1 }} value={meetingLocation} onChange={e => setMeetingLocation(e.target.value)} placeholder="e.g. Tel Aviv Community Center"
+              onFocus={e => e.target.style.borderColor = "var(--color-primary)"}
+              onBlur={e => e.target.style.borderColor = "var(--color-outline-variant)"} />
+            <button onClick={handleGeolocate} disabled={geoLoading}
+              title="Detect my location"
+              style={{ flexShrink: 0, width: 46, height: 46, borderRadius: 14, border: "1.5px solid var(--color-outline-variant)", background: "var(--color-surface-low)", cursor: geoLoading ? "wait" : "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <span className="material-symbols-outlined" style={{ fontSize: 20, color: geoLoading ? "var(--color-text-soft)" : "var(--color-primary)" }}>
+                {geoLoading ? "hourglass_empty" : "my_location"}
+              </span>
+            </button>
+          </div>
+          <div style={{ fontSize: 11, color: "var(--color-text-soft)", marginTop: 6 }}>📍 Tap the pin to auto-detect your location</div>
+        </div>
+
+        <div style={field}>
+          <span style={label}>Meeting schedule (optional)</span>
+          <input style={input} value={meetingSchedule} onChange={e => setMeetingSchedule(e.target.value)} placeholder="e.g. Every Tuesday at 18:00"
+            onFocus={e => e.target.style.borderColor = "var(--color-primary)"}
+            onBlur={e => e.target.style.borderColor = "var(--color-outline-variant)"} />
         </div>
 
         {/* Rules */}

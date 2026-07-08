@@ -163,18 +163,57 @@ export async function fetchGroups() {
 export async function fetchGroup(groupId) {
   const { data, error } = await supabase
     .from("groups")
-    .select(`id, name, description, color, category, privacy, min_age, max_age, city, region, rules, owner_id, created_at,
-      group_members ( user_id, profiles!group_members_user_id_fkey ( id, username, avatar_color ) )`)
+    .select(`id, name, description, color, category, privacy, min_age, max_age, city, region, rules, meeting_location, meeting_schedule, owner_id, created_at,
+      group_members ( user_id, profiles!group_members_user_id_fkey ( id, username, avatar_color, avatar_url ) )`)
     .eq("id", groupId)
     .single();
   if (error) throw error;
   return data;
 }
 
-export async function createGroup({ name, description, category, privacy, minAge, maxAge, city, region, rules, ownerId }) {
+export async function fetchGroupMessages(groupId) {
+  const { data, error } = await supabase
+    .from("group_messages")
+    .select(`id, text, created_at, sender_id, sender:profiles!group_messages_sender_id_fkey(id, username, avatar_color, avatar_url)`)
+    .eq("group_id", groupId)
+    .order("created_at", { ascending: true })
+    .limit(100);
+  if (error) throw error;
+  return data || [];
+}
+
+export async function sendGroupMessage(groupId, senderId, text) {
+  const { data, error } = await supabase
+    .from("group_messages")
+    .insert({ group_id: groupId, sender_id: senderId, text })
+    .select(`id, text, created_at, sender_id, sender:profiles!group_messages_sender_id_fkey(id, username, avatar_color, avatar_url)`)
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export function subscribeToGroupMessages(groupId, callback) {
+  const channel = supabase
+    .channel(`group-chat-${groupId}`)
+    .on("postgres_changes",
+      { event: "INSERT", schema: "public", table: "group_messages", filter: `group_id=eq.${groupId}` },
+      async (payload) => {
+        const { data } = await supabase
+          .from("group_messages")
+          .select(`id, text, created_at, sender_id, sender:profiles!group_messages_sender_id_fkey(id, username, avatar_color, avatar_url)`)
+          .eq("id", payload.new.id)
+          .single();
+        if (data) callback(data);
+      }
+    )
+    .subscribe();
+  return () => supabase.removeChannel(channel);
+}
+
+export async function createGroup({ name, description, category, privacy, minAge, maxAge, city, region, rules, meetingLocation, meetingSchedule, ownerId }) {
   const { data, error } = await supabase
     .from("groups")
-    .insert({ name, description, category, privacy, min_age: minAge, max_age: maxAge, city: city || null, region: region || null, rules: rules || null, owner_id: ownerId, color: "#5b3cdd" })
+    .insert({ name, description, category, privacy, min_age: minAge, max_age: maxAge, city: city || null, region: region || null, rules: rules || null, meeting_location: meetingLocation || null, meeting_schedule: meetingSchedule || null, owner_id: ownerId, color: "#5b3cdd" })
     .select()
     .single();
   if (error) throw error;

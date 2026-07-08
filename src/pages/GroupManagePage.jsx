@@ -9,6 +9,13 @@ const CATEGORIES = ["Friendship","School","Anxiety","Gaming","Art","Sports","Stu
 const inputStyle = { width: "100%", boxSizing: "border-box", padding: "11px 14px", borderRadius: 14, border: "1.5px solid var(--color-outline-variant)", background: "var(--color-surface-low)", fontSize: 14, fontFamily: "Rubik, sans-serif", outline: "none", color: "var(--color-text)" };
 const labelStyle = { fontSize: 12, fontWeight: 700, color: "var(--color-text-soft)", textTransform: "uppercase", letterSpacing: "0.08em", display: "block", marginBottom: 8 };
 
+async function reverseGeocode(lat, lon) {
+  const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`, { headers: { "Accept-Language": "en" } });
+  const d = await r.json();
+  const a = d.address || {};
+  return a.city || a.town || a.village || a.county || a.state || "";
+}
+
 export default function GroupManagePage() {
   const { groupId } = useParams();
   const navigate = useNavigate();
@@ -28,9 +35,12 @@ export default function GroupManagePage() {
   const [privacy, setPrivacy] = useState("public");
   const [minAge, setMinAge]   = useState(10);
   const [maxAge, setMaxAge]   = useState(18);
-  const [city, setCity]       = useState("");
-  const [region, setRegion]   = useState("");
-  const [rules, setRules]     = useState("");
+  const [city, setCity]             = useState("");
+  const [region, setRegion]         = useState("");
+  const [rules, setRules]           = useState("");
+  const [meetingLocation, setMeetingLocation] = useState("");
+  const [meetingSchedule, setMeetingSchedule] = useState("");
+  const [geoLoading, setGeoLoading] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -47,18 +57,36 @@ export default function GroupManagePage() {
       setCity(g.city || "");
       setRegion(g.region || "");
       setRules(g.rules || "");
+      setMeetingLocation(g.meeting_location || "");
+      setMeetingSchedule(g.meeting_schedule || "");
     } catch {}
     finally { setLoading(false); }
   }, [groupId, user, navigate]);
 
   useEffect(() => { load(); }, [load]);
 
+  const handleGeolocate = () => {
+    if (!navigator.geolocation) return;
+    setGeoLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        try {
+          const city = await reverseGeocode(pos.coords.latitude, pos.coords.longitude);
+          if (city) setMeetingLocation(city);
+        } catch {}
+        setGeoLoading(false);
+      },
+      () => setGeoLoading(false),
+      { timeout: 8000 }
+    );
+  };
+
   const handleSave = async () => {
     if (saving) return;
     setSaving(true);
     setError(null);
     try {
-      await updateGroup(groupId, { name: name.trim(), description: desc.trim(), category, privacy, min_age: Number(minAge), max_age: Number(maxAge), city: city || null, region: region || null, rules: rules || null });
+      await updateGroup(groupId, { name: name.trim(), description: desc.trim(), category, privacy, min_age: Number(minAge), max_age: Number(maxAge), city: city || null, region: region || null, rules: rules || null, meeting_location: meetingLocation || null, meeting_schedule: meetingSchedule || null });
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
     } catch (err) {
@@ -142,6 +170,30 @@ export default function GroupManagePage() {
             onFocus={e => e.target.style.borderColor = "var(--color-primary)"}
             onBlur={e => e.target.style.borderColor = "var(--color-outline-variant)"} />
           <input style={inputStyle} value={region} onChange={e => setRegion(e.target.value)} placeholder="Region"
+            onFocus={e => e.target.style.borderColor = "var(--color-primary)"}
+            onBlur={e => e.target.style.borderColor = "var(--color-outline-variant)"} />
+        </div>
+
+        {/* Meeting info */}
+        <div style={{ marginBottom: 20 }}>
+          <span style={labelStyle}>Meeting location (optional)</span>
+          <div style={{ display: "flex", gap: 8 }}>
+            <input style={{ ...inputStyle, flex: 1 }} value={meetingLocation} onChange={e => setMeetingLocation(e.target.value)} placeholder="e.g. Tel Aviv Community Center"
+              onFocus={e => e.target.style.borderColor = "var(--color-primary)"}
+              onBlur={e => e.target.style.borderColor = "var(--color-outline-variant)"} />
+            <button onClick={handleGeolocate} disabled={geoLoading}
+              title="Detect my location"
+              style={{ flexShrink: 0, width: 46, height: 46, borderRadius: 14, border: "1.5px solid var(--color-outline-variant)", background: "var(--color-surface-low)", cursor: geoLoading ? "wait" : "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <span className="material-symbols-outlined" style={{ fontSize: 20, color: geoLoading ? "var(--color-text-soft)" : "var(--color-primary)" }}>
+                {geoLoading ? "hourglass_empty" : "my_location"}
+              </span>
+            </button>
+          </div>
+        </div>
+
+        <div style={{ marginBottom: 20 }}>
+          <span style={labelStyle}>Meeting schedule (optional)</span>
+          <input style={inputStyle} value={meetingSchedule} onChange={e => setMeetingSchedule(e.target.value)} placeholder="e.g. Every Tuesday at 18:00"
             onFocus={e => e.target.style.borderColor = "var(--color-primary)"}
             onBlur={e => e.target.style.borderColor = "var(--color-outline-variant)"} />
         </div>
