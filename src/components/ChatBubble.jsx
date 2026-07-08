@@ -1,7 +1,12 @@
-export default function ChatBubble({ msg }) {
+import UserAvatar from "./UserAvatar.jsx";
+
+export default function ChatBubble({ msg, otherName, otherAvatarUrl }) {
   const mine = msg.from === "me";
   return (
-    <div style={{ display: "flex", justifyContent: mine ? "flex-end" : "flex-start", marginBottom: 10 }}>
+    <div style={{ display: "flex", justifyContent: mine ? "flex-end" : "flex-start", alignItems: "flex-end", gap: 8, marginBottom: 10 }}>
+      {!mine && (
+        <UserAvatar name={otherName || "?"} size={30} avatarUrl={otherAvatarUrl || undefined} />
+      )}
       <div
         style={{
           maxWidth: "75%",

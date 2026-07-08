@@ -132,6 +132,8 @@ export default function ConversationPage() {
               from: m.sender_id === user.id ? "me" : "them",
               time: new Date(m.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
             }}
+            otherName={displayName}
+            otherAvatarUrl={otherProfile?.avatar_url || undefined}
           />
         ))}
         <div ref={endRef} />
