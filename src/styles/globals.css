@@ -245,7 +245,7 @@ a:focus-visible {
 .page-scroll {
   flex: 1;
   overflow-y: auto;
-  padding-bottom: 96px;
+  padding-bottom: 120px;
 }
 
 /* ─── Icon buttons ───────────────────────── */

@@ -137,9 +137,9 @@ export default function Navbar() {
             maxWidth: 480, margin: "0 auto",
             display: "flex", justifyContent: "space-around", alignItems: "flex-end",
             padding: "10px 0 24px",
-            background: "#fff",
-            borderTop: "1px solid rgba(0,0,0,0.06)",
-            boxShadow: "0 -4px 24px rgba(0,0,0,0.07)",
+            background: "var(--color-bg)",
+            borderTop: "1px solid rgba(0,0,0,0.07)",
+            boxShadow: "0 -8px 32px rgba(0,0,0,0.05)",
             zIndex: 50,
           }}
         >
