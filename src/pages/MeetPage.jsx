@@ -166,10 +166,10 @@ export default function MeetPage() {
       {/* Header */}
       <div style={{ padding: "18px 16px 14px", display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
         <div>
-          <div style={{ fontSize: 13, color: "var(--color-text-soft)", fontWeight: 500, marginBottom: 2 }}>Meet pillar</div>
-          <div style={{ fontSize: 22, fontWeight: 800, color: "var(--color-text)" }}>Meet IRL 📍</div>
+          <div style={{ fontSize: 13, color: "var(--color-text-soft)", fontWeight: 500, marginBottom: 2 }}>Real life · 📍</div>
+          <div style={{ fontSize: 22, fontWeight: 800, color: "var(--color-text)" }}>Meet IRL</div>
           <div style={{ fontSize: 13, color: "var(--color-text-soft)", marginTop: 4, lineHeight: 1.5 }}>
-            Real activities, real people, real life.
+            Real activities, real friendships.
           </div>
         </div>
         <button

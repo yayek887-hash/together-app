@@ -147,7 +147,7 @@ export default function Navbar() {
             <NavItem
               key={item.to}
               item={item}
-              badge={item.to === "/connect" ? pendingCount : 0}
+              badge={item.to === "/connect" ? pendingCount : item.to === "/home" ? totalNotifCount : 0}
             />
           ))}
 

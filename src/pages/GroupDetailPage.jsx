@@ -26,7 +26,7 @@ function timeAgo(dateStr) {
 }
 
 /* ── Group Chat ─────────────────────────────────── */
-function GroupChat({ group, user, isMember }) {
+function GroupChat({ group, user, profile, isMember }) {
   const [messages, setMessages] = useState([]);
   const [text, setText]         = useState("");
   const [loading, setLoading]   = useState(true);
@@ -140,7 +140,7 @@ function GroupChat({ group, user, isMember }) {
         background: "#fff", borderTop: "1px solid rgba(0,0,0,0.06)",
         flexShrink: 0,
       }}>
-        <UserAvatar name="Me" size={34} avatarUrl={undefined} />
+        <UserAvatar name={profile?.display_name || profile?.username || "Me"} size={34} avatarUrl={profile?.avatar_url || undefined} />
         <div style={{ flex: 1, display: "flex", gap: 8, background: "var(--color-surface-low)", borderRadius: 999, padding: "4px 6px 4px 14px", alignItems: "center" }}>
           <input
             value={text}
@@ -172,7 +172,7 @@ function GroupChat({ group, user, isMember }) {
 export default function GroupDetailPage() {
   const { groupId } = useParams();
   const navigate    = useNavigate();
-  const { user }    = useAuth();
+  const { user, profile } = useAuth();
 
   const [group,     setGroup]    = useState(null);
   const [myRequest, setMyRequest]= useState(null);
@@ -408,7 +408,7 @@ export default function GroupDetailPage() {
 
       {/* ── Chat tab ── */}
       {tab === "chat" && (
-        <GroupChat group={group} user={user} isMember={isMember} />
+        <GroupChat group={group} user={user} profile={profile} isMember={isMember} />
       )}
 
       {/* ── Info tab ── */}

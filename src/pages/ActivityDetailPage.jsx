@@ -29,7 +29,7 @@ function timeAgo(dateStr) {
 export default function ActivityDetailPage() {
   const { activityId } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
 
   const [activity, setActivity] = useState(null);
   const [loading, setLoading]   = useState(true);
@@ -311,7 +311,7 @@ export default function ActivityDetailPage() {
                 display: "flex", gap: 10, padding: "10px 14px 16px",
                 background: "#fff", borderTop: "1px solid rgba(0,0,0,0.06)", flexShrink: 0,
               }}>
-                <UserAvatar name="Me" size={34} avatarUrl={undefined} />
+                <UserAvatar name={profile?.display_name || profile?.username || "Me"} size={34} avatarUrl={profile?.avatar_url || undefined} />
                 <div style={{ flex: 1, display: "flex", gap: 8, background: "var(--color-surface-low)", borderRadius: 999, padding: "4px 6px 4px 14px", alignItems: "center" }}>
                   <input
                     value={text}

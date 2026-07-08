@@ -418,7 +418,7 @@ export async function fetchNearbyGroups(city, region) {
 export async function fetchAllProfiles(excludeId) {
   const { data, error } = await supabase
     .from("profiles")
-    .select("id, username, avatar_color, avatar_url")
+    .select("id, username, display_name, avatar_color, avatar_url")
     .neq("id", excludeId)
     .order("username");
   if (error) throw error;
@@ -430,7 +430,7 @@ export async function fetchAllProfiles(excludeId) {
 export async function fetchPeopleWithFriendStatus(currentUserId) {
   const { data: profiles, error } = await supabase
     .from("profiles")
-    .select("id, username, avatar_color, avatar_url, created_at, interests")
+    .select("id, username, display_name, avatar_color, avatar_url, created_at, interests")
     .neq("id", currentUserId)
     .order("username");
   if (error) throw error;
@@ -460,7 +460,7 @@ export async function fetchFriendCount(userId) {
 export async function fetchPendingRequests(userId) {
   const { data, error } = await supabase
     .from("friendships")
-    .select("id, requester_id, profiles!friendships_requester_id_fkey(id, username, avatar_color, avatar_url)")
+    .select("id, requester_id, profiles!friendships_requester_id_fkey(id, username, display_name, avatar_color, avatar_url)")
     .eq("receiver_id", userId)
     .eq("status", "pending");
   if (error) throw error;

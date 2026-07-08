@@ -295,14 +295,14 @@ export default function SupportGroupsPage() {
         )}
 
         {/* ── Nearby ── */}
-        {!loading && nearby.length > 0 && (
+        {!loading && nearby.filter(g => !(g.group_members || []).some(m => m.user_id === user?.id)).length > 0 && (
           <>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
               <div style={{ height: 1, flex: 1, background: "var(--color-outline-variant)" }} />
               <div style={{ fontSize: 11, fontWeight: 800, color: "var(--color-text-soft)", letterSpacing: "0.08em", textTransform: "uppercase" }}>Near you</div>
               <div style={{ height: 1, flex: 1, background: "var(--color-outline-variant)" }} />
             </div>
-            {nearby.slice(0, 3).map(g => (
+            {nearby.filter(g => !(g.group_members || []).some(m => m.user_id === user?.id)).slice(0, 3).map(g => (
               <GroupCard key={g.id} group={g}
                 isMember={isJoined(g)} isOwner={isOwner(g)}
                 onJoin={() => handleJoin(g)}

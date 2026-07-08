@@ -307,7 +307,7 @@ export default function HomePage() {
               color: activeTopic === i.key ? "#fff" : "var(--color-text-soft)", transition: "all 0.15s",
             }}>{i.emoji} {i.label}</button>
           ))}
-          <button onClick={() => setInterests([])} style={{
+          <button onClick={() => navigate("/onboarding")} style={{
             padding: "6px 12px", borderRadius: 999, fontSize: 12, fontWeight: 500,
             border: "none", cursor: "pointer", fontFamily: "Rubik, sans-serif", whiteSpace: "nowrap",
             background: "transparent", color: "var(--color-text-soft)",
