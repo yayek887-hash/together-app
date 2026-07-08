@@ -9,24 +9,12 @@ import {
 } from "../lib/api.js";
 
 function timeAgo(dateStr) {
-  const diffMs = Date.now() - new Date(dateStr).getTime();
-  const mins = Math.floor(diffMs / 60000);
-  if (mins < 1) return "just now";
-  if (mins < 60) return `${mins}m ago`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.floor(hours / 24);
-  return days === 1 ? "Yesterday" : `${days}d ago`;
-}
-
-function Divider({ label }) {
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "6px 0 10px" }}>
-      <div style={{ flex: 1, height: 1, background: "var(--color-outline-variant)" }} />
-      <span style={{ fontSize: 10, fontWeight: 700, color: "var(--color-text-soft)", letterSpacing: "0.08em", textTransform: "uppercase" }}>{label}</span>
-      <div style={{ flex: 1, height: 1, background: "var(--color-outline-variant)" }} />
-    </div>
-  );
+  const m = Math.floor((Date.now() - new Date(dateStr)) / 60000);
+  if (m < 1)   return "just now";
+  if (m < 60)  return `${m}m ago`;
+  if (m < 1440) return `${Math.floor(m / 60)}h ago`;
+  const d = Math.floor(m / 1440);
+  return d === 1 ? "Yesterday" : `${d}d ago`;
 }
 
 export default function NotificationsPage() {
@@ -36,8 +24,8 @@ export default function NotificationsPage() {
 
   const [requests, setRequests] = useState([]);
   const [comments, setComments] = useState([]);
-  const [busy, setBusy] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [busy, setBusy]         = useState(null);
+  const [loading, setLoading]   = useState(true);
 
   const load = useCallback(async () => {
     if (!user) return;
@@ -75,23 +63,26 @@ export default function NotificationsPage() {
     finally { setBusy(null); }
   };
 
-  const isEmpty = !loading && requests.length === 0 && comments.length === 0 && unreadCount === 0;
+  const total = requests.length + comments.length + (unreadCount > 0 ? 1 : 0);
+  const isEmpty = !loading && total === 0;
 
   return (
     <div className="page-scroll scrollbar-none anim-in" style={{ paddingBottom: 100 }}>
 
-      {/* Header */}
-      <div style={{ padding: "22px 18px 14px", display: "flex", alignItems: "center", gap: 12 }}>
-        <button
-          onClick={() => navigate(-1)}
-          style={{ background: "none", border: "none", cursor: "pointer", padding: 4, display: "flex" }}
-        >
+      {/* ── Header ── */}
+      <div style={{ padding: "22px 18px 18px", display: "flex", alignItems: "center", gap: 12 }}>
+        <button onClick={() => navigate(-1)} style={{ background: "none", border: "none", cursor: "pointer", padding: 4, display: "flex" }}>
           <span className="material-symbols-outlined" style={{ fontSize: 24, color: "var(--color-primary)" }}>arrow_back</span>
         </button>
-        <div>
+        <div style={{ flex: 1 }}>
           <div style={{ fontSize: 22, fontWeight: 900, color: "var(--color-text)", letterSpacing: "-0.03em" }}>Activity</div>
           <div style={{ fontSize: 12, color: "var(--color-text-soft)" }}>What's been happening</div>
         </div>
+        {total > 0 && (
+          <div style={{ background: "#e84545", color: "#fff", borderRadius: 999, padding: "4px 10px", fontSize: 12, fontWeight: 800 }}>
+            {total}
+          </div>
+        )}
       </div>
 
       <div style={{ padding: "0 16px" }}>
@@ -104,143 +95,132 @@ export default function NotificationsPage() {
 
         {isEmpty && (
           <div style={{ textAlign: "center", padding: "64px 20px" }}>
-            <div style={{ fontSize: 52, marginBottom: 14 }}>🎉</div>
+            <div style={{ fontSize: 56, marginBottom: 16 }}>🎉</div>
             <div style={{ fontSize: 18, fontWeight: 800, color: "var(--color-text)", marginBottom: 8 }}>You're all caught up!</div>
-            <div style={{ fontSize: 14, color: "var(--color-text-soft)", lineHeight: 1.6 }}>
-              No new notifications right now.<br />Come back after making some connections!
-            </div>
+            <p style={{ fontSize: 14, color: "var(--color-text-soft)", lineHeight: 1.7, margin: 0 }}>
+              No new notifications.<br />Make some connections and share posts!
+            </p>
           </div>
         )}
 
         {/* ── Unread messages ── */}
-        {unreadCount > 0 && (
-          <>
-            <Divider label="Messages" />
+        {!loading && unreadCount > 0 && (
+          <div style={{ marginBottom: 20 }}>
+            <SectionLabel>💬 Messages</SectionLabel>
             <div
-              onClick={() => { clearUnread(); navigate("/connect"); }}
+              onClick={() => { clearUnread(); navigate("/connect", { state: { tab: "messages" } }); }}
               style={{
                 display: "flex", alignItems: "center", gap: 14,
-                background: "#fff", borderRadius: 18, padding: "14px 16px", marginBottom: 10,
-                boxShadow: "0 2px 10px rgba(91,60,221,0.07)", cursor: "pointer",
-                border: "1.5px solid var(--color-primary)",
+                background: "linear-gradient(135deg, #5b3cdd, #7c3aed)",
+                borderRadius: 20, padding: "16px 16px",
+                cursor: "pointer", boxShadow: "0 6px 20px rgba(91,60,221,0.35)",
               }}
             >
-              <div style={{
-                width: 46, height: 46, borderRadius: 14,
-                background: "var(--color-primary)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-              }}>
+              <div style={{ width: 46, height: 46, borderRadius: 14, background: "rgba(255,255,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                 <span className="material-symbols-outlined" style={{ fontSize: 22, color: "#fff" }}>chat_bubble</span>
               </div>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 14, fontWeight: 700, color: "var(--color-text)" }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: "#fff" }}>
                   {unreadCount} new {unreadCount === 1 ? "message" : "messages"}
                 </div>
-                <div style={{ fontSize: 12, color: "var(--color-text-soft)", marginTop: 2 }}>Tap to open your messages</div>
+                <div style={{ fontSize: 12, color: "rgba(255,255,255,0.7)", marginTop: 2 }}>Tap to open messages</div>
               </div>
-              <span style={{
-                background: "#e84545", color: "#fff",
-                borderRadius: 999, padding: "3px 9px", fontSize: 12, fontWeight: 800,
-              }}>{unreadCount}</span>
+              <div style={{ background: "#fff", color: "#5b3cdd", borderRadius: 999, padding: "4px 10px", fontSize: 12, fontWeight: 800, flexShrink: 0 }}>
+                {unreadCount}
+              </div>
             </div>
-          </>
+          </div>
         )}
 
         {/* ── Friend requests ── */}
-        {requests.length > 0 && (
-          <>
-            <Divider label={`Friend requests · ${requests.length}`} />
+        {!loading && requests.length > 0 && (
+          <div style={{ marginBottom: 20 }}>
+            <SectionLabel>🤝 Connection requests · {requests.length}</SectionLabel>
             {requests.map(req => {
-              const name = req.profiles?.username || "Someone";
-              const avatarUrl = req.profiles?.avatar_url || undefined;
+              const name = req.profiles?.display_name || req.profiles?.username || "Someone";
               return (
-                <div
-                  key={req.id}
-                  style={{
-                    display: "flex", alignItems: "center", gap: 12,
-                    background: "#fff", borderRadius: 18, padding: "12px 14px", marginBottom: 10,
-                    boxShadow: "0 2px 10px rgba(91,60,221,0.07)",
-                    border: "1.5px solid var(--color-primary)",
-                    background: "linear-gradient(135deg, var(--color-primary-fixed) 0%, #e8f4ff 100%)",
-                  }}
-                >
-                  <UserAvatar name={name} size={46} avatarUrl={avatarUrl} />
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: "var(--color-text)" }}>{name}</div>
-                    <div style={{ fontSize: 12, color: "var(--color-text-soft)", marginTop: 2 }}>wants to connect with you 🤝</div>
-                  </div>
-                  <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
-                    <button
-                      onClick={() => handleAccept(req)}
-                      disabled={busy === req.id}
-                      style={{
-                        background: "var(--color-primary)", color: "#fff",
-                        border: "none", borderRadius: 999, padding: "8px 16px",
-                        fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "Rubik, sans-serif",
-                      }}
-                    >
-                      Accept
-                    </button>
-                    <button
-                      onClick={() => handleDecline(req)}
-                      disabled={busy === req.id}
-                      style={{
-                        background: "none", color: "var(--color-text-soft)",
-                        border: "1.5px solid var(--color-outline-variant)",
-                        borderRadius: 999, padding: "8px 12px",
-                        fontSize: 12, cursor: "pointer", fontFamily: "Rubik, sans-serif",
-                      }}
-                    >
-                      Decline
-                    </button>
+                <div key={req.id} style={{
+                  background: "#fff", borderRadius: 20, overflow: "hidden",
+                  marginBottom: 10, boxShadow: "0 2px 14px rgba(91,60,221,0.10)",
+                  border: "1.5px solid rgba(91,60,221,0.12)",
+                }}>
+                  <div style={{ height: 4, background: "linear-gradient(90deg, #5b3cdd, #a78bfa)" }} />
+                  <div style={{ padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
+                    <UserAvatar name={name} size={46} avatarUrl={req.profiles?.avatar_url || undefined} />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: "var(--color-text)" }}>{name}</div>
+                      <div style={{ fontSize: 12, color: "var(--color-primary)", marginTop: 2, fontWeight: 600 }}>wants to connect with you</div>
+                    </div>
+                    <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+                      <button
+                        onClick={() => handleAccept(req)}
+                        disabled={busy === req.id}
+                        style={{ background: "var(--color-primary)", color: "#fff", border: "none", borderRadius: 12, padding: "8px 16px", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "Rubik, sans-serif", opacity: busy === req.id ? 0.6 : 1 }}
+                      >
+                        Accept ✓
+                      </button>
+                      <button
+                        onClick={() => handleDecline(req)}
+                        disabled={busy === req.id}
+                        style={{ background: "none", color: "var(--color-text-soft)", border: "1.5px solid var(--color-outline-variant)", borderRadius: 12, padding: "8px 12px", fontSize: 12, cursor: "pointer", fontFamily: "Rubik, sans-serif" }}
+                      >
+                        ✕
+                      </button>
+                    </div>
                   </div>
                 </div>
               );
             })}
-          </>
+          </div>
         )}
 
         {/* ── Comments on my posts ── */}
-        {comments.length > 0 && (
-          <>
-            <Divider label="On your posts" />
+        {!loading && comments.length > 0 && (
+          <div style={{ marginBottom: 20 }}>
+            <SectionLabel>💜 Replies on your posts</SectionLabel>
             {comments.map(c => {
-              const name = c.author?.username || "Someone";
-              const avatarUrl = c.author?.avatar_url || undefined;
+              const name = c.author?.display_name || c.author?.username || "Someone";
               return (
-                <div
-                  key={c.id}
-                  style={{
-                    display: "flex", alignItems: "flex-start", gap: 12,
-                    background: "#fff", borderRadius: 18, padding: "12px 14px", marginBottom: 10,
-                    boxShadow: "0 2px 10px rgba(91,60,221,0.07)",
-                  }}
-                >
-                  <UserAvatar name={name} size={40} avatarUrl={avatarUrl} />
+                <div key={c.id} style={{
+                  background: "#fff", borderRadius: 20, padding: "14px 16px",
+                  marginBottom: 10, boxShadow: "0 2px 10px rgba(0,0,0,0.06)",
+                  display: "flex", alignItems: "flex-start", gap: 12,
+                }}>
+                  <UserAvatar name={name} size={40} avatarUrl={c.author?.avatar_url || undefined} />
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 13, color: "var(--color-text)", lineHeight: 1.5 }}>
+                    <div style={{ fontSize: 13, color: "var(--color-text)", lineHeight: 1.5, marginBottom: 6 }}>
                       <span style={{ fontWeight: 700 }}>{name}</span>
-                      {" commented on your post"}
+                      <span style={{ color: "var(--color-text-soft)" }}> replied with support</span>
                     </div>
                     <div style={{
-                      fontSize: 12, color: "var(--color-text-soft)", marginTop: 4,
+                      fontSize: 12, color: "var(--color-text-soft)",
                       background: "var(--color-surface-low)", borderRadius: 10,
-                      padding: "6px 10px", lineHeight: 1.5,
+                      padding: "8px 12px", lineHeight: 1.55,
                       overflow: "hidden", display: "-webkit-box",
                       WebkitLineClamp: 2, WebkitBoxOrient: "vertical",
+                      borderLeft: "3px solid var(--color-primary)",
                     }}>
                       "{c.text}"
                     </div>
-                    <div style={{ fontSize: 11, color: "var(--color-text-soft)", marginTop: 6 }}>
+                    <div style={{ fontSize: 11, color: "var(--color-text-soft)", marginTop: 6, fontWeight: 500 }}>
                       {timeAgo(c.created_at)}
                     </div>
                   </div>
                 </div>
               );
             })}
-          </>
+          </div>
         )}
 
       </div>
+    </div>
+  );
+}
+
+function SectionLabel({ children }) {
+  return (
+    <div style={{ fontSize: 11, fontWeight: 800, color: "var(--color-text-soft)", letterSpacing: "0.07em", textTransform: "uppercase", marginBottom: 10 }}>
+      {children}
     </div>
   );
 }
