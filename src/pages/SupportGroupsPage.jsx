@@ -16,38 +16,40 @@ const CATEGORY_COLOR = {
 };
 
 function GroupCard({ group, isMember, isOwner, onJoin, onView, busy }) {
-  const cat   = CATEGORY_EMOJI[group.category] || "✨";
-  const count = group.group_members?.length || 0;
+  const cat       = CATEGORY_EMOJI[group.category] || "✨";
+  const count     = group.group_members?.length || 0;
   const isPrivate = group.privacy === "private";
-  const accent = CATEGORY_COLOR[group.category] || group.color || "var(--color-primary)";
+  const accent    = CATEGORY_COLOR[group.category] || group.color || "#5b3cdd";
 
   return (
-    <div
-      onClick={onView}
-      style={{
-        background: "#fff", borderRadius: 20,
-        boxShadow: "var(--shadow-card)",
-        marginBottom: 12, overflow: "hidden", cursor: "pointer",
-        borderLeft: `4px solid ${accent}`,
-      }}
-    >
-      <div style={{ padding: "14px 14px 14px" }}>
+    <div onClick={onView} style={{
+      background: "#fff", borderRadius: 20,
+      boxShadow: "0 2px 12px rgba(0,0,0,0.07)",
+      marginBottom: 12, overflow: "hidden", cursor: "pointer",
+      border: `1.5px solid ${accent}18`,
+    }}>
+      {/* Top accent bar */}
+      <div style={{ height: 4, background: `linear-gradient(90deg, ${accent}, ${accent}66)` }} />
+
+      <div style={{ padding: "12px 14px 14px" }}>
         <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
           <div style={{
-            width: 46, height: 46, borderRadius: 14, flexShrink: 0,
-            background: `${accent}18`,
+            width: 44, height: 44, borderRadius: 14, flexShrink: 0,
+            background: `linear-gradient(135deg, ${accent}22, ${accent}11)`,
             display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 22,
+            fontSize: 22, border: `1px solid ${accent}22`,
           }}>
             {cat}
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 3 }}>
-              <div style={{ fontSize: 15, fontWeight: 700, color: "var(--color-text)", lineHeight: 1.2 }}>{group.name}</div>
-              {isPrivate && <span style={{ fontSize: 11 }}>🔒</span>}
+            <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
+              <div style={{ fontSize: 15, fontWeight: 800, color: "var(--color-text)", lineHeight: 1.2 }}>{group.name}</div>
+              {isPrivate && <span style={{ fontSize: 10, background: `${accent}18`, color: accent, borderRadius: 999, padding: "1px 6px", fontWeight: 700 }}>🔒 Private</span>}
             </div>
-            <div style={{ fontSize: 11, fontWeight: 600, color: accent, marginBottom: 5 }}>
-              {group.category}{group.min_age ? ` · Ages ${group.min_age}–${group.max_age}` : ""}{group.city ? ` · 📍 ${group.city}` : ""}
+            <div style={{ fontSize: 11, fontWeight: 700, color: accent, marginBottom: 6, display: "flex", alignItems: "center", gap: 6 }}>
+              <span>{group.category}</span>
+              {group.city && <span style={{ color: "var(--color-text-soft)", fontWeight: 500 }}>📍 {group.city}</span>}
+              {group.min_age && <span style={{ color: "var(--color-text-soft)", fontWeight: 500 }}>Ages {group.min_age}–{group.max_age}</span>}
             </div>
             {group.description && (
               <div style={{ fontSize: 13, color: "var(--color-text-soft)", lineHeight: 1.55, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
@@ -58,35 +60,65 @@ function GroupCard({ group, isMember, isOwner, onJoin, onView, busy }) {
         </div>
 
         <div style={{ marginTop: 12, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <span style={{ fontSize: 12, color: "var(--color-text-soft)", fontWeight: 500 }}>
-            {count} {count === 1 ? "member" : "members"}
-          </span>
+          <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 12, color: "var(--color-text-soft)", fontWeight: 600 }}>
+            <span style={{ background: `${accent}14`, color: accent, borderRadius: 999, padding: "3px 10px", fontWeight: 700 }}>
+              👥 {count} {count === 1 ? "member" : "members"}
+            </span>
+            {group.meeting_schedule && (
+              <span style={{ fontSize: 11, color: "var(--color-text-soft)" }}>· {group.meeting_schedule}</span>
+            )}
+          </div>
           <button
             onClick={e => { e.stopPropagation(); onJoin(); }}
             disabled={busy || isOwner}
             style={{
-              background: isOwner
-                ? "var(--color-surface-low)"
-                : isMember
-                  ? "var(--color-primary-fixed)"
-                  : "var(--color-primary)",
-              color: isOwner
-                ? "var(--color-text-soft)"
-                : isMember
-                  ? "var(--color-primary)"
-                  : "#fff",
-              border: isMember && !isOwner ? "1.5px solid var(--color-primary)" : "none",
-              borderRadius: 12, padding: "9px 20px",
+              background: isOwner ? "var(--color-surface-low)" : isMember ? `${accent}18` : accent,
+              color: isOwner ? "var(--color-text-soft)" : isMember ? accent : "#fff",
+              border: isMember && !isOwner ? `1.5px solid ${accent}` : "none",
+              borderRadius: 12, padding: "8px 18px",
               fontSize: 12, fontWeight: 700,
               cursor: isOwner || busy ? "default" : "pointer",
               fontFamily: "Rubik, sans-serif",
               transition: "all 0.15s", opacity: busy ? 0.6 : 1,
-              boxShadow: (!isMember && !isOwner) ? "0 4px 12px rgba(91,60,221,0.28)" : "none",
+              boxShadow: (!isMember && !isOwner) ? `0 4px 12px ${accent}44` : "none",
             }}
           >
             {isOwner ? "Owner 👑" : isMember ? "Joined ✓" : isPrivate ? "Request 🔒" : "Join"}
           </button>
         </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── My space mini card (carousel) ─────────────────── */
+function MySpaceCard({ group, onView }) {
+  const cat    = CATEGORY_EMOJI[group.category] || "✨";
+  const accent = CATEGORY_COLOR[group.category] || "#5b3cdd";
+  const count  = group.group_members?.length || 0;
+
+  return (
+    <div onClick={onView} style={{
+      flexShrink: 0, width: 160,
+      background: "#fff", borderRadius: 20, overflow: "hidden",
+      boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
+      border: `1.5px solid ${accent}22`,
+      cursor: "pointer",
+    }}>
+      <div style={{
+        height: 64,
+        background: `linear-gradient(135deg, ${accent}dd, ${accent}88)`,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        fontSize: 30,
+      }}>
+        {cat}
+      </div>
+      <div style={{ padding: "10px 12px 12px" }}>
+        <div style={{ fontSize: 13, fontWeight: 800, color: "var(--color-text)", marginBottom: 4, lineHeight: 1.2, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
+          {group.name}
+        </div>
+        <div style={{ fontSize: 11, color: accent, fontWeight: 700, marginBottom: 6 }}>{group.category}</div>
+        <div style={{ fontSize: 11, color: "var(--color-text-soft)" }}>👥 {count} members</div>
       </div>
     </div>
   );
@@ -204,22 +236,26 @@ export default function SupportGroupsPage() {
       {/* ── Category chips ── */}
       <div style={{ position: "relative", marginBottom: 18 }}>
         <div style={{ display: "flex", gap: 8, padding: "0 0 0 18px", overflowX: "auto" }} className="scrollbar-none">
-          {CATEGORIES.map(c => (
-            <button
-              key={c}
-              onClick={() => setActiveFilter(c)}
-              style={{
-                padding: "8px 14px", borderRadius: 12, fontSize: 13, whiteSpace: "nowrap",
-                border: "none", cursor: "pointer", fontFamily: "Rubik, sans-serif", fontWeight: 700,
-                background: activeFilter === c ? "var(--color-primary)" : "#fff",
-                color: activeFilter === c ? "#fff" : "var(--color-text)",
-                boxShadow: activeFilter === c ? "0 4px 12px rgba(91,60,221,0.3)" : "0 1px 3px rgba(0,0,0,0.08)",
-                transition: "all 0.15s",
-              }}
-            >
-              {c === "All" ? "All" : `${CATEGORY_EMOJI[c]} ${c}`}
-            </button>
-          ))}
+          {CATEGORIES.map(c => {
+            const active = activeFilter === c;
+            const color  = CATEGORY_COLOR[c] || "#5b3cdd";
+            return (
+              <button
+                key={c}
+                onClick={() => setActiveFilter(c)}
+                style={{
+                  padding: "8px 14px", borderRadius: 12, fontSize: 13, whiteSpace: "nowrap",
+                  border: "none", cursor: "pointer", fontFamily: "Rubik, sans-serif", fontWeight: 700,
+                  background: active ? (c === "All" ? "var(--color-primary)" : color) : "#fff",
+                  color: active ? "#fff" : "var(--color-text)",
+                  boxShadow: active ? `0 4px 12px ${color}44` : "0 1px 3px rgba(0,0,0,0.08)",
+                  transition: "all 0.15s",
+                }}
+              >
+                {c === "All" ? "🌍 All" : `${CATEGORY_EMOJI[c]} ${c}`}
+              </button>
+            );
+          })}
           <div style={{ flexShrink: 0, width: 18 }} />
         </div>
         <div style={{
@@ -237,24 +273,25 @@ export default function SupportGroupsPage() {
           </div>
         )}
 
-        {/* ── My spaces ── */}
+        {/* ── My spaces carousel ── */}
         {!loading && myGroups.length > 0 && (
-          <>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
-              <div style={{ height: 1, flex: 1, background: "var(--color-outline-variant)" }} />
-              <div style={{ fontSize: 11, fontWeight: 800, color: "var(--color-text-soft)", letterSpacing: "0.08em", textTransform: "uppercase" }}>My spaces</div>
-              <div style={{ height: 1, flex: 1, background: "var(--color-outline-variant)" }} />
+          <div style={{ marginBottom: 20 }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+              <div style={{ fontSize: 11, fontWeight: 800, color: "var(--color-text-soft)", letterSpacing: "0.07em", textTransform: "uppercase" }}>💜 My spaces</div>
+              <span style={{ fontSize: 11, color: "var(--color-primary)", fontWeight: 600 }}>{myGroups.length} joined</span>
             </div>
-            {myGroups.map(g => (
-              <GroupCard key={g.id} group={g}
-                isMember={isJoined(g)} isOwner={isOwner(g)}
-                onJoin={() => handleJoin(g)}
-                onView={() => navigate(`/groups/${g.id}`)}
-                busy={busyId === g.id}
-              />
-            ))}
-            <div style={{ height: 6 }} />
-          </>
+            <div style={{ position: "relative" }}>
+              <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 4, scrollSnapType: "x mandatory" }} className="scrollbar-none">
+                {myGroups.map(g => (
+                  <div key={g.id} style={{ scrollSnapAlign: "start" }}>
+                    <MySpaceCard group={g} onView={() => navigate(`/groups/${g.id}`)} />
+                  </div>
+                ))}
+                <div style={{ flexShrink: 0, width: 4 }} />
+              </div>
+              <div style={{ position: "absolute", right: 0, top: 0, bottom: 0, width: 40, background: "linear-gradient(to left, var(--color-bg), transparent)", pointerEvents: "none" }} />
+            </div>
+          </div>
         )}
 
         {/* ── Nearby ── */}
