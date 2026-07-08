@@ -703,6 +703,23 @@ export async function deleteGoal(goalId) {
   if (error) throw error;
 }
 
+export async function fetchMoodHistory(userId, days = 7) {
+  const since = new Date(Date.now() - (days - 1) * 86400000).toISOString().split("T")[0];
+  const { data } = await supabase
+    .from("mood_logs")
+    .select("mood, created_at")
+    .eq("user_id", userId)
+    .gte("created_at", `${since}T00:00:00`)
+    .order("created_at", { ascending: false });
+  // one entry per day (latest)
+  const map = {};
+  for (const row of data || []) {
+    const d = row.created_at.split("T")[0];
+    if (!map[d]) map[d] = row.mood;
+  }
+  return map; // { "2026-07-01": "happy", ... }
+}
+
 /* ---------- Reports (AI-triaged) ---------- */
 // Calls the "triage-report" Edge Function, which classifies urgency with an
 // AI model server-side and writes the row (keeps the AI API key off the client).
