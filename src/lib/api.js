@@ -329,6 +329,11 @@ export async function updateGroup(groupId, fields) {
   if (error) throw error;
 }
 
+export async function updateActivity(activityId, fields) {
+  const { error } = await supabase.from("activities").update(fields).eq("id", activityId);
+  if (error) throw error;
+}
+
 export async function deleteGroup(groupId) {
   const { error } = await supabase.from("groups").delete().eq("id", groupId);
   if (error) throw error;

@@ -7,7 +7,7 @@ import { useAuth } from "../context/AuthContext.jsx";
 import {
   fetchGroup, joinGroup, leaveGroup, sendJoinRequest,
   fetchMyJoinRequest, fetchJoinRequests, approveJoinRequest,
-  declineJoinRequest, removeGroupMember,
+  declineJoinRequest, removeGroupMember, updateGroup,
   fetchGroupMessages, sendGroupMessage, subscribeToGroupMessages,
 } from "../lib/api.js";
 
@@ -182,6 +182,13 @@ export default function GroupDetailPage() {
   const [showRules, setShowRules]= useState(false);
   const [tab,       setTab]      = useState("chat");
 
+  // Banner inline edit
+  const [editingBanner, setEditingBanner] = useState(false);
+  const [editName,      setEditName]      = useState("");
+  const [editLocation,  setEditLocation]  = useState("");
+  const [editSchedule,  setEditSchedule]  = useState("");
+  const [savingBanner,  setSavingBanner]  = useState(false);
+
   const load = useCallback(async () => {
     setLoading(true);
     try {
@@ -257,6 +264,27 @@ export default function GroupDetailPage() {
     catch {} finally { setBusy(false); }
   };
 
+  const openBannerEdit = () => {
+    setEditName(group.name || "");
+    setEditLocation(group.meeting_location || "");
+    setEditSchedule(group.meeting_schedule || "");
+    setEditingBanner(true);
+  };
+
+  const saveBanner = async () => {
+    setSavingBanner(true);
+    try {
+      await updateGroup(group.id, {
+        name: editName.trim() || group.name,
+        meeting_location: editLocation.trim() || null,
+        meeting_schedule: editSchedule.trim() || null,
+      });
+      setGroup(g => ({ ...g, name: editName.trim() || g.name, meeting_location: editLocation.trim() || null, meeting_schedule: editSchedule.trim() || null }));
+      setEditingBanner(false);
+    } catch {}
+    finally { setSavingBanner(false); }
+  };
+
   const joinLabel = () => {
     if (isOwner) return null;
     if (isMember) return { label: "Leave community", variant: "outline" };
@@ -281,29 +309,78 @@ export default function GroupDetailPage() {
         </TopBar>
 
         {/* ── Banner ── */}
-        <div style={{ background: group.color || "var(--color-primary)", minHeight: 100, position: "relative", padding: "14px 18px 14px" }}>
+        <div style={{ background: group.color || "var(--color-primary)", position: "relative", padding: "14px 18px 14px" }}>
           <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.18)" }} />
           <div style={{ position: "relative" }}>
-            <div style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.8)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 4 }}>
-              {catEmoji} {group.category} · {group.privacy === "private" ? "🔒 Private" : "🌍 Public"} · {members.length} members
-            </div>
-            <div style={{ fontSize: 22, fontWeight: 900, color: "#fff", lineHeight: 1.2, letterSpacing: "-0.01em" }}>{group.name}</div>
-            {/* Meeting info */}
-            {(group.meeting_location || group.meeting_schedule) && (
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: 10 }}>
-                {group.meeting_location && (
-                  <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: 14, color: "rgba(255,255,255,0.85)" }}>location_on</span>
-                    <span style={{ fontSize: 12, color: "rgba(255,255,255,0.9)", fontWeight: 600 }}>{group.meeting_location}</span>
-                  </div>
-                )}
-                {group.meeting_schedule && (
-                  <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: 14, color: "rgba(255,255,255,0.85)" }}>schedule</span>
-                    <span style={{ fontSize: 12, color: "rgba(255,255,255,0.9)", fontWeight: 600 }}>{group.meeting_schedule}</span>
-                  </div>
-                )}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.8)", letterSpacing: "0.1em", textTransform: "uppercase" }}>
+                {catEmoji} {group.category} · {group.privacy === "private" ? "🔒 Private" : "🌍 Public"} · {members.length} members
               </div>
+              {isOwner && !editingBanner && (
+                <button onClick={openBannerEdit} style={{ background: "rgba(255,255,255,0.2)", border: "none", borderRadius: 8, padding: "4px 8px", cursor: "pointer", display: "flex", alignItems: "center", gap: 4, backdropFilter: "blur(4px)" }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: 14, color: "#fff" }}>edit</span>
+                  <span style={{ fontSize: 11, color: "#fff", fontWeight: 700, fontFamily: "Rubik, sans-serif" }}>Edit</span>
+                </button>
+              )}
+            </div>
+
+            {editingBanner ? (
+              /* ── Edit mode ── */
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                <input
+                  value={editName}
+                  onChange={e => setEditName(e.target.value)}
+                  placeholder="Community name"
+                  style={{ background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.4)", borderRadius: 10, padding: "8px 12px", color: "#fff", fontSize: 16, fontWeight: 800, fontFamily: "Rubik, sans-serif", outline: "none", width: "100%", boxSizing: "border-box" }}
+                />
+                <input
+                  value={editLocation}
+                  onChange={e => setEditLocation(e.target.value)}
+                  placeholder="📍 Meeting location (e.g. Central Park)"
+                  style={{ background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.4)", borderRadius: 10, padding: "7px 12px", color: "#fff", fontSize: 13, fontFamily: "Rubik, sans-serif", outline: "none", width: "100%", boxSizing: "border-box" }}
+                />
+                <input
+                  value={editSchedule}
+                  onChange={e => setEditSchedule(e.target.value)}
+                  placeholder="🕐 Schedule (e.g. Every Friday 6pm)"
+                  style={{ background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.4)", borderRadius: 10, padding: "7px 12px", color: "#fff", fontSize: 13, fontFamily: "Rubik, sans-serif", outline: "none", width: "100%", boxSizing: "border-box" }}
+                />
+                <div style={{ display: "flex", gap: 8, marginTop: 2 }}>
+                  <button onClick={saveBanner} disabled={savingBanner} style={{ background: "#fff", color: group.color || "var(--color-primary)", border: "none", borderRadius: 10, padding: "8px 18px", fontSize: 13, fontWeight: 800, cursor: "pointer", fontFamily: "Rubik, sans-serif", opacity: savingBanner ? 0.7 : 1 }}>
+                    {savingBanner ? "Saving…" : "Save ✓"}
+                  </button>
+                  <button onClick={() => setEditingBanner(false)} style={{ background: "rgba(255,255,255,0.15)", color: "#fff", border: "none", borderRadius: 10, padding: "8px 14px", fontSize: 13, cursor: "pointer", fontFamily: "Rubik, sans-serif" }}>
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            ) : (
+              /* ── View mode ── */
+              <>
+                <div style={{ fontSize: 22, fontWeight: 900, color: "#fff", lineHeight: 1.2, letterSpacing: "-0.01em", marginBottom: 8 }}>{group.name}</div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
+                  {group.meeting_location ? (
+                    <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: 14, color: "rgba(255,255,255,0.85)" }}>location_on</span>
+                      <span style={{ fontSize: 12, color: "rgba(255,255,255,0.95)", fontWeight: 600 }}>{group.meeting_location}</span>
+                    </div>
+                  ) : isOwner && (
+                    <button onClick={openBannerEdit} style={{ background: "rgba(255,255,255,0.15)", border: "1px dashed rgba(255,255,255,0.5)", borderRadius: 8, padding: "4px 10px", fontSize: 11, color: "rgba(255,255,255,0.8)", cursor: "pointer", fontFamily: "Rubik, sans-serif" }}>
+                      + Add meeting location
+                    </button>
+                  )}
+                  {group.meeting_schedule ? (
+                    <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: 14, color: "rgba(255,255,255,0.85)" }}>schedule</span>
+                      <span style={{ fontSize: 12, color: "rgba(255,255,255,0.95)", fontWeight: 600 }}>{group.meeting_schedule}</span>
+                    </div>
+                  ) : isOwner && (
+                    <button onClick={openBannerEdit} style={{ background: "rgba(255,255,255,0.15)", border: "1px dashed rgba(255,255,255,0.5)", borderRadius: 8, padding: "4px 10px", fontSize: 11, color: "rgba(255,255,255,0.8)", cursor: "pointer", fontFamily: "Rubik, sans-serif" }}>
+                      + Add schedule
+                    </button>
+                  )}
+                </div>
+              </>
             )}
           </div>
         </div>

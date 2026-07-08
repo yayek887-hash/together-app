@@ -6,6 +6,7 @@ import { useAuth } from "../context/AuthContext.jsx";
 import { INTERESTS } from "../data/inspireContent.js";
 import {
   fetchActivity, joinActivity, leaveActivity, deleteActivity,
+  updateActivity,
   fetchActivityMessages, sendActivityMessage, subscribeToActivityMessages,
 } from "../lib/api.js";
 
@@ -39,6 +40,13 @@ export default function ActivityDetailPage() {
   const [sending, setSending]   = useState(false);
   const [tab, setTab]           = useState("chat");
   const endRef = useRef(null);
+
+  // Banner inline edit
+  const [editingBanner, setEditingBanner] = useState(false);
+  const [editTitle,    setEditTitle]    = useState("");
+  const [editLocation, setEditLocation] = useState("");
+  const [editDate,     setEditDate]     = useState("");
+  const [savingBanner, setSavingBanner] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -108,6 +116,28 @@ export default function ActivityDetailPage() {
     } finally { setSending(false); }
   };
 
+  const openBannerEdit = () => {
+    setEditTitle(activity.title || "");
+    setEditLocation(activity.location || "");
+    setEditDate(activity.activity_date ? activity.activity_date.slice(0, 16) : "");
+    setEditingBanner(true);
+  };
+
+  const saveBanner = async () => {
+    setSavingBanner(true);
+    try {
+      const fields = {
+        title: editTitle.trim() || activity.title,
+        location: editLocation.trim() || activity.location,
+        activity_date: editDate || activity.activity_date,
+      };
+      await updateActivity(activityId, fields);
+      setActivity(a => ({ ...a, ...fields }));
+      setEditingBanner(false);
+    } catch {}
+    finally { setSavingBanner(false); }
+  };
+
   if (loading) return (
     <div style={{ display: "flex", flexDirection: "column", height: "calc(100dvh - 80px)" }}>
       <TopBar title="" showBack />
@@ -137,11 +167,36 @@ export default function ActivityDetailPage() {
         <div style={{ background: accentColor, padding: "14px 18px 16px", position: "relative" }}>
           <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.18)" }} />
           <div style={{ position: "relative" }}>
-            {interest && (
-              <div style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.8)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 4 }}>
-                {interest.emoji} {interest.label}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
+              {interest && (
+                <div style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.8)", letterSpacing: "0.1em", textTransform: "uppercase" }}>
+                  {interest.emoji} {interest.label}
+                </div>
+              )}
+              {isCreator && !editingBanner && (
+                <button onClick={openBannerEdit} style={{ background: "rgba(255,255,255,0.2)", border: "none", borderRadius: 8, padding: "4px 8px", cursor: "pointer", display: "flex", alignItems: "center", gap: 4, backdropFilter: "blur(4px)" }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: 14, color: "#fff" }}>edit</span>
+                  <span style={{ fontSize: 11, color: "#fff", fontWeight: 700, fontFamily: "Rubik, sans-serif" }}>Edit</span>
+                </button>
+              )}
+            </div>
+
+            {editingBanner ? (
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                <input value={editTitle} onChange={e => setEditTitle(e.target.value)} placeholder="Activity title" style={{ background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.4)", borderRadius: 10, padding: "8px 12px", color: "#fff", fontSize: 16, fontWeight: 800, fontFamily: "Rubik, sans-serif", outline: "none", width: "100%", boxSizing: "border-box" }} />
+                <input value={editLocation} onChange={e => setEditLocation(e.target.value)} placeholder="📍 Location" style={{ background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.4)", borderRadius: 10, padding: "7px 12px", color: "#fff", fontSize: 13, fontFamily: "Rubik, sans-serif", outline: "none", width: "100%", boxSizing: "border-box" }} />
+                <input type="datetime-local" value={editDate} onChange={e => setEditDate(e.target.value)} style={{ background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.4)", borderRadius: 10, padding: "7px 12px", color: "#fff", fontSize: 13, fontFamily: "Rubik, sans-serif", outline: "none", width: "100%", boxSizing: "border-box", colorScheme: "dark" }} />
+                <div style={{ display: "flex", gap: 8, marginTop: 2 }}>
+                  <button onClick={saveBanner} disabled={savingBanner} style={{ background: "#fff", color: accentColor, border: "none", borderRadius: 10, padding: "8px 18px", fontSize: 13, fontWeight: 800, cursor: "pointer", fontFamily: "Rubik, sans-serif", opacity: savingBanner ? 0.7 : 1 }}>
+                    {savingBanner ? "Saving…" : "Save ✓"}
+                  </button>
+                  <button onClick={() => setEditingBanner(false)} style={{ background: "rgba(255,255,255,0.15)", color: "#fff", border: "none", borderRadius: 10, padding: "8px 14px", fontSize: 13, cursor: "pointer", fontFamily: "Rubik, sans-serif" }}>
+                    Cancel
+                  </button>
+                </div>
               </div>
-            )}
+            ) : (
+              <>
             <div style={{ fontSize: 20, fontWeight: 900, color: "#fff", marginBottom: 10, lineHeight: 1.2 }}>
               {activity.title}
             </div>
@@ -161,6 +216,8 @@ export default function ActivityDetailPage() {
                 </span>
               </div>
             </div>
+              </>
+            )}
           </div>
         </div>
 
