@@ -133,7 +133,9 @@ export default function SupportGroupsPage() {
   };
 
   const myGroups   = groups.filter(g => isJoined(g) || isOwner(g));
+  const myGroupIds = new Set(myGroups.map(g => g.id));
   const filtered   = groups.filter(g => {
+    if (myGroupIds.has(g.id)) return false;
     const matchSearch = g.name.toLowerCase().includes(query.toLowerCase());
     const matchFilter = activeFilter === "All" || g.category === activeFilter;
     return matchSearch && matchFilter;
