@@ -167,6 +167,50 @@ export async function fetchFeed(topic = null) {
   return data;
 }
 
+export async function fetchUpcomingActivities(limit = 4) {
+  const now = new Date().toISOString();
+  const week = new Date(Date.now() + 7 * 86400000).toISOString();
+  const { data, error } = await supabase
+    .from("activities")
+    .select(`id, title, topic, location, activity_date, max_participants,
+      creator:profiles!activities_creator_id_fkey(id, username, avatar_color, avatar_url),
+      activity_participants(user_id)`)
+    .gte("activity_date", now)
+    .lte("activity_date", week)
+    .order("activity_date", { ascending: true })
+    .limit(limit);
+  if (error) throw error;
+  return data || [];
+}
+
+export async function fetchRecommendedGroups(interests = [], limit = 3) {
+  let query = supabase
+    .from("groups")
+    .select(`id, name, description, category, color, privacy, group_members(user_id)`)
+    .eq("privacy", "public")
+    .order("id", { ascending: false })
+    .limit(limit * 3);
+  if (interests.length) query = query.in("category", interests.map(k => k.charAt(0).toUpperCase() + k.slice(1)));
+  const { data, error } = await query;
+  if (error) return [];
+  return (data || []).slice(0, limit);
+}
+
+export async function fetchTrendingPosts(limit = 5) {
+  const since = new Date(Date.now() - 7 * 86400000).toISOString();
+  const { data, error } = await supabase
+    .from("posts")
+    .select(`id, text, mood, topic, image_url, is_anonymous, created_at,
+       author:profiles!posts_author_id_fkey(id, username, avatar_color, avatar_url),
+       post_reactions(user_id, type),
+       comments(id)`)
+    .gte("created_at", since)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  if (error) return [];
+  return (data || []).sort((a, b) => (b.post_reactions?.length || 0) - (a.post_reactions?.length || 0));
+}
+
 export async function updateInterests(userId, interests) {
   const { error } = await supabase.from("profiles").update({ interests }).eq("id", userId);
   if (error) throw error;

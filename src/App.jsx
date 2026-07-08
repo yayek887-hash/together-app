@@ -22,6 +22,7 @@ import MeetPage from "./pages/MeetPage.jsx";
 import CreateActivityPage from "./pages/CreateActivityPage.jsx";
 import ActivityDetailPage from "./pages/ActivityDetailPage.jsx";
 import NotificationsPage from "./pages/NotificationsPage.jsx";
+import MySpacePage from "./pages/MySpacePage.jsx";
 
 function Shell() {
   const location = useLocation();
@@ -52,6 +53,7 @@ function Shell() {
           <Route path="/groups/:groupId" element={<ProtectedRoute><GroupDetailPage /></ProtectedRoute>} />
           <Route path="/groups/:groupId/manage" element={<ProtectedRoute><GroupManagePage /></ProtectedRoute>} />
           <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
+          <Route path="/my-space" element={<ProtectedRoute><MySpacePage /></ProtectedRoute>} />
           <Route path="*" element={<LandingPage />} />
         </Routes>
       </div>

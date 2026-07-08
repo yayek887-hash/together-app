@@ -516,6 +516,15 @@ export default function ProfilePage() {
 
             {/* Actions */}
             <SectionCard>
+              <button onClick={() => navigate("/my-space")} style={{
+                width: "100%", display: "flex", alignItems: "center", gap: 12,
+                background: "none", border: "none", padding: "10px 0", cursor: "pointer",
+                borderBottom: "1px solid var(--color-surface-high)",
+              }}>
+                <span className="material-symbols-outlined" style={{ fontSize: 18, color: "var(--color-primary)" }}>self_improvement</span>
+                <span style={{ fontSize: 14, color: "var(--color-text)", fontFamily: "Rubik, sans-serif", fontWeight: 600 }}>My Space 🔒</span>
+                <span className="material-symbols-outlined" style={{ fontSize: 16, color: "var(--color-text-soft)", marginLeft: "auto" }}>chevron_right</span>
+              </button>
               <button onClick={() => navigate("/help-center")} style={{
                 width: "100%", display: "flex", alignItems: "center", gap: 12,
                 background: "none", border: "none", padding: "10px 0", cursor: "pointer",
