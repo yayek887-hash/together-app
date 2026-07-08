@@ -262,7 +262,8 @@ export default function HomePage() {
   const featuredTopic = activeTopic === "all" ? interests[0] : activeTopic;
   const secondaryTopics = activeTopic === "all" ? interests.slice(1, 3) : [];
 
-  if (!interests.length) return <InterestOnboarding onDone={(sel) => setInterests(sel)} />;
+  // Onboarding handled by ProtectedRoute redirect; just render empty state if no interests yet
+  if (!interests.length) return null;
 
   return (
     <div className="page-scroll scrollbar-none anim-in" style={{ paddingBottom: 120 }}>
