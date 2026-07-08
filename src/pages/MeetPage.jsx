@@ -29,7 +29,8 @@ function ActivityCard({ activity, userId, onChanged }) {
   const isCreator  = activity.creator?.id === userId;
   const isFull     = activity.max_participants && participants.length >= activity.max_participants;
 
-  const handleJoin = async () => {
+  const handleJoin = async (e) => {
+    e.stopPropagation();
     if (busy) return;
     setBusy(true);
     try {
@@ -40,7 +41,8 @@ function ActivityCard({ activity, userId, onChanged }) {
     finally { setBusy(false); }
   };
 
-  const handleDelete = async () => {
+  const handleDelete = async (e) => {
+    e.stopPropagation();
     if (!window.confirm("Delete this activity?")) return;
     setBusy(true);
     try { await deleteActivity(activity.id); onChanged(); }
@@ -48,12 +50,15 @@ function ActivityCard({ activity, userId, onChanged }) {
   };
 
   return (
-    <div style={{
-      background: "#fff", borderRadius: 22, marginBottom: 14,
-      boxShadow: "0 2px 12px rgba(91,60,221,0.08)",
-      overflow: "hidden",
-      border: interest ? `1.5px solid ${interest.color}22` : "1.5px solid var(--color-outline-variant)",
-    }}>
+    <div
+      onClick={() => navigate(`/meet/${activity.id}`)}
+      style={{
+        background: "#fff", borderRadius: 22, marginBottom: 14,
+        boxShadow: "0 2px 12px rgba(91,60,221,0.08)",
+        overflow: "hidden", cursor: "pointer",
+        border: interest ? `1.5px solid ${interest.color}22` : "1.5px solid var(--color-outline-variant)",
+      }}
+    >
       {/* Color top bar */}
       <div style={{
         height: 5,

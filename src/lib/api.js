@@ -96,6 +96,56 @@ export async function deleteActivity(activityId) {
   if (error) throw error;
 }
 
+export async function fetchActivity(activityId) {
+  const { data, error } = await supabase
+    .from("activities")
+    .select(`id, title, description, topic, location, activity_date, max_participants, created_at,
+      creator:profiles!activities_creator_id_fkey(id, username, avatar_color, avatar_url),
+      activity_participants(user_id, profiles!activity_participants_user_id_fkey(id, username, avatar_color, avatar_url))`)
+    .eq("id", activityId)
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export async function fetchActivityMessages(activityId) {
+  const { data, error } = await supabase
+    .from("activity_messages")
+    .select(`id, text, created_at, sender_id, sender:profiles!activity_messages_sender_id_fkey(id, username, avatar_color, avatar_url)`)
+    .eq("activity_id", activityId)
+    .order("created_at", { ascending: true })
+    .limit(100);
+  if (error) throw error;
+  return data || [];
+}
+
+export async function sendActivityMessage(activityId, senderId, text) {
+  const { data, error } = await supabase
+    .from("activity_messages")
+    .insert({ activity_id: activityId, sender_id: senderId, text })
+    .select(`id, text, created_at, sender_id, sender:profiles!activity_messages_sender_id_fkey(id, username, avatar_color, avatar_url)`)
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export function subscribeToActivityMessages(activityId, callback) {
+  const channel = supabase
+    .channel(`activity-chat-${activityId}`)
+    .on("postgres_changes",
+      { event: "INSERT", schema: "public", table: "activity_messages", filter: `activity_id=eq.${activityId}` },
+      async (payload) => {
+        const { data } = await supabase
+          .from("activity_messages")
+          .select(`id, text, created_at, sender_id, sender:profiles!activity_messages_sender_id_fkey(id, username, avatar_color, avatar_url)`)
+          .eq("id", payload.new.id)
+          .single();
+        if (data) callback(data);
+      }
+    ).subscribe();
+  return () => supabase.removeChannel(channel);
+}
+
 /* ---------- Posts ---------- */
 
 export async function fetchFeed(topic = null) {

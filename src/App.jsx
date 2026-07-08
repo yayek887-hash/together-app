@@ -20,6 +20,7 @@ import GroupManagePage from "./pages/GroupManagePage.jsx";
 import ConnectPage from "./pages/ConnectPage.jsx";
 import MeetPage from "./pages/MeetPage.jsx";
 import CreateActivityPage from "./pages/CreateActivityPage.jsx";
+import ActivityDetailPage from "./pages/ActivityDetailPage.jsx";
 import NotificationsPage from "./pages/NotificationsPage.jsx";
 
 function Shell() {
@@ -46,6 +47,7 @@ function Shell() {
           <Route path="/connect" element={<ProtectedRoute><ConnectPage /></ProtectedRoute>} />
           <Route path="/meet" element={<ProtectedRoute><MeetPage /></ProtectedRoute>} />
           <Route path="/create-activity" element={<ProtectedRoute><CreateActivityPage /></ProtectedRoute>} />
+          <Route path="/meet/:activityId" element={<ProtectedRoute><ActivityDetailPage /></ProtectedRoute>} />
           <Route path="/create-group" element={<ProtectedRoute><CreateGroupPage /></ProtectedRoute>} />
           <Route path="/groups/:groupId" element={<ProtectedRoute><GroupDetailPage /></ProtectedRoute>} />
           <Route path="/groups/:groupId/manage" element={<ProtectedRoute><GroupManagePage /></ProtectedRoute>} />
