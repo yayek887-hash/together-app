@@ -200,7 +200,7 @@ export default function SupportGroupsPage() {
       </div>
 
       {/* ── Category chips ── */}
-      <div style={{ display: "flex", gap: 8, padding: "0 18px 18px", overflowX: "auto" }} className="scrollbar-none">
+      <div style={{ display: "flex", gap: 8, padding: "0 0 18px 18px", overflowX: "auto" }} className="scrollbar-none">
         {CATEGORIES.map(c => (
           <button
             key={c}
@@ -217,6 +217,7 @@ export default function SupportGroupsPage() {
             {c === "All" ? "All" : `${CATEGORY_EMOJI[c]} ${c}`}
           </button>
         ))}
+        <div style={{ flexShrink: 0, width: 18 }} />
       </div>
 
       <div style={{ padding: "0 18px" }}>
