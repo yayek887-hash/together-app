@@ -18,8 +18,8 @@ const LEFT  = [
   { to: "/connect", icon: "handshake", label: "Connect" },
 ];
 const RIGHT = [
-  { to: "/meet",    icon: "location_on", label: "Meet" },
-  { to: "/profile", icon: "person",      label: "Me" },
+  { to: "/groups",  icon: "volunteer_activism", label: "Support" },
+  { to: "/profile", icon: "person",             label: "Me" },
 ];
 
 /* ── Sidebar item (desktop) ─────────────────────── */
