@@ -388,6 +388,22 @@ export function subscribeToConversation(userId, otherUserId, onInsert) {
 
 /* ---------- Profile & badges ---------- */
 
+export async function fetchUserPosts(userId) {
+  const { data, error } = await supabase
+    .from("posts")
+    .select(
+      `id, text, mood, topic, image_url, is_anonymous, created_at,
+       author:profiles!posts_author_id_fkey ( id, username, avatar_color, avatar_url ),
+       post_reactions ( user_id, type ),
+       comments ( id )`
+    )
+    .eq("author_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(20);
+  if (error) throw error;
+  return data;
+}
+
 export async function fetchProfile(userId) {
   const { data, error } = await supabase.from("profiles").select("*").eq("id", userId).single();
   if (error) throw error;
