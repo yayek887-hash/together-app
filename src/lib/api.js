@@ -404,6 +404,23 @@ export async function fetchUserPosts(userId) {
   return data;
 }
 
+export async function fetchCommentsOnMyPosts(userId) {
+  const { data: posts, error: postsErr } = await supabase
+    .from("posts").select("id").eq("author_id", userId);
+  if (postsErr) throw postsErr;
+  const postIds = (posts || []).map(p => p.id);
+  if (!postIds.length) return [];
+  const { data, error } = await supabase
+    .from("comments")
+    .select(`id, text, created_at, post_id, author:profiles!comments_author_id_fkey(id, username, avatar_color, avatar_url)`)
+    .in("post_id", postIds)
+    .neq("author_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(20);
+  if (error) throw error;
+  return data || [];
+}
+
 export async function fetchProfile(userId) {
   const { data, error } = await supabase.from("profiles").select("*").eq("id", userId).single();
   if (error) throw error;

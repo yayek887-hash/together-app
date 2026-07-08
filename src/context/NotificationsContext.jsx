@@ -9,16 +9,17 @@ export function NotificationsProvider({ children }) {
   const { user } = useAuth();
   const location = useLocation();
   const [unreadCount, setUnreadCount] = useState(0);
+  const [pendingCount, setPendingCount] = useState(0);
   const [toast, setToast] = useState(null);
 
-  // Track current path WITHOUT causing channel to re-subscribe on every navigation
   const pathRef = useRef(location.pathname);
   useEffect(() => { pathRef.current = location.pathname; }, [location.pathname]);
 
   const clearUnread = useCallback(() => setUnreadCount(0), []);
   const dismissToast = useCallback(() => setToast(null), []);
+  const decrementPending = useCallback(() => setPendingCount(c => Math.max(0, c - 1)), []);
 
-  // Subscribe once per user session — never recreate on route changes
+  // Subscribe to new messages
   useEffect(() => {
     if (!user) return;
 
@@ -26,45 +27,53 @@ export function NotificationsProvider({ children }) {
       .channel(`inbox-${user.id}`)
       .on(
         "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "messages",
-          filter: `receiver_id=eq.${user.id}`,
-        },
+        { event: "INSERT", schema: "public", table: "messages", filter: `receiver_id=eq.${user.id}` },
         async (payload) => {
           const msg = payload.new;
-
-          // Don't notify if already viewing that conversation
           if (pathRef.current === `/chat/${msg.sender_id}`) return;
-
           setUnreadCount((c) => c + 1);
-
           const { data: profile } = await supabase
-            .from("profiles")
-            .select("username")
-            .eq("id", msg.sender_id)
-            .single();
-
-          setToast({
-            senderName: profile?.username || "Someone",
-            senderId: msg.sender_id,
-            text: msg.text,
-          });
+            .from("profiles").select("username").eq("id", msg.sender_id).single();
+          setToast({ senderName: profile?.username || "Someone", senderId: msg.sender_id, text: msg.text });
         }
       )
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, [user]); // Only user — not location, so channel stays alive across navigation
+  }, [user]);
 
-  // Clear unread badge when entering /chat list
+  // Fetch + subscribe to pending friend requests
+  useEffect(() => {
+    if (!user) return;
+
+    supabase
+      .from("friendships")
+      .select("id", { count: "exact", head: true })
+      .eq("receiver_id", user.id)
+      .eq("status", "pending")
+      .then(({ count }) => setPendingCount(count || 0));
+
+    const channel = supabase
+      .channel(`friend-reqs-${user.id}`)
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "friendships", filter: `receiver_id=eq.${user.id}` },
+        () => setPendingCount(c => c + 1)
+      )
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [user]);
+
+  // Clear message badge when entering chat list
   useEffect(() => {
     if (location.pathname === "/chat") clearUnread();
   }, [location.pathname, clearUnread]);
 
+  const totalNotifCount = unreadCount + pendingCount;
+
   return (
-    <NotificationsContext.Provider value={{ unreadCount, clearUnread, toast, dismissToast }}>
+    <NotificationsContext.Provider value={{ unreadCount, clearUnread, pendingCount, decrementPending, totalNotifCount, toast, dismissToast }}>
       {children}
     </NotificationsContext.Provider>
   );

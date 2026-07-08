@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import PostCard from "../components/PostCard.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
+import { useNotifications } from "../context/NotificationsContext.jsx";
 import { fetchFeed, updateInterests } from "../lib/api.js";
 import { INTERESTS, getDailyCard } from "../data/inspireContent.js";
 
@@ -218,6 +219,7 @@ function WritePostBanner({ onWrite }) {
 export default function HomePage() {
   const navigate = useNavigate();
   const { profile, user } = useAuth();
+  const { totalNotifCount } = useNotifications();
 
   const [interests, setInterests] = useState(() => profile?.interests || []);
   const [activeTopic, setActiveTopic]   = useState("all");
@@ -272,6 +274,16 @@ export default function HomePage() {
           </div>
         </div>
         <div style={{ display: "flex", gap: 8, paddingTop: 2 }}>
+          <button onClick={() => navigate("/notifications")} className="icon-btn" aria-label="Notifications" style={{ position: "relative" }}>
+            <span className="material-symbols-outlined" style={{ fontSize: 19, color: "var(--color-primary)" }}>notifications</span>
+            {totalNotifCount > 0 && (
+              <span style={{
+                position: "absolute", top: 3, right: 3,
+                width: 8, height: 8, borderRadius: "50%",
+                background: "#e84545", border: "1.5px solid var(--color-bg)",
+              }} />
+            )}
+          </button>
           <button onClick={() => navigate("/help-center")} className="icon-btn" aria-label="Help">
             <span className="material-symbols-outlined" style={{ fontSize: 19, color: "var(--color-primary)" }}>help</span>
           </button>

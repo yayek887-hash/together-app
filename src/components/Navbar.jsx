@@ -1,16 +1,16 @@
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useNotifications } from "../context/NotificationsContext.jsx";
 
-const NAV_PATHS = ["/home", "/connect", "/meet", "/groups", "/chat", "/profile"];
+const NAV_PATHS = ["/home", "/connect", "/meet", "/groups", "/chat", "/profile", "/notifications"];
 
 // Desktop sidebar
 const SIDEBAR_NAV = [
-  { to: "/home",    icon: "home",        label: "Home" },
-  { to: "/connect", icon: "handshake",   label: "Connect" },
-  { to: "/meet",    icon: "location_on", label: "Meet" },
-  { to: "/groups",  icon: "volunteer_activism", label: "Support" },
-  { to: "/chat",    icon: "chat_bubble", label: "Chat" },
-  { to: "/profile", icon: "person",      label: "Me" },
+  { to: "/home",          icon: "home",              label: "Home" },
+  { to: "/connect",       icon: "handshake",         label: "Connect" },
+  { to: "/meet",          icon: "location_on",       label: "Meet" },
+  { to: "/groups",        icon: "volunteer_activism",label: "Support" },
+  { to: "/notifications", icon: "notifications",     label: "Activity" },
+  { to: "/profile",       icon: "person",            label: "Me" },
 ];
 
 // Mobile bottom bar: Home | Connect | + | Meet | Me
@@ -94,7 +94,7 @@ function NavItem({ item, badge }) {
 export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { unreadCount } = useNotifications();
+  const { unreadCount, totalNotifCount } = useNotifications();
 
   const showBottomBar = NAV_PATHS.includes(location.pathname);
 
@@ -113,7 +113,7 @@ export default function Navbar() {
           <SidebarItem
             key={item.to}
             item={item}
-            badge={item.to === "/chat" ? unreadCount : 0}
+            badge={item.to === "/notifications" ? totalNotifCount : 0}
           />
         ))}
 
