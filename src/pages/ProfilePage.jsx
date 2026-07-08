@@ -8,7 +8,7 @@ import { useAuth } from "../context/AuthContext.jsx";
 import { INTERESTS } from "../data/inspireContent.js";
 import {
   fetchFriendCount, fetchUserBadges, fetchUserGroups, fetchUserActivities,
-  updateProfile, uploadAvatar, fetchUserPosts,
+  updateProfile, uploadAvatar, uploadCover, fetchUserPosts,
 } from "../lib/api.js";
 
 function formatDate(str) {
@@ -78,9 +78,11 @@ export default function ProfilePage() {
   const [myPosts,      setMyPosts]      = useState([]);
   const [activeTab,    setActiveTab]    = useState("about"); // "about" | "posts"
 
-  const [editing,      setEditing]      = useState(false);
-  const [saving,       setSaving]       = useState(false);
+  const [editing,       setEditing]      = useState(false);
+  const [saving,        setSaving]       = useState(false);
   const [avatarLoading, setAvatarLoading] = useState(false);
+  const [coverLoading,  setCoverLoading]  = useState(false);
+  const coverRef = useRef(null);
 
   const [displayName,  setDisplayName]  = useState("");
   const [bio,          setBio]          = useState("");
@@ -90,6 +92,7 @@ export default function ProfilePage() {
   const [goalsPublic,  setGoalsPublic]  = useState("");
   const [interests,    setInterests]    = useState([]);
   const [avatarUrl,    setAvatarUrl]    = useState("");
+  const [coverUrl,     setCoverUrl]     = useState("");
 
   const [visibility,      setVisibility]      = useState("public");
   const [showLocation,    setShowLocation]    = useState(true);
@@ -108,6 +111,7 @@ export default function ProfilePage() {
     setGoalsPublic(profile.goals_public || "");
     setInterests(profile.interests || []);
     setAvatarUrl(profile.avatar_url || "");
+    setCoverUrl(profile.cover_url || "");
     setVisibility(profile.profile_visibility || "public");
     setShowLocation(profile.show_location ?? true);
     setShowInterests(profile.show_interests ?? true);
@@ -137,6 +141,7 @@ export default function ProfilePage() {
         goals_public:       goalsPublic.trim() || null,
         interests,
         avatar_url:         avatarUrl || null,
+        cover_url:          coverUrl || null,
         profile_visibility: visibility,
         show_location:      showLocation,
         show_interests:     showInterests,
@@ -164,6 +169,19 @@ export default function ProfilePage() {
     finally { setAvatarLoading(false); }
   };
 
+  const handleCoverChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setCoverLoading(true);
+    try {
+      const url = await uploadCover(user.id, file);
+      setCoverUrl(url);
+      await updateProfile(user.id, { cover_url: url });
+      await refreshProfile();
+    } catch {}
+    finally { setCoverLoading(false); }
+  };
+
   const toggleInterest = (key) => {
     setInterests(prev => prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]);
   };
@@ -184,12 +202,37 @@ export default function ProfilePage() {
 
       {/* ── Cover + Avatar header ── */}
       <div style={{ position: "relative", marginBottom: 60 }}>
-        {/* Cover gradient */}
+        {/* Cover photo or gradient */}
         <div style={{
-          height: 130,
-          background: `linear-gradient(135deg, ${coverColor}cc 0%, ${coverColor}88 50%, #a855f744 100%)`,
+          height: 150,
           borderRadius: "0 0 28px 28px",
-        }} />
+          overflow: "hidden",
+          position: "relative",
+          background: coverUrl ? "none" : `linear-gradient(135deg, ${coverColor}cc 0%, ${coverColor}88 50%, #a855f744 100%)`,
+        }}>
+          {coverUrl && (
+            <img src={coverUrl} alt="cover" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+          )}
+          {editing && (
+            <button
+              onClick={() => coverRef.current?.click()}
+              disabled={coverLoading}
+              style={{
+                position: "absolute", bottom: 10, right: 12,
+                background: "rgba(0,0,0,0.45)", border: "none", borderRadius: 10,
+                padding: "6px 12px", display: "flex", alignItems: "center", gap: 5,
+                cursor: "pointer", color: "#fff", fontSize: 12, fontWeight: 600, fontFamily: "Rubik, sans-serif",
+                backdropFilter: "blur(4px)",
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: 15, color: "#fff" }}>
+                {coverLoading ? "hourglass_empty" : "add_photo_alternate"}
+              </span>
+              {coverLoading ? "Uploading…" : "Edit cover"}
+            </button>
+          )}
+        </div>
+        <input ref={coverRef} type="file" accept="image/*" style={{ display: "none" }} onChange={handleCoverChange} />
 
         {/* Overlapping avatar */}
         <div style={{ position: "absolute", bottom: -48, left: 20 }}>
@@ -454,7 +497,7 @@ export default function ProfilePage() {
                   {activities.map(a => {
                     const interest = INTERESTS.find(i => i.key === a.topic);
                     return (
-                      <div key={a.id} onClick={() => navigate("/meet")} style={{
+                      <div key={a.id} onClick={() => navigate(`/meet/${a.id}`)} style={{
                         display: "flex", alignItems: "center", gap: 10, cursor: "pointer",
                         padding: "10px 12px", borderRadius: 14,
                         background: interest ? interest.bg : "var(--color-surface-low)",
@@ -475,15 +518,28 @@ export default function ProfilePage() {
               </SectionCard>
             )}
 
-            {/* Achievements */}
-            {badges.length > 0 && (
-              <SectionCard>
-                <SectionTitle>Achievements</SectionTitle>
+            {/* Achievements — always shown */}
+            <SectionCard>
+              <SectionTitle>Achievements</SectionTitle>
+              {badges.length > 0 ? (
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                   {badges.map(b => <AchievementBadge key={b.id} badge={b} />)}
                 </div>
-              </SectionCard>
-            )}
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "14px 0 6px", gap: 8 }}>
+                  <div style={{ display: "flex", gap: 10 }}>
+                    {["🏅","🌟","🔥","💪","🎯"].map((emoji, i) => (
+                      <div key={i} style={{ width: 48, height: 48, borderRadius: 14, background: "var(--color-surface-low)", border: "1.5px dashed var(--color-outline-variant)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, opacity: 0.35, filter: "grayscale(1)" }}>
+                        {emoji}
+                      </div>
+                    ))}
+                  </div>
+                  <p style={{ margin: 0, fontSize: 12, color: "var(--color-text-soft)", textAlign: "center", lineHeight: 1.5 }}>
+                    Join communities, attend activities and post<br />to start earning badges ✨
+                  </p>
+                </div>
+              )}
+            </SectionCard>
 
             {/* Privacy */}
             <SectionCard>
