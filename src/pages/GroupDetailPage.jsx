@@ -136,9 +136,9 @@ function GroupChat({ group, user, isMember }) {
 
       {/* Input */}
       <div style={{
-        display: "flex", gap: 10, padding: "10px 14px 16px",
+        display: "flex", gap: 10, padding: "10px 14px calc(16px + env(safe-area-inset-bottom, 0px))",
         background: "#fff", borderTop: "1px solid rgba(0,0,0,0.06)",
-        flexShrink: 0,
+        flexShrink: 0, paddingBottom: "84px",
       }}>
         <UserAvatar name="Me" size={34} avatarUrl={undefined} />
         <div style={{ flex: 1, display: "flex", gap: 8, background: "var(--color-surface-low)", borderRadius: 999, padding: "4px 6px 4px 14px", alignItems: "center" }}>

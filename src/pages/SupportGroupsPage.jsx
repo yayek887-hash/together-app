@@ -202,24 +202,31 @@ export default function SupportGroupsPage() {
       </div>
 
       {/* ── Category chips ── */}
-      <div style={{ display: "flex", gap: 8, padding: "0 0 18px 18px", overflowX: "auto" }} className="scrollbar-none">
-        {CATEGORIES.map(c => (
-          <button
-            key={c}
-            onClick={() => setActiveFilter(c)}
-            style={{
-              padding: "8px 14px", borderRadius: 12, fontSize: 13, whiteSpace: "nowrap",
-              border: "none", cursor: "pointer", fontFamily: "Rubik, sans-serif", fontWeight: 700,
-              background: activeFilter === c ? "var(--color-primary)" : "#fff",
-              color: activeFilter === c ? "#fff" : "var(--color-text)",
-              boxShadow: activeFilter === c ? "0 4px 12px rgba(91,60,221,0.3)" : "0 1px 3px rgba(0,0,0,0.08)",
-              transition: "all 0.15s",
-            }}
-          >
-            {c === "All" ? "All" : `${CATEGORY_EMOJI[c]} ${c}`}
-          </button>
-        ))}
-        <div style={{ flexShrink: 0, width: 18 }} />
+      <div style={{ position: "relative", marginBottom: 18 }}>
+        <div style={{ display: "flex", gap: 8, padding: "0 0 0 18px", overflowX: "auto" }} className="scrollbar-none">
+          {CATEGORIES.map(c => (
+            <button
+              key={c}
+              onClick={() => setActiveFilter(c)}
+              style={{
+                padding: "8px 14px", borderRadius: 12, fontSize: 13, whiteSpace: "nowrap",
+                border: "none", cursor: "pointer", fontFamily: "Rubik, sans-serif", fontWeight: 700,
+                background: activeFilter === c ? "var(--color-primary)" : "#fff",
+                color: activeFilter === c ? "#fff" : "var(--color-text)",
+                boxShadow: activeFilter === c ? "0 4px 12px rgba(91,60,221,0.3)" : "0 1px 3px rgba(0,0,0,0.08)",
+                transition: "all 0.15s",
+              }}
+            >
+              {c === "All" ? "All" : `${CATEGORY_EMOJI[c]} ${c}`}
+            </button>
+          ))}
+          <div style={{ flexShrink: 0, width: 18 }} />
+        </div>
+        <div style={{
+          position: "absolute", right: 0, top: 0, bottom: 0, width: 40,
+          background: "linear-gradient(to right, transparent, var(--color-bg))",
+          pointerEvents: "none",
+        }} />
       </div>
 
       <div style={{ padding: "0 18px" }}>
