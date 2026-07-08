@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import PostCard from "../components/PostCard.jsx";
+import { QuoteCard, TipCard, ChallengeCard } from "../components/FeedInsertCard.jsx";
 import UserAvatar from "../components/UserAvatar.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useNotifications } from "../context/NotificationsContext.jsx";
@@ -409,9 +410,26 @@ export default function HomePage() {
           </div>
         )}
 
-        {!loading && posts.map((p, i) => (
-          <PostCard key={p.id} post={p} currentUserId={user?.id} onChanged={load} featured={i === 0 && activeTopic !== "all"} />
-        ))}
+        {!loading && (() => {
+          const topic1 = interests[0] || "motivation";
+          const topic2 = interests[1] || "wellness";
+          const topic3 = interests[2] || "creativity";
+          const items = [];
+          posts.forEach((p, i) => {
+            items.push(
+              <PostCard key={p.id} post={p} currentUserId={user?.id} onChanged={load} featured={i === 0 && activeTopic !== "all"} />
+            );
+            if (activeTopic === "all") {
+              if (i === 0 && getDailyCard(topic1))
+                items.push(<QuoteCard key="insert-quote" card={getDailyCard(topic1)} topic={topic1} />);
+              if (i === 2 && getDailyCard(topic2))
+                items.push(<TipCard key="insert-tip" card={getDailyCard(topic2)} topic={topic2} />);
+              if (i === 4 && getDailyCard(topic3))
+                items.push(<ChallengeCard key="insert-challenge" card={getDailyCard(topic3)} topic={topic3} onDone={() => {}} />);
+            }
+          });
+          return items;
+        })()}
 
       </div>
     </div>
