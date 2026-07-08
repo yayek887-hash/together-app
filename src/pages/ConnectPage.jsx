@@ -30,6 +30,78 @@ function InterestChips({ shared }) {
   );
 }
 
+/* ── Discover card (carousel) ───────────────────── */
+function DiscoverCard({ person, myInterests, busy, onAdd }) {
+  const sharedKeys  = (person.interests || []).filter(k => myInterests.includes(k));
+  const sharedItems = sharedKeys.map(k => INTERESTS.find(i => i.key === k)).filter(Boolean);
+  const accent      = sharedItems[0]?.color || "#5b3cdd";
+  const accentBg    = sharedItems[0]?.bg    || "#f0ebff";
+  const matchScore  = sharedItems.length;
+
+  return (
+    <div style={{
+      flexShrink: 0, width: 200,
+      background: "#fff", borderRadius: 22,
+      boxShadow: "0 4px 20px rgba(0,0,0,0.09)",
+      overflow: "hidden",
+      border: `1.5px solid ${accent}22`,
+      display: "flex", flexDirection: "column",
+    }}>
+      {/* Gradient header */}
+      <div style={{
+        height: 72,
+        background: `linear-gradient(135deg, ${accent}cc, ${accent}66)`,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        position: "relative",
+      }}>
+        {matchScore > 0 && (
+          <div style={{
+            position: "absolute", top: 8, right: 8,
+            background: "rgba(255,255,255,0.9)", borderRadius: 999,
+            padding: "3px 8px", fontSize: 10, fontWeight: 800, color: accent,
+            display: "flex", alignItems: "center", gap: 3,
+          }}>
+            ✨ {matchScore} shared
+          </div>
+        )}
+        <UserAvatar name={person.username || "?"} size={52} avatarUrl={person.avatar_url || undefined} />
+      </div>
+
+      {/* Info */}
+      <div style={{ padding: "12px 12px 14px", flex: 1 }}>
+        <div style={{ fontSize: 14, fontWeight: 800, color: "var(--color-text)", marginBottom: 8 }}>
+          {person.display_name || person.username || "Someone"}
+        </div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginBottom: 12 }}>
+          {sharedItems.slice(0, 3).map(i => (
+            <span key={i.key} style={{ fontSize: 10, fontWeight: 700, padding: "2px 7px", borderRadius: 999, background: i.bg, color: i.color }}>
+              {i.emoji} {i.label}
+            </span>
+          ))}
+          {sharedItems.length === 0 && (
+            <span style={{ fontSize: 11, color: "var(--color-text-soft)" }}>New here 👋</span>
+          )}
+        </div>
+        <button
+          onClick={() => onAdd(person.id)}
+          disabled={busy === person.id}
+          style={{
+            width: "100%", padding: "9px 0", borderRadius: 12,
+            background: accent, color: "#fff",
+            border: "none", fontSize: 12, fontWeight: 700,
+            cursor: "pointer", fontFamily: "Rubik, sans-serif",
+            boxShadow: `0 4px 12px ${accent}44`,
+            opacity: busy === person.id ? 0.6 : 1,
+            transition: "all 0.15s",
+          }}
+        >
+          Connect 🤝
+        </button>
+      </div>
+    </div>
+  );
+}
+
 /* ── Person card ────────────────────────────────── */
 function PersonCard({ person, type, myInterests, busy, onMessage, onAdd, onRemove }) {
   const sharedKeys  = (person.interests || []).filter(k => myInterests.includes(k));
@@ -329,16 +401,31 @@ export default function ConnectPage() {
           )}
 
           {!loading && (
-            <div style={{ padding: "0 18px" }}>
+            <div>
               {bestMatches.length > 0 && (
                 <>
-                  <Divider>Best matches ✨</Divider>
-                  {bestMatches.map(p => (
-                    <PersonCard key={p.id} person={p} type="new" myInterests={myInterests} busy={busy} onAdd={() => handleSend(p.id)} />
-                  ))}
-                  <div style={{ height: 8 }} />
+                  <div style={{ padding: "0 18px 10px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <div style={{ fontSize: 11, fontWeight: 800, color: "var(--color-text-soft)", letterSpacing: "0.07em", textTransform: "uppercase" }}>
+                      ✨ People you'd vibe with
+                    </div>
+                    <span style={{ fontSize: 11, color: "var(--color-primary)", fontWeight: 600 }}>{bestMatches.length} matches</span>
+                  </div>
+                  {/* Horizontal discover carousel */}
+                  <div style={{ position: "relative", marginBottom: 20 }}>
+                    <div style={{ display: "flex", gap: 12, overflowX: "auto", padding: "4px 18px 12px", scrollSnapType: "x mandatory" }} className="scrollbar-none">
+                      {bestMatches.map(p => (
+                        <div key={p.id} style={{ scrollSnapAlign: "start" }}>
+                          <DiscoverCard person={p} myInterests={myInterests} busy={busy} onAdd={(id) => { handleSend(id); }} />
+                        </div>
+                      ))}
+                      <div style={{ flexShrink: 0, width: 4 }} />
+                    </div>
+                    {/* fade right */}
+                    <div style={{ position: "absolute", right: 0, top: 0, bottom: 0, width: 40, background: "linear-gradient(to left, var(--color-bg), transparent)", pointerEvents: "none" }} />
+                  </div>
                 </>
               )}
+            <div style={{ padding: "0 18px" }}>
               {friends.length > 0 && (
                 <>
                   <Divider>Your connections 🤝</Divider>
@@ -376,6 +463,7 @@ export default function ConnectPage() {
                   </p>
                 </div>
               )}
+            </div>
             </div>
           )}
         </>
