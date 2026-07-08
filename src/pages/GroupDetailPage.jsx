@@ -136,9 +136,9 @@ function GroupChat({ group, user, isMember }) {
 
       {/* Input */}
       <div style={{
-        display: "flex", gap: 10, padding: "10px 14px calc(16px + env(safe-area-inset-bottom, 0px))",
+        display: "flex", gap: 10, padding: "10px 14px 16px",
         background: "#fff", borderTop: "1px solid rgba(0,0,0,0.06)",
-        flexShrink: 0, paddingBottom: "84px",
+        flexShrink: 0,
       }}>
         <UserAvatar name="Me" size={34} avatarUrl={undefined} />
         <div style={{ flex: 1, display: "flex", gap: 8, background: "var(--color-surface-low)", borderRadius: 999, padding: "4px 6px 4px 14px", alignItems: "center" }}>
@@ -202,7 +202,7 @@ export default function GroupDetailPage() {
   useEffect(() => { load(); }, [load]);
 
   if (loading) return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100dvh" }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "calc(100dvh - 80px)" }}>
       <TopBar title="" showBack />
       <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
         <div className="loading-dots"><span /><span /><span /></div>
@@ -211,7 +211,7 @@ export default function GroupDetailPage() {
   );
 
   if (!group) return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100dvh" }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "calc(100dvh - 80px)" }}>
       <TopBar title="Not found" showBack />
       <p style={{ textAlign: "center", color: "var(--color-text-soft)", padding: 40 }}>This community doesn't exist.</p>
     </div>
@@ -267,7 +267,7 @@ export default function GroupDetailPage() {
   const btnInfo = joinLabel();
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100dvh", overflow: "hidden", background: "var(--color-bg)" }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "calc(100dvh - 80px)", overflow: "hidden", background: "var(--color-bg)" }}>
 
       {/* ── Top bar ── */}
       <div style={{ flexShrink: 0 }}>

@@ -109,7 +109,7 @@ export default function ActivityDetailPage() {
   };
 
   if (loading) return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100dvh" }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "calc(100dvh - 80px)" }}>
       <TopBar title="" showBack />
       <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
         <div className="loading-dots"><span /><span /><span /></div>
@@ -118,7 +118,7 @@ export default function ActivityDetailPage() {
   );
 
   if (!activity) return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100dvh" }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "calc(100dvh - 80px)" }}>
       <TopBar title="Not found" showBack />
       <p style={{ textAlign: "center", color: "var(--color-text-soft)", padding: 40 }}>Activity not found.</p>
     </div>
@@ -127,7 +127,7 @@ export default function ActivityDetailPage() {
   const accentColor = interest?.color || "var(--color-primary)";
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100dvh", overflow: "hidden", background: "var(--color-bg)" }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "calc(100dvh - 80px)", overflow: "hidden", background: "var(--color-bg)" }}>
 
       {/* Top bar */}
       <div style={{ flexShrink: 0 }}>
@@ -251,7 +251,7 @@ export default function ActivityDetailPage() {
 
               {/* Input */}
               <div style={{
-                display: "flex", gap: 10, padding: "10px 14px 84px",
+                display: "flex", gap: 10, padding: "10px 14px 16px",
                 background: "#fff", borderTop: "1px solid rgba(0,0,0,0.06)", flexShrink: 0,
               }}>
                 <UserAvatar name="Me" size={34} avatarUrl={undefined} />
