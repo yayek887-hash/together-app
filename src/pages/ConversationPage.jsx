@@ -102,7 +102,6 @@ export default function ConversationPage() {
         <UserAvatar name={displayName} size={38} avatarUrl={otherProfile?.avatar_url || undefined} />
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: 15, fontWeight: 700, color: "var(--color-text)" }}>{displayName}</div>
-          <div style={{ fontSize: 11, color: "var(--color-success)" }}>● Active</div>
         </div>
       </div>
 
