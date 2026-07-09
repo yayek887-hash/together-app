@@ -65,7 +65,7 @@ export default function CommentsPanel({ postId, onCountChange }) {
       {/* Comment list */}
       {comments.map((c) => (
         <div key={c.id} style={{ display: "flex", gap: 10, marginBottom: 10, alignItems: "flex-start" }}>
-          <UserAvatar name={c.author?.username || "?"} size={30} avatarUrl={c.author?.avatar_url || undefined} />
+          <UserAvatar name={c.author?.display_name || c.author?.username || "?"} size={30} avatarUrl={c.author?.avatar_url || undefined} />
           <div
             style={{
               flex: 1,
@@ -77,7 +77,7 @@ export default function CommentsPanel({ postId, onCountChange }) {
           >
             <div style={{ display: "flex", gap: 8, alignItems: "baseline", marginBottom: 2 }}>
               <span style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary)" }}>
-                {c.author?.username || "Someone"}
+                {c.author?.display_name || c.author?.username || "Someone"}
               </span>
               <span style={{ fontSize: 10, color: "var(--color-text-soft)" }}>
                 {timeAgo(c.created_at)}

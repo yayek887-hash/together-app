@@ -325,20 +325,23 @@ export default function ProfilePage() {
           marginBottom: 16, overflow: "hidden",
         }}>
           {[
-            [friendCount, "Connections", () => navigate("/connect")],
-            [groups.length, "Groups", () => navigate("/groups")],
-            [myPosts.length, "Posts", () => setActiveTab("posts")],
-          ].map(([n, label, fn], idx, arr) => (
+            [friendCount, "Connections", () => navigate("/connect"), "💜"],
+            [groups.length, "Groups", () => navigate("/groups"), "🏠"],
+            [myPosts.length, "Posts", () => setActiveTab("posts"), "✍️"],
+          ].map(([n, label, fn, emoji], idx, arr) => (
             <div
               key={label}
               onClick={fn}
               style={{
-                flex: 1, textAlign: "center", padding: "14px 8px", cursor: "pointer",
+                flex: 1, textAlign: "center", padding: "16px 8px 14px", cursor: "pointer",
                 borderRight: idx < arr.length - 1 ? "1px solid var(--color-surface-high)" : "none",
+                transition: "background 0.15s",
               }}
+              onMouseEnter={e => e.currentTarget.style.background = "var(--color-surface-low)"}
+              onMouseLeave={e => e.currentTarget.style.background = "transparent"}
             >
               <div style={{ fontSize: 22, fontWeight: 900, color: "var(--color-primary)", lineHeight: 1 }}>{n}</div>
-              <div style={{ fontSize: 11, color: "var(--color-text-soft)", marginTop: 3 }}>{label}</div>
+              <div style={{ fontSize: 11, color: "var(--color-text-soft)", marginTop: 4 }}>{emoji} {label}</div>
             </div>
           ))}
         </div>

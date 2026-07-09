@@ -42,7 +42,7 @@ export default function PostCard({ post, currentUserId, onChanged, featured }) {
 
   const myTypes  = new Set(allRx.filter(r => r.user_id === currentUserId).map(r => r.type));
   const isAuthor = currentUserId && currentUserId === post.author?.id;
-  const displayName = post.is_anonymous ? "Anonymous 🎭" : (post.author?.username || "Someone");
+  const displayName = post.is_anonymous ? "Anonymous 🎭" : (post.author?.display_name || post.author?.username || "Someone");
 
   const interest = INTERESTS.find(i => i.key === post.topic);
   const accent   = interest?.color || (post.mood ? MOOD_COLOR[post.mood] : null);
@@ -71,11 +71,15 @@ export default function PostCard({ post, currentUserId, onChanged, featured }) {
       borderRadius: featured ? 24 : 20,
       boxShadow: featured
         ? "0 4px 24px rgba(0,0,0,0.10)"
-        : "0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.05)",
+        : "0 1px 3px rgba(0,0,0,0.05), 0 4px 14px rgba(0,0,0,0.06)",
       marginBottom: featured ? 20 : 12,
       overflow: "hidden",
       border: accent ? `1.5px solid ${accent}18` : "1.5px solid rgba(0,0,0,0.04)",
-    }}>
+      transition: "box-shadow 0.22s ease, transform 0.22s ease",
+    }}
+    onMouseEnter={e => { e.currentTarget.style.boxShadow = "0 4px 20px rgba(0,0,0,0.10), 0 8px 32px rgba(0,0,0,0.08)"; e.currentTarget.style.transform = "translateY(-2px)"; }}
+    onMouseLeave={e => { e.currentTarget.style.boxShadow = featured ? "0 4px 24px rgba(0,0,0,0.10)" : "0 1px 3px rgba(0,0,0,0.05), 0 4px 14px rgba(0,0,0,0.06)"; e.currentTarget.style.transform = "translateY(0)"; }}
+    >
 
       {/* ── Accent top bar ── */}
       {accent && (

@@ -79,10 +79,10 @@ export default function PeoplePage() {
                 border: "1.5px solid var(--color-primary)",
               }}
             >
-              <UserAvatar name={req.profiles?.username || "?"} size={42} avatarUrl={req.profiles?.avatar_url || undefined} />
+              <UserAvatar name={req.profiles?.display_name || req.profiles?.username || "?"} size={42} avatarUrl={req.profiles?.avatar_url || undefined} />
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 14, fontWeight: 700, color: "var(--color-text)" }}>
-                  {req.profiles?.username || "Someone"}
+                  {req.profiles?.display_name || req.profiles?.username || "Someone"}
                 </div>
                 <div style={{ fontSize: 11, color: "var(--color-text-soft)", marginTop: 2 }}>
                   wants to be your friend
@@ -217,12 +217,16 @@ function PersonCard({ person, type, busy, onMessage, onAdd, onRemove }) {
     <div style={{
       display: "flex", alignItems: "center", gap: 12,
       background: "#fff", borderRadius: 18, padding: "13px 14px",
-      marginBottom: 10, boxShadow: "0 2px 10px rgba(91,60,221,0.07)",
-    }}>
-      <UserAvatar name={person.username || "?"} size={46} avatarUrl={person.avatar_url || undefined} />
+      marginBottom: 10, boxShadow: "0 1px 3px rgba(0,0,0,0.05), 0 4px 14px rgba(0,0,0,0.05)",
+      transition: "box-shadow 0.2s ease, transform 0.2s ease",
+    }}
+    onMouseEnter={e => { e.currentTarget.style.boxShadow = "0 4px 18px rgba(91,60,221,0.12)"; e.currentTarget.style.transform = "translateY(-1px)"; }}
+    onMouseLeave={e => { e.currentTarget.style.boxShadow = "0 1px 3px rgba(0,0,0,0.05), 0 4px 14px rgba(0,0,0,0.05)"; e.currentTarget.style.transform = "translateY(0)"; }}
+    >
+      <UserAvatar name={person.display_name || person.username || "?"} size={46} avatarUrl={person.avatar_url || undefined} />
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: 15, fontWeight: 700, color: "var(--color-text)" }}>
-          {person.username || "Someone"}
+          {person.display_name || person.username || "Someone"}
         </div>
         {memberSince && (
           <div style={{ fontSize: 11, color: "var(--color-text-soft)", marginTop: 2 }}>

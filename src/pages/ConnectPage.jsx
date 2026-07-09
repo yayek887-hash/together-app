@@ -42,11 +42,15 @@ function DiscoverCard({ person, myInterests, busy, onAdd }) {
     <div style={{
       flexShrink: 0, width: 200,
       background: "#fff", borderRadius: 22,
-      boxShadow: "0 4px 20px rgba(0,0,0,0.09)",
+      boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
       overflow: "hidden",
       border: `1.5px solid ${accent}22`,
       display: "flex", flexDirection: "column",
-    }}>
+      transition: "box-shadow 0.2s ease, transform 0.2s ease",
+    }}
+    onMouseEnter={e => { e.currentTarget.style.boxShadow = `0 8px 24px ${accent}33`; e.currentTarget.style.transform = "translateY(-3px)"; }}
+    onMouseLeave={e => { e.currentTarget.style.boxShadow = "0 2px 12px rgba(0,0,0,0.08)"; e.currentTarget.style.transform = "translateY(0)"; }}
+    >
       {/* Gradient header */}
       <div style={{
         height: 72,
@@ -64,7 +68,7 @@ function DiscoverCard({ person, myInterests, busy, onAdd }) {
             ✨ {matchScore} shared
           </div>
         )}
-        <UserAvatar name={person.username || "?"} size={52} avatarUrl={person.avatar_url || undefined} />
+        <UserAvatar name={person.display_name || person.username || "?"} size={52} avatarUrl={person.avatar_url || undefined} />
       </div>
 
       {/* Info */}
@@ -108,7 +112,10 @@ function PersonCard({ person, type, myInterests, busy, onMessage, onAdd, onRemov
   const sharedItems = sharedKeys.map(k => INTERESTS.find(i => i.key === k)).filter(Boolean);
 
   return (
-    <div style={{ background: "#fff", borderRadius: 20, padding: "14px 14px", marginBottom: 10, boxShadow: "var(--shadow-card)" }}>
+    <div style={{ background: "#fff", borderRadius: 20, padding: "14px 14px", marginBottom: 10, boxShadow: "0 1px 3px rgba(0,0,0,0.05), 0 4px 14px rgba(0,0,0,0.05)", transition: "box-shadow 0.2s ease, transform 0.2s ease" }}
+    onMouseEnter={e => { e.currentTarget.style.boxShadow = "0 4px 18px rgba(14,165,233,0.12)"; e.currentTarget.style.transform = "translateY(-1px)"; }}
+    onMouseLeave={e => { e.currentTarget.style.boxShadow = "0 1px 3px rgba(0,0,0,0.05), 0 4px 14px rgba(0,0,0,0.05)"; e.currentTarget.style.transform = "translateY(0)"; }}
+    >
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
         <UserAvatar name={person.display_name || person.username || "?"} size={48} avatarUrl={person.avatar_url || undefined} />
         <div style={{ flex: 1, minWidth: 0 }}>
@@ -317,11 +324,12 @@ export default function ConnectPage() {
 
       {/* ── Header ── */}
       <div style={{ padding: "22px 18px 16px" }}>
-        <div style={{ fontSize: 13, color: "var(--color-text-soft)", fontWeight: 500, marginBottom: 5 }}>
-          Connect · 🤝
-        </div>
+        <div style={{ fontSize: 12, fontWeight: 700, color: "#0ea5e9", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 4 }}>🤝 Social</div>
         <div style={{ fontSize: 26, fontWeight: 900, color: "var(--color-text)", letterSpacing: "-0.03em", lineHeight: 1.15 }}>
           Your people
+        </div>
+        <div style={{ fontSize: 13, color: "var(--color-text-soft)", marginTop: 5, lineHeight: 1.55 }}>
+          Connect with others who get you.
         </div>
       </div>
 
@@ -388,7 +396,7 @@ export default function ConnectPage() {
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Search by name…"
-              style={{ width: "100%", boxSizing: "border-box", padding: "10px 14px 10px 40px", borderRadius: 14, border: "1.5px solid var(--color-outline-variant)", background: "#fff", boxShadow: "0 1px 3px rgba(0,0,0,0.06)", fontSize: 13, fontFamily: "Rubik, sans-serif", outline: "none" }}
+              style={{ width: "100%", boxSizing: "border-box", padding: "10px 14px 10px 40px", borderRadius: 999, border: "1.5px solid var(--color-outline-variant)", background: "#fff", boxShadow: "0 1px 3px rgba(0,0,0,0.06)", fontSize: 13, fontFamily: "Rubik, sans-serif", outline: "none" }}
               onFocus={e => (e.target.style.borderColor = "var(--color-primary)")}
               onBlur={e  => (e.target.style.borderColor = "var(--color-outline-variant)")}
             />

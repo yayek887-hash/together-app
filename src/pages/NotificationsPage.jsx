@@ -183,9 +183,13 @@ export default function NotificationsPage() {
               return (
                 <div key={c.id} style={{
                   background: "#fff", borderRadius: 20, padding: "14px 16px",
-                  marginBottom: 10, boxShadow: "0 2px 10px rgba(0,0,0,0.06)",
+                  marginBottom: 10, boxShadow: "0 1px 3px rgba(0,0,0,0.05), 0 4px 14px rgba(0,0,0,0.05)",
                   display: "flex", alignItems: "flex-start", gap: 12,
-                }}>
+                  transition: "box-shadow 0.2s ease, transform 0.2s ease",
+                }}
+                onMouseEnter={e => { e.currentTarget.style.boxShadow = "0 4px 18px rgba(91,60,221,0.10)"; e.currentTarget.style.transform = "translateY(-1px)"; }}
+                onMouseLeave={e => { e.currentTarget.style.boxShadow = "0 1px 3px rgba(0,0,0,0.05), 0 4px 14px rgba(0,0,0,0.05)"; e.currentTarget.style.transform = "translateY(0)"; }}
+                >
                   <UserAvatar name={name} size={40} avatarUrl={c.author?.avatar_url || undefined} />
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 13, color: "var(--color-text)", lineHeight: 1.5, marginBottom: 6 }}>

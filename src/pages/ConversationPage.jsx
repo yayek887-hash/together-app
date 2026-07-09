@@ -23,7 +23,7 @@ export default function ConversationPage() {
     setError(null);
     try {
       const [{ data: profile }, msgs] = await Promise.all([
-        supabase.from("profiles").select("id, username, avatar_color, avatar_url").eq("id", otherId).single(),
+        supabase.from("profiles").select("id, username, display_name, avatar_color, avatar_url").eq("id", otherId).single(),
         fetchConversation(user.id, otherId),
       ]);
       setOtherProfile(profile);
@@ -72,7 +72,7 @@ export default function ConversationPage() {
     }
   };
 
-  const displayName = otherProfile?.username || "Someone";
+  const displayName = otherProfile?.display_name || otherProfile?.username || "Someone";
 
   return (
     <div className="conv-page anim-in">

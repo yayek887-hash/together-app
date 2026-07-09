@@ -54,10 +54,13 @@ function ActivityCard({ activity, userId, onChanged }) {
       onClick={() => navigate(`/meet/${activity.id}`)}
       style={{
         background: "#fff", borderRadius: 22, marginBottom: 14,
-        boxShadow: "0 2px 12px rgba(91,60,221,0.08)",
+        boxShadow: "0 2px 12px rgba(91,60,221,0.07)",
         overflow: "hidden", cursor: "pointer",
         border: interest ? `1.5px solid ${interest.color}22` : "1.5px solid var(--color-outline-variant)",
+        transition: "box-shadow 0.2s ease, transform 0.2s ease",
       }}
+      onMouseEnter={e => { e.currentTarget.style.boxShadow = `0 6px 24px ${interest?.color || "rgba(91,60,221,0.2)"}33`; e.currentTarget.style.transform = "translateY(-2px)"; }}
+      onMouseLeave={e => { e.currentTarget.style.boxShadow = "0 2px 12px rgba(91,60,221,0.07)"; e.currentTarget.style.transform = "translateY(0)"; }}
     >
       {/* Color top bar */}
       <div style={{
@@ -103,9 +106,9 @@ function ActivityCard({ activity, userId, onChanged }) {
 
         {/* Footer: creator + participants + button */}
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <UserAvatar name={activity.creator?.username || "?"} size={28} avatarUrl={activity.creator?.avatar_url || undefined} />
+          <UserAvatar name={activity.creator?.display_name || activity.creator?.username || "?"} size={28} avatarUrl={activity.creator?.avatar_url || undefined} />
           <span style={{ fontSize: 12, color: "var(--color-text-soft)", flex: 1 }}>
-            {activity.creator?.username || "Someone"}
+            {activity.creator?.display_name || activity.creator?.username || "Someone"}
             {participants.length > 0 && (
               <span style={{ color: "var(--color-primary)", fontWeight: 600 }}>
                 {" "}· {participants.length}{activity.max_participants ? `/${activity.max_participants}` : ""} going
@@ -166,10 +169,10 @@ export default function MeetPage() {
       {/* Header */}
       <div style={{ padding: "18px 16px 14px", display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
         <div>
-          <div style={{ fontSize: 13, color: "var(--color-text-soft)", fontWeight: 500, marginBottom: 2 }}>Real life · 📍</div>
-          <div style={{ fontSize: 22, fontWeight: 800, color: "var(--color-text)" }}>Meet IRL</div>
-          <div style={{ fontSize: 13, color: "var(--color-text-soft)", marginTop: 4, lineHeight: 1.5 }}>
-            Real activities, real friendships.
+          <div style={{ fontSize: 12, fontWeight: 700, color: "#f97316", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 4 }}>📍 Real life · IRL</div>
+          <div style={{ fontSize: 26, fontWeight: 900, color: "var(--color-text)", letterSpacing: "-0.03em", lineHeight: 1.15 }}>Meet &amp; hang out</div>
+          <div style={{ fontSize: 13, color: "var(--color-text-soft)", marginTop: 6, lineHeight: 1.55 }}>
+            Join activities. Make real friends.
           </div>
         </div>
         <button
@@ -221,24 +224,27 @@ export default function MeetPage() {
         )}
 
         {!loading && activities.length === 0 && (
-          <div style={{ textAlign: "center", padding: "60px 20px" }}>
-            <div style={{ fontSize: 52, marginBottom: 16 }}>📍</div>
-            <div style={{ fontSize: 17, fontWeight: 700, color: "var(--color-text)", marginBottom: 8 }}>
-              No activities yet
+          <div style={{ textAlign: "center", padding: "52px 20px" }}>
+            <div style={{ width: 80, height: 80, borderRadius: 24, background: "#fff7ed", border: "2px dashed #fed7aa", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 38, margin: "0 auto 18px" }}>
+              📍
             </div>
-            <p style={{ color: "var(--color-text-soft)", fontSize: 14, lineHeight: 1.7, marginBottom: 24 }}>
-              Be the first to create something!<br />Invite people to meet in real life.
+            <div style={{ fontSize: 18, fontWeight: 800, color: "var(--color-text)", marginBottom: 8, letterSpacing: "-0.02em" }}>
+              Nothing planned yet
+            </div>
+            <p style={{ color: "var(--color-text-soft)", fontSize: 13, lineHeight: 1.7, marginBottom: 24, maxWidth: 240, margin: "0 auto 24px" }}>
+              Be the first to plan something.<br />A walk, a study session, anything!
             </p>
             <button
               onClick={() => navigate("/create-activity")}
               style={{
-                background: "var(--color-primary)", color: "#fff",
+                background: "#f97316", color: "#fff",
                 border: "none", borderRadius: 999, padding: "13px 28px",
                 fontSize: 14, fontWeight: 700, cursor: "pointer",
-                fontFamily: "Rubik, sans-serif", boxShadow: "var(--shadow-button)",
+                fontFamily: "Rubik, sans-serif",
+                boxShadow: "0 4px 16px rgba(249,115,22,0.35)",
               }}
             >
-              Create first activity 🚀
+              Plan something 🙌
             </button>
           </div>
         )}

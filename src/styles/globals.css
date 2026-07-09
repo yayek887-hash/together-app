@@ -663,3 +663,528 @@ a:focus-visible {
 @media (min-width: 768px) {
   .conv-page { left: 240px; }
 }
+
+/* ══════════════════════════════════════════════
+   DESIGN SYSTEM v2 — POLISH & CONSISTENCY
+   ══════════════════════════════════════════════ */
+
+/* ─── Extended design tokens ─────────────────── */
+:root {
+  /* Elevation */
+  --elevation-0: none;
+  --elevation-1: 0 1px 2px rgba(0,0,0,0.05), 0 2px 8px rgba(0,0,0,0.05);
+  --elevation-2: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.07);
+  --elevation-3: 0 2px 8px rgba(0,0,0,0.08), 0 8px 28px rgba(0,0,0,0.09);
+  --elevation-4: 0 4px 16px rgba(0,0,0,0.10), 0 16px 48px rgba(0,0,0,0.10);
+
+  /* Spacing system (8px grid) */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+  --sp-10: 40px;
+  --sp-12: 48px;
+
+  /* Border radius system */
+  --r-xs:   6px;
+  --r-sm:   10px;
+  --r-md:   16px;
+  --r-lg:   20px;
+  --r-xl:   24px;
+  --r-2xl:  28px;
+  --r-full: 9999px;
+
+  /* Typography scale */
+  --text-xs:   11px;
+  --text-sm:   13px;
+  --text-base: 15px;
+  --text-lg:   17px;
+  --text-xl:   20px;
+  --text-2xl:  24px;
+  --text-3xl:  28px;
+  --text-4xl:  34px;
+
+  /* Page personality accents */
+  --accent-home:    #5b3cdd;
+  --accent-connect: #0ea5e9;
+  --accent-meet:    #f97316;
+  --accent-support: #8b5cf6;
+  --accent-profile: #ec4899;
+}
+
+/* ─── Additional keyframes ───────────────────── */
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.94); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes successFlash {
+  0%   { transform: scale(1);    background: inherit; }
+  40%  { transform: scale(1.06); background: #d1fae5; }
+  100% { transform: scale(1);    background: inherit; }
+}
+@keyframes joinPop {
+  0%   { transform: scale(1); }
+  35%  { transform: scale(1.14); }
+  65%  { transform: scale(0.95); }
+  100% { transform: scale(1); }
+}
+@keyframes badgeBounce {
+  0%, 100% { transform: translateY(0); }
+  40%       { transform: translateY(-4px); }
+  70%       { transform: translateY(-2px); }
+}
+
+.anim-slide-up    { animation: slideUp    0.32s ease both; }
+.anim-scale-in    { animation: scaleIn    0.22s ease both; }
+.anim-slide-right { animation: slideInRight 0.28s ease both; }
+.success-flash    { animation: successFlash 0.45s ease; }
+.join-pop         { animation: joinPop 0.4s ease; }
+
+/* Stagger children on entrance */
+.stagger-children > * {
+  animation: slideUp 0.32s ease both;
+}
+.stagger-children > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-children > *:nth-child(2) { animation-delay: 55ms; }
+.stagger-children > *:nth-child(3) { animation-delay: 110ms; }
+.stagger-children > *:nth-child(4) { animation-delay: 165ms; }
+.stagger-children > *:nth-child(5) { animation-delay: 220ms; }
+.stagger-children > *:nth-child(6) { animation-delay: 275ms; }
+
+/* ─── Hover lift utility ─────────────────────── */
+.lift {
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  will-change: transform;
+}
+.lift:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--elevation-3);
+}
+.lift:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* ─── Card variants ──────────────────────────── */
+.card-hero {
+  background: var(--color-card);
+  border-radius: var(--r-2xl);
+  padding: var(--sp-6);
+  box-shadow: var(--elevation-3);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.card-hero:hover {
+  box-shadow: var(--elevation-4);
+  transform: translateY(-2px);
+}
+
+.card-sm {
+  background: var(--color-card);
+  border-radius: var(--r-lg);
+  padding: var(--sp-3) var(--sp-4);
+  box-shadow: var(--elevation-1);
+}
+
+.card-flat {
+  background: var(--color-surface-low);
+  border-radius: var(--r-lg);
+  padding: var(--sp-4);
+}
+
+.card-accent-top {
+  background: var(--color-card);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  box-shadow: var(--elevation-2);
+}
+
+/* ─── Badge system ───────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: var(--r-full);
+  letter-spacing: 0.02em;
+  line-height: 1.4;
+}
+.badge-primary { background: var(--color-primary-fixed);  color: var(--color-primary); }
+.badge-success { background: #d1fae5;                     color: #065f46; }
+.badge-warning { background: #fef3c7;                     color: #92400e; }
+.badge-error   { background: #fee2e2;                     color: var(--color-error); }
+.badge-soft    { background: var(--color-surface-high);   color: var(--color-text-soft); }
+.badge-trending { background: #fff0e8; color: #e74c3c; }
+
+/* ─── Button size variants ───────────────────── */
+.btn-sm {
+  height: 36px;
+  padding: 0 var(--sp-4);
+  font-size: var(--text-sm);
+  border-radius: var(--r-full);
+}
+.btn-lg {
+  height: 56px;
+  padding: 0 var(--sp-8);
+  font-size: var(--text-lg);
+  font-weight: 700;
+}
+
+/* ─── Chip system ─────────────────────────────── */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 14px;
+  border-radius: var(--r-full);
+  font-size: 12px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  font-family: 'Rubik', sans-serif;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+.chip-default {
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--color-text-soft);
+}
+.chip-default:hover {
+  background: var(--color-primary-fixed);
+  color: var(--color-primary);
+}
+.chip-active {
+  background: var(--color-primary);
+  color: #fff;
+  box-shadow: 0 3px 10px rgba(91,60,221,0.30);
+}
+.chip-sm {
+  padding: 4px 10px;
+  font-size: 11px;
+}
+
+/* ─── Enhanced empty states ──────────────────── */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--sp-12) var(--sp-6);
+  gap: var(--sp-2);
+}
+.empty-state-emoji {
+  font-size: 56px;
+  margin-bottom: var(--sp-2);
+  animation: badgeBounce 2.5s ease-in-out infinite;
+}
+.empty-state-title {
+  font-size: var(--text-xl);
+  font-weight: 800;
+  color: var(--color-text);
+  letter-spacing: -0.02em;
+  margin-bottom: var(--sp-1);
+}
+.empty-state-body {
+  font-size: var(--text-sm);
+  color: var(--color-text-soft);
+  line-height: 1.75;
+  max-width: 270px;
+  margin-bottom: var(--sp-4);
+}
+.empty-state-cta {
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--r-full);
+  padding: 11px 24px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Rubik', sans-serif;
+  box-shadow: var(--shadow-button);
+  transition: transform 0.15s, opacity 0.15s;
+}
+.empty-state-cta:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+.empty-state-cta:active { transform: scale(0.97); }
+
+/* ─── Improved dividers ──────────────────────── */
+.divider {
+  height: 1px;
+  background: var(--color-surface-highest);
+  border: none;
+  margin: var(--sp-5) 0;
+}
+.divider-labeled {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin: var(--sp-5) 0;
+}
+.divider-labeled::before,
+.divider-labeled::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--color-surface-highest);
+}
+.divider-labeled span {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-text-soft);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* ─── Stat pill ──────────────────────────────── */
+.stat-pill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.stat-pill .stat-value {
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--color-primary);
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+.stat-pill .stat-label {
+  font-size: 11px;
+  color: var(--color-text-soft);
+  font-weight: 500;
+}
+
+/* ─── List item row ──────────────────────────── */
+.list-item {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3) 0;
+  border-bottom: 1px solid var(--color-surface-high);
+  transition: background 0.15s;
+  cursor: pointer;
+}
+.list-item:last-child { border-bottom: none; }
+.list-item:hover { background: var(--color-surface-low); margin: 0 -12px; padding: var(--sp-3) 12px; border-radius: var(--r-md); }
+
+/* ─── Reaction button polish ─────────────────── */
+.rxn-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  font-family: 'Rubik', sans-serif;
+  background: var(--color-surface-low);
+  color: var(--color-text-soft);
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+.rxn-btn:hover {
+  background: var(--color-primary-fixed);
+  color: var(--color-primary);
+  border-color: var(--color-primary-fixed-dim);
+}
+.rxn-btn.active {
+  background: var(--color-primary-fixed);
+  color: var(--color-primary);
+  border-color: var(--color-primary-fixed-dim);
+  font-weight: 700;
+}
+.rxn-btn:active { transform: scale(0.95); }
+
+/* ─── Section header polish ──────────────────── */
+.sec-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--sp-3);
+}
+.sec-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--color-text);
+  letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.sec-action {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-primary);
+  font-family: 'Rubik', sans-serif;
+  padding: 0;
+  opacity: 0.8;
+  transition: opacity 0.15s;
+}
+.sec-action:hover { opacity: 1; }
+
+/* ─── Input improvements ─────────────────────── */
+.input-rounded {
+  width: 100%;
+  background: var(--color-surface-low);
+  border: 1.5px solid transparent;
+  border-radius: var(--r-full);
+  padding: 10px 16px;
+  font-size: 14px;
+  font-family: 'Rubik', sans-serif;
+  color: var(--color-text);
+  outline: none;
+  transition: all 0.2s ease;
+}
+.input-rounded:focus {
+  background: #fff;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(91,60,221,0.10);
+}
+.input-rounded::placeholder { color: var(--color-outline); }
+
+/* ─── Search bar ─────────────────────────────── */
+.search-bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.search-bar input {
+  padding-left: 40px;
+}
+.search-bar .search-icon {
+  position: absolute;
+  left: 14px;
+  font-size: 18px;
+  color: var(--color-outline);
+  pointer-events: none;
+}
+
+/* ─── Skeleton v2 ────────────────────────────── */
+.skel {
+  background: linear-gradient(
+    90deg,
+    var(--color-surface-low) 0%,
+    var(--color-surface-highest) 40%,
+    var(--color-surface-low) 80%
+  );
+  background-size: 300% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--r-sm);
+}
+.skel-text  { height: 14px; width: 100%; }
+.skel-text-sm { height: 11px; width: 70%; }
+.skel-avatar { width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0; }
+.skel-card  { height: 100px; border-radius: var(--r-lg); }
+
+/* ─── Focus ring polish ──────────────────────── */
+*:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ─── Premium hover for icon buttons ─────────── */
+.icon-btn {
+  transition: background 0.15s ease, transform 0.12s ease, box-shadow 0.15s ease;
+}
+.icon-btn:hover {
+  background: var(--color-primary-fixed);
+  box-shadow: 0 2px 8px rgba(91,60,221,0.15);
+}
+.icon-btn:active { transform: scale(0.92); }
+
+/* ─── Card hover polish ──────────────────────── */
+.card {
+  transition: box-shadow 0.22s ease, transform 0.22s ease;
+}
+.card:hover {
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-2px);
+}
+
+/* ─── Sidebar nav item hover ─────────────────── */
+.sidebar-nav-item {
+  transition: background 0.15s ease, color 0.15s ease, transform 0.12s ease;
+}
+.sidebar-nav-item:hover {
+  transform: translateX(3px);
+}
+.sidebar-nav-item:active { transform: translateX(0) scale(0.98); }
+
+/* ─── Number counter animation ───────────────── */
+@keyframes countUp {
+  from { transform: translateY(4px); opacity: 0; }
+  to   { transform: translateY(0);   opacity: 1; }
+}
+.count-anim { animation: countUp 0.3s ease; }
+
+/* ─── Success confirmation checkmark ────────────*/
+@keyframes checkDraw {
+  from { stroke-dashoffset: 24; }
+  to   { stroke-dashoffset: 0; }
+}
+.check-draw { animation: checkDraw 0.3s ease 0.1s both; }
+
+/* ─── Page personality backgrounds ──────────── */
+.page-home-bg {
+  background: radial-gradient(ellipse 600px 400px at 90% -10%, rgba(91,60,221,0.07) 0%, transparent 65%),
+              radial-gradient(ellipse 400px 300px at 10% 100%, rgba(200,80,200,0.04) 0%, transparent 65%);
+}
+.page-connect-bg {
+  background: radial-gradient(ellipse 500px 350px at 80% 0%, rgba(14,165,233,0.06) 0%, transparent 60%);
+}
+.page-meet-bg {
+  background: radial-gradient(ellipse 500px 350px at 20% 0%, rgba(249,115,22,0.06) 0%, transparent 60%);
+}
+.page-support-bg {
+  background: radial-gradient(ellipse 500px 350px at 80% 0%, rgba(139,92,246,0.06) 0%, transparent 60%);
+}
+
+/* ─── Improved card for groups/activities ─────── */
+.entity-card {
+  background: var(--color-card);
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  box-shadow: var(--elevation-2);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  cursor: pointer;
+}
+.entity-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--elevation-3);
+}
+.entity-card:active {
+  transform: translateY(0) scale(0.99);
+}
+.entity-card .accent-bar {
+  height: 4px;
+}
+
+/* ─── Subtle shimmer for new/unread ─────────── */
+@keyframes subtlePulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(91,60,221,0.12); }
+  50%       { box-shadow: 0 0 0 4px rgba(91,60,221,0.06); }
+}
+.pulse-ring { animation: subtlePulse 2.5s ease-in-out infinite; }

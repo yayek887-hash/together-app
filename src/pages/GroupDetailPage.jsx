@@ -453,9 +453,9 @@ export default function GroupDetailPage() {
               </div>
               {joinReqs.map(req => (
                 <div key={req.id} style={{ display: "flex", alignItems: "center", gap: 12, background: "linear-gradient(135deg, var(--color-primary-fixed) 0%, #e8f4ff 100%)", borderRadius: 18, padding: "12px 14px", marginBottom: 10, border: "1.5px solid var(--color-primary)" }}>
-                  <UserAvatar name={req.profiles?.username || "?"} size={40} avatarUrl={req.profiles?.avatar_url || undefined} />
+                  <UserAvatar name={req.profiles?.display_name || req.profiles?.username || "?"} size={40} avatarUrl={req.profiles?.avatar_url || undefined} />
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 14, fontWeight: 700 }}>{req.profiles?.username || "Someone"}</div>
+                    <div style={{ fontSize: 14, fontWeight: 700 }}>{req.profiles?.display_name || req.profiles?.username || "Someone"}</div>
                     {req.message && <div style={{ fontSize: 12, color: "var(--color-text-soft)", marginTop: 2 }}>{req.message}</div>}
                   </div>
                   <button onClick={() => handleApprove(req)} disabled={busy === req.id}

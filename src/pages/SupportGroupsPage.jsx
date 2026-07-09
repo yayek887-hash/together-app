@@ -24,10 +24,14 @@ function GroupCard({ group, isMember, isOwner, onJoin, onView, busy }) {
   return (
     <div onClick={onView} style={{
       background: "#fff", borderRadius: 20,
-      boxShadow: "0 2px 12px rgba(0,0,0,0.07)",
+      boxShadow: "0 1px 4px rgba(0,0,0,0.05), 0 4px 14px rgba(0,0,0,0.06)",
       marginBottom: 12, overflow: "hidden", cursor: "pointer",
       border: `1.5px solid ${accent}18`,
-    }}>
+      transition: "box-shadow 0.2s ease, transform 0.2s ease",
+    }}
+    onMouseEnter={e => { e.currentTarget.style.boxShadow = `0 6px 24px ${accent}22, 0 2px 8px rgba(0,0,0,0.08)`; e.currentTarget.style.transform = "translateY(-2px)"; }}
+    onMouseLeave={e => { e.currentTarget.style.boxShadow = "0 1px 4px rgba(0,0,0,0.05), 0 4px 14px rgba(0,0,0,0.06)"; e.currentTarget.style.transform = "translateY(0)"; }}
+    >
       {/* Top accent bar */}
       <div style={{ height: 4, background: `linear-gradient(90deg, ${accent}, ${accent}66)` }} />
 
@@ -101,10 +105,14 @@ function MySpaceCard({ group, onView }) {
     <div onClick={onView} style={{
       flexShrink: 0, width: 160,
       background: "#fff", borderRadius: 20, overflow: "hidden",
-      boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
+      boxShadow: "0 2px 10px rgba(0,0,0,0.07)",
       border: `1.5px solid ${accent}22`,
       cursor: "pointer",
-    }}>
+      transition: "box-shadow 0.2s ease, transform 0.2s ease",
+    }}
+    onMouseEnter={e => { e.currentTarget.style.boxShadow = `0 8px 24px ${accent}33`; e.currentTarget.style.transform = "translateY(-3px)"; }}
+    onMouseLeave={e => { e.currentTarget.style.boxShadow = "0 2px 10px rgba(0,0,0,0.07)"; e.currentTarget.style.transform = "translateY(0)"; }}
+    >
       <div style={{
         height: 64,
         background: `linear-gradient(135deg, ${accent}dd, ${accent}88)`,
@@ -178,14 +186,12 @@ export default function SupportGroupsPage() {
 
       {/* ── Header ── */}
       <div style={{ padding: "22px 18px 16px" }}>
-        <div style={{ fontSize: 13, color: "var(--color-text-soft)", fontWeight: 500, marginBottom: 5 }}>
-          Support · 💜
-        </div>
+        <div style={{ fontSize: 12, fontWeight: 700, color: "#8b5cf6", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 4 }}>💜 Communities</div>
         <div style={{ fontSize: 26, fontWeight: 900, color: "var(--color-text)", letterSpacing: "-0.03em", lineHeight: 1.15, marginBottom: 6 }}>
           Find your<br />people
         </div>
         <div style={{ fontSize: 13, color: "var(--color-text-soft)", lineHeight: 1.6 }}>
-          Safe spaces for every kind of teen.
+          Safe, warm spaces built just for you.
         </div>
       </div>
 
@@ -222,7 +228,7 @@ export default function SupportGroupsPage() {
           style={{
             width: "100%", boxSizing: "border-box",
             padding: "10px 14px 10px 40px",
-            borderRadius: 14,
+            borderRadius: 999,
             border: "1.5px solid var(--color-outline-variant)",
             background: "#fff",
             boxShadow: "0 1px 3px rgba(0,0,0,0.06)",

@@ -71,7 +71,7 @@ export async function fetchActivities(topic = null) {
   let query = supabase
     .from("activities")
     .select(`id, title, description, topic, location, activity_date, max_participants, created_at,
-      creator:profiles!activities_creator_id_fkey(id, username, avatar_color, avatar_url),
+      creator:profiles!activities_creator_id_fkey(id, username, display_name, avatar_color, avatar_url),
       activity_participants(user_id)`)
     .gte("activity_date", new Date().toISOString())
     .order("activity_date", { ascending: true });
@@ -109,8 +109,8 @@ export async function fetchActivity(activityId) {
   const { data, error } = await supabase
     .from("activities")
     .select(`id, title, description, topic, location, activity_date, max_participants, created_at,
-      creator:profiles!activities_creator_id_fkey(id, username, avatar_color, avatar_url),
-      activity_participants(user_id, profiles!activity_participants_user_id_fkey(id, username, avatar_color, avatar_url))`)
+      creator:profiles!activities_creator_id_fkey(id, username, display_name, avatar_color, avatar_url),
+      activity_participants(user_id, profiles!activity_participants_user_id_fkey(id, username, display_name, avatar_color, avatar_url))`)
     .eq("id", activityId)
     .single();
   if (error) throw error;
@@ -120,7 +120,7 @@ export async function fetchActivity(activityId) {
 export async function fetchActivityMessages(activityId) {
   const { data, error } = await supabase
     .from("activity_messages")
-    .select(`id, text, created_at, sender_id, sender:profiles!activity_messages_sender_id_fkey(id, username, avatar_color, avatar_url)`)
+    .select(`id, text, created_at, sender_id, sender:profiles!activity_messages_sender_id_fkey(id, username, display_name, avatar_color, avatar_url)`)
     .eq("activity_id", activityId)
     .order("created_at", { ascending: true })
     .limit(100);
@@ -132,7 +132,7 @@ export async function sendActivityMessage(activityId, senderId, text) {
   const { data, error } = await supabase
     .from("activity_messages")
     .insert({ activity_id: activityId, sender_id: senderId, text })
-    .select(`id, text, created_at, sender_id, sender:profiles!activity_messages_sender_id_fkey(id, username, avatar_color, avatar_url)`)
+    .select(`id, text, created_at, sender_id, sender:profiles!activity_messages_sender_id_fkey(id, username, display_name, avatar_color, avatar_url)`)
     .single();
   if (error) throw error;
   return data;
@@ -146,7 +146,7 @@ export function subscribeToActivityMessages(activityId, callback) {
       async (payload) => {
         const { data } = await supabase
           .from("activity_messages")
-          .select(`id, text, created_at, sender_id, sender:profiles!activity_messages_sender_id_fkey(id, username, avatar_color, avatar_url)`)
+          .select(`id, text, created_at, sender_id, sender:profiles!activity_messages_sender_id_fkey(id, username, display_name, avatar_color, avatar_url)`)
           .eq("id", payload.new.id)
           .single();
         if (data) callback(data);
@@ -162,7 +162,7 @@ export async function fetchFeed(topic = null) {
     .from("posts")
     .select(
       `id, text, mood, topic, image_url, is_anonymous, created_at,
-       author:profiles!posts_author_id_fkey ( id, username, avatar_color, avatar_url ),
+       author:profiles!posts_author_id_fkey ( id, username, display_name, avatar_color, avatar_url ),
        post_reactions ( user_id, type ),
        comments ( id )`
     )
@@ -182,7 +182,7 @@ export async function fetchUpcomingActivities(limit = 4) {
   const { data, error } = await supabase
     .from("activities")
     .select(`id, title, topic, location, activity_date, max_participants,
-      creator:profiles!activities_creator_id_fkey(id, username, avatar_color, avatar_url),
+      creator:profiles!activities_creator_id_fkey(id, username, display_name, avatar_color, avatar_url),
       activity_participants(user_id)`)
     .gte("activity_date", now)
     .lte("activity_date", week)
@@ -210,7 +210,7 @@ export async function fetchTrendingPosts(limit = 5) {
   const { data, error } = await supabase
     .from("posts")
     .select(`id, text, mood, topic, image_url, is_anonymous, created_at,
-       author:profiles!posts_author_id_fkey(id, username, avatar_color, avatar_url),
+       author:profiles!posts_author_id_fkey(id, username, display_name, avatar_color, avatar_url),
        post_reactions(user_id, type),
        comments(id)`)
     .gte("created_at", since)
@@ -267,7 +267,7 @@ export async function fetchGroup(groupId) {
   const { data, error } = await supabase
     .from("groups")
     .select(`id, name, description, color, category, privacy, min_age, max_age, city, region, rules, meeting_location, meeting_schedule, owner_id, created_at,
-      group_members ( user_id, profiles!group_members_user_id_fkey ( id, username, avatar_color, avatar_url ) )`)
+      group_members ( user_id, profiles!group_members_user_id_fkey ( id, username, display_name, avatar_color, avatar_url ) )`)
     .eq("id", groupId)
     .single();
   if (error) throw error;
@@ -277,7 +277,7 @@ export async function fetchGroup(groupId) {
 export async function fetchGroupMessages(groupId) {
   const { data, error } = await supabase
     .from("group_messages")
-    .select(`id, text, created_at, sender_id, sender:profiles!group_messages_sender_id_fkey(id, username, avatar_color, avatar_url)`)
+    .select(`id, text, created_at, sender_id, sender:profiles!group_messages_sender_id_fkey(id, username, display_name, avatar_color, avatar_url)`)
     .eq("group_id", groupId)
     .order("created_at", { ascending: true })
     .limit(100);
@@ -289,7 +289,7 @@ export async function sendGroupMessage(groupId, senderId, text) {
   const { data, error } = await supabase
     .from("group_messages")
     .insert({ group_id: groupId, sender_id: senderId, text })
-    .select(`id, text, created_at, sender_id, sender:profiles!group_messages_sender_id_fkey(id, username, avatar_color, avatar_url)`)
+    .select(`id, text, created_at, sender_id, sender:profiles!group_messages_sender_id_fkey(id, username, display_name, avatar_color, avatar_url)`)
     .single();
   if (error) throw error;
   return data;
@@ -303,7 +303,7 @@ export function subscribeToGroupMessages(groupId, callback) {
       async (payload) => {
         const { data } = await supabase
           .from("group_messages")
-          .select(`id, text, created_at, sender_id, sender:profiles!group_messages_sender_id_fkey(id, username, avatar_color, avatar_url)`)
+          .select(`id, text, created_at, sender_id, sender:profiles!group_messages_sender_id_fkey(id, username, display_name, avatar_color, avatar_url)`)
           .eq("id", payload.new.id)
           .single();
         if (data) callback(data);
@@ -359,7 +359,7 @@ export async function removeGroupMember(groupId, userId) {
 export async function fetchJoinRequests(groupId) {
   const { data, error } = await supabase
     .from("group_join_requests")
-    .select(`id, user_id, message, status, created_at, profiles!group_join_requests_user_id_fkey ( id, username, avatar_color )`)
+    .select(`id, user_id, message, status, created_at, profiles!group_join_requests_user_id_fkey ( id, username, display_name, avatar_color, avatar_url )`)
     .eq("group_id", groupId)
     .eq("status", "pending")
     .order("created_at", { ascending: true });
@@ -540,7 +540,7 @@ export async function fetchUserPosts(userId) {
     .from("posts")
     .select(
       `id, text, mood, topic, image_url, is_anonymous, created_at,
-       author:profiles!posts_author_id_fkey ( id, username, avatar_color, avatar_url ),
+       author:profiles!posts_author_id_fkey ( id, username, display_name, avatar_color, avatar_url ),
        post_reactions ( user_id, type ),
        comments ( id )`
     )
@@ -559,7 +559,7 @@ export async function fetchCommentsOnMyPosts(userId) {
   if (!postIds.length) return [];
   const { data, error } = await supabase
     .from("comments")
-    .select(`id, text, created_at, post_id, author:profiles!comments_author_id_fkey(id, username, avatar_color, avatar_url)`)
+    .select(`id, text, created_at, post_id, author:profiles!comments_author_id_fkey(id, username, display_name, avatar_color, avatar_url)`)
     .in("post_id", postIds)
     .neq("author_id", userId)
     .order("created_at", { ascending: false })
@@ -602,7 +602,7 @@ export async function fetchComments(postId) {
     .from("comments")
     .select(
       `id, text, created_at,
-       author:profiles!comments_author_id_fkey ( id, username, avatar_color )`
+       author:profiles!comments_author_id_fkey ( id, username, display_name, avatar_color, avatar_url )`
     )
     .eq("post_id", postId)
     .order("created_at", { ascending: true });
@@ -616,7 +616,7 @@ export async function createComment(postId, authorId, text) {
     .insert({ post_id: postId, author_id: authorId, text })
     .select(
       `id, text, created_at,
-       author:profiles!comments_author_id_fkey ( id, username, avatar_color )`
+       author:profiles!comments_author_id_fkey ( id, username, display_name, avatar_color, avatar_url )`
     )
     .single();
   if (error) throw error;

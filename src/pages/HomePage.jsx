@@ -150,9 +150,13 @@ function ActivityPill({ activity, onClick }) {
   return (
     <div onClick={onClick} style={{
       flexShrink: 0, width: 200, borderRadius: 20, overflow: "hidden",
-      background: "#fff", boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
+      background: "#fff", boxShadow: "0 2px 10px rgba(0,0,0,0.07)",
       cursor: "pointer", border: `1.5px solid ${color}18`,
-    }}>
+      transition: "box-shadow 0.2s ease, transform 0.2s ease",
+    }}
+    onMouseEnter={e => { e.currentTarget.style.boxShadow = `0 6px 20px ${color}22`; e.currentTarget.style.transform = "translateY(-2px)"; }}
+    onMouseLeave={e => { e.currentTarget.style.boxShadow = "0 2px 10px rgba(0,0,0,0.07)"; e.currentTarget.style.transform = "translateY(0)"; }}
+    >
       <div style={{ height: 6, background: `linear-gradient(90deg, ${color}, ${color}88)` }} />
       <div style={{ padding: "12px 14px" }}>
         <div style={{ fontSize: 10, fontWeight: 700, color, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>
@@ -187,9 +191,13 @@ function CommunityCard({ group, onClick }) {
   return (
     <div onClick={onClick} style={{
       flexShrink: 0, width: 168, borderRadius: 20,
-      background: "#fff", boxShadow: "0 2px 12px rgba(0,0,0,0.07)",
+      background: "#fff", boxShadow: "0 2px 10px rgba(0,0,0,0.07)",
       cursor: "pointer", overflow: "hidden", border: `1.5px solid rgba(0,0,0,0.05)`,
-    }}>
+      transition: "box-shadow 0.2s ease, transform 0.2s ease",
+    }}
+    onMouseEnter={e => { e.currentTarget.style.boxShadow = `0 6px 22px ${accent}22`; e.currentTarget.style.transform = "translateY(-2px)"; }}
+    onMouseLeave={e => { e.currentTarget.style.boxShadow = "0 2px 10px rgba(0,0,0,0.07)"; e.currentTarget.style.transform = "translateY(0)"; }}
+    >
       <div style={{ height: 52, background: `linear-gradient(135deg, ${accent}dd, ${accent}66)`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26 }}>
         {emoji}
       </div>
@@ -338,15 +346,20 @@ export default function HomePage() {
         {/* ── Compose card ── */}
         <div onClick={() => navigate("/new-post")} style={{
           display: "flex", alignItems: "center", gap: 10,
-          background: "#fff", borderRadius: 20, padding: "10px 12px", marginBottom: 24,
-          boxShadow: "0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.05)", cursor: "pointer",
-        }}>
+          background: "#fff", borderRadius: 20, padding: "11px 14px", marginBottom: 24,
+          boxShadow: "0 1px 3px rgba(0,0,0,0.05), 0 4px 16px rgba(0,0,0,0.06)",
+          cursor: "pointer", border: "1.5px solid rgba(0,0,0,0.04)",
+          transition: "box-shadow 0.2s ease",
+        }}
+        onMouseEnter={e => e.currentTarget.style.boxShadow = "0 4px 20px rgba(91,60,221,0.12)"}
+        onMouseLeave={e => e.currentTarget.style.boxShadow = "0 1px 3px rgba(0,0,0,0.05), 0 4px 16px rgba(0,0,0,0.06)"}
+        >
           <UserAvatar name={displayName} size={36} avatarUrl={profile?.avatar_url || undefined} />
-          <div style={{ flex: 1, background: "var(--color-surface-low)", borderRadius: 999, padding: "9px 14px", fontSize: 14, color: "var(--color-text-soft)" }}>
+          <div style={{ flex: 1, background: "var(--color-surface-low)", borderRadius: 999, padding: "9px 16px", fontSize: 13, color: "var(--color-text-soft)", lineHeight: 1 }}>
             What's on your heart today?
           </div>
-          <div style={{ width: 34, height: 34, borderRadius: 12, flexShrink: 0, background: "var(--color-primary-fixed)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <span className="material-symbols-outlined" style={{ fontSize: 17, color: "var(--color-primary)" }}>add_photo_alternate</span>
+          <div style={{ width: 36, height: 36, borderRadius: 12, flexShrink: 0, background: "var(--color-primary)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 3px 10px rgba(91,60,221,0.3)" }}>
+            <span className="material-symbols-outlined" style={{ fontSize: 18, color: "#fff" }}>edit</span>
           </div>
         </div>
 
