@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { INTERESTS } from "../data/inspireContent.js";
 
 function getAccent(topic) {
@@ -62,6 +63,7 @@ export function TipCard({ card, topic }) {
 
 /* ── Challenge card ── bold CTA, darker feel */
 export function ChallengeCard({ card, topic, onDone }) {
+  const [done, setDone] = useState(false);
   const { color, emoji, label } = getAccent(topic);
   return (
     <div style={{
@@ -87,16 +89,19 @@ export function ChallengeCard({ card, topic, onDone }) {
       </p>
 
       <button
-        onClick={onDone}
+        onClick={() => { setDone(true); onDone?.(); }}
+        disabled={done}
         style={{
-          background: color, border: "none", borderRadius: 12,
+          background: done ? "#22c55e" : color, border: "none", borderRadius: 12,
           padding: "9px 18px", fontSize: 13, fontWeight: 700,
-          color: "#fff", cursor: "pointer", fontFamily: "Rubik, sans-serif",
+          color: "#fff", cursor: done ? "default" : "pointer",
+          fontFamily: "Rubik, sans-serif",
           display: "flex", alignItems: "center", gap: 6,
-          boxShadow: `0 3px 14px ${color}66`, position: "relative",
+          boxShadow: done ? "0 3px 14px #22c55e66" : `0 3px 14px ${color}66`,
+          position: "relative", transition: "all 0.2s",
         }}
       >
-        ✓ I'll try this
+        {done ? "🎉 Challenge accepted!" : "✓ I'll try this"}
       </button>
     </div>
   );
