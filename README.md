@@ -4,7 +4,7 @@ A safe, warm social platform for kids & teens (ages 10–18) dealing with bullyi
 and social struggles. Think Instagram's feed + WhatsApp's chat + Pinterest's soft cards — but
 built around safety, kindness, and belonging instead of engagement.
 
-**Live app:** _add your Vercel URL here after deploying_
+**Live app:** https://together-app-pi.vercel.app  
 **Demo login:** Google sign-in (any Google account) — no demo password needed.
 
 ---
@@ -44,10 +44,14 @@ team's attention first, instead of sitting in a flat, unsorted queue.
 
 ## AI / external integrations
 
-- **Google OAuth** (via Supabase Auth) — sign-in, no passwords stored.
-- **"Help me write kindly"** — Supabase Edge Function `kind-writer` calls the Anthropic Claude API server-side to rewrite a teen's draft post to be warmer and kinder. The AI key never reaches the browser. See [`supabase/functions/kind-writer/index.ts`](supabase/functions/kind-writer/index.ts).
-- **AI Report Triage** — Supabase Edge Function `triage-report` classifies each safety report's urgency (`low / medium / urgent`) so the safety team sees what matters most first. See [`supabase/functions/triage-report/index.ts`](supabase/functions/triage-report/index.ts).
-- **Supabase Realtime** — live chat updates.
+| Service | Type | Purpose |
+|---|---|---|
+| **Google OAuth** | Authentication | One-click sign-in via Google (via Supabase Auth). No passwords stored. |
+| **Supabase Realtime** | WebSocket | Live updates in DMs, group chats, and activity chats. |
+| **Supabase Storage** | File storage | Avatar images, cover photos, post media (`avatars` + `post-images` buckets). |
+| **Edge Function: `kind-writer`** | AI (Anthropic Claude) | Rewrites a draft post to be kinder and more empathetic before publishing. API key is server-side only. |
+| **Edge Function: `triage-report`** | AI (Anthropic Claude) | Classifies each safety report's urgency (`low / medium / urgent`) so serious cases rise to the top. API key is server-side only. |
+| **Nominatim (OpenStreetMap)** | Geocoding API | Converts activity text locations to coordinates for the "Near Me" distance-sort feature on the Meet page. Free, no API key. Results cached in `localStorage`. |
 
 Full data model & ERD: [`docs/ERD.md`](docs/ERD.md). Full SQL: [`supabase/schema.sql`](supabase/schema.sql).
 
