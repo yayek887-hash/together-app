@@ -27,7 +27,7 @@ function formatActivityDate(str) {
 
 function SectionCard({ children, style }) {
   return (
-    <div style={{ background: "#fff", borderRadius: 20, padding: "16px 16px", marginBottom: 12, boxShadow: "0 2px 10px rgba(91,60,221,0.06)", ...style }}>
+    <div style={{ background: "var(--color-card)", borderRadius: 20, padding: "16px 16px", marginBottom: 12, boxShadow: "var(--shadow-card)", ...style }}>
       {children}
     </div>
   );
@@ -35,7 +35,7 @@ function SectionCard({ children, style }) {
 
 function SectionTitle({ children }) {
   return (
-    <div style={{ fontSize: 11, fontWeight: 700, color: "var(--color-text-soft)", letterSpacing: "0.07em", textTransform: "uppercase", marginBottom: 12 }}>
+    <div className="section-label">
       {children}
     </div>
   );
@@ -50,7 +50,7 @@ function Toggle({ value, onChange, label, sub }) {
       </div>
       <div
         onClick={() => onChange(!value)}
-        style={{ width: 42, height: 24, borderRadius: 12, background: value ? "var(--color-primary)" : "#E4E0F5", position: "relative", cursor: "pointer", transition: "background .2s", flexShrink: 0 }}
+        style={{ width: 42, height: 24, borderRadius: 12, background: value ? "var(--color-primary)" : "var(--color-outline-variant)", position: "relative", cursor: "pointer", transition: "background .2s", flexShrink: 0 }}
       >
         <div style={{ width: 18, height: 18, borderRadius: "50%", background: "#fff", position: "absolute", top: 3, left: value ? 21 : 3, transition: "left .2s", boxShadow: "0 1px 4px rgba(0,0,0,0.18)" }} />
       </div>

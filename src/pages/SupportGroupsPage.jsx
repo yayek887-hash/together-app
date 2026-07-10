@@ -186,7 +186,7 @@ export default function SupportGroupsPage() {
 
       {/* ── Header ── */}
       <div style={{ padding: "22px 18px 16px" }}>
-        <div style={{ fontSize: 12, fontWeight: 700, color: "#8b5cf6", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 4 }}>💜 Communities</div>
+        <div style={{ fontSize: 12, fontWeight: 700, color: "var(--accent-support)", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 4 }}>💜 Communities</div>
         <div style={{ fontSize: 26, fontWeight: 900, color: "var(--color-text)", letterSpacing: "-0.03em", lineHeight: 1.15, marginBottom: 6 }}>
           Find your<br />people
         </div>

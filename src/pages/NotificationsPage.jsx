@@ -71,7 +71,7 @@ export default function NotificationsPage() {
 
       {/* ── Header ── */}
       <div style={{ padding: "22px 18px 18px", display: "flex", alignItems: "center", gap: 12 }}>
-        <button onClick={() => navigate(-1)} style={{ background: "none", border: "none", cursor: "pointer", padding: 4, display: "flex" }}>
+        <button onClick={() => navigate(-1)} className="icon-btn" style={{ cursor: "pointer" }}>
           <span className="material-symbols-outlined" style={{ fontSize: 24, color: "var(--color-primary)" }}>arrow_back</span>
         </button>
         <div style={{ flex: 1 }}>
@@ -79,7 +79,7 @@ export default function NotificationsPage() {
           <div style={{ fontSize: 12, color: "var(--color-text-soft)" }}>What's been happening</div>
         </div>
         {total > 0 && (
-          <div style={{ background: "#e84545", color: "#fff", borderRadius: 999, padding: "4px 10px", fontSize: 12, fontWeight: 800 }}>
+          <div style={{ background: "var(--color-notification)", color: "#fff", borderRadius: 999, padding: "4px 10px", fontSize: 12, fontWeight: 800 }}>
             {total}
           </div>
         )}
@@ -111,7 +111,7 @@ export default function NotificationsPage() {
               onClick={() => { clearUnread(); navigate("/connect", { state: { tab: "messages" } }); }}
               style={{
                 display: "flex", alignItems: "center", gap: 14,
-                background: "linear-gradient(135deg, #5b3cdd, #7c3aed)",
+                background: "linear-gradient(135deg, var(--color-primary), var(--color-primary-container))",
                 borderRadius: 20, padding: "16px 16px",
                 cursor: "pointer", boxShadow: "0 6px 20px rgba(91,60,221,0.35)",
               }}
@@ -144,7 +144,7 @@ export default function NotificationsPage() {
                   marginBottom: 10, boxShadow: "0 2px 14px rgba(91,60,221,0.10)",
                   border: "1.5px solid rgba(91,60,221,0.12)",
                 }}>
-                  <div style={{ height: 4, background: "linear-gradient(90deg, #5b3cdd, #a78bfa)" }} />
+                  <div style={{ height: 4, background: "linear-gradient(90deg, var(--color-primary), var(--color-primary-container))" }} />
                   <div style={{ padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
                     <UserAvatar name={name} size={46} avatarUrl={req.profiles?.avatar_url || undefined} />
                     <div style={{ flex: 1, minWidth: 0 }}>

@@ -83,7 +83,7 @@ export default function PostCard({ post, currentUserId, onChanged, featured }) {
 
       {/* ── Accent top bar ── */}
       {accent && (
-        <div style={{ height: featured ? 5 : 4, background: `linear-gradient(90deg, ${accent}, ${accent}66)` }} />
+        <div style={{ height: 4, background: `linear-gradient(90deg, ${accent}, ${accent}66)` }} />
       )}
 
       {/* ── Author row ── */}
@@ -146,7 +146,7 @@ export default function PostCard({ post, currentUserId, onChanged, featured }) {
               borderRadius: 10, padding: "7px 11px",
               fontSize: 11, fontWeight: active ? 700 : 500,
               color: active ? (accent || "var(--color-primary)") : "var(--color-text-soft)",
-              cursor: "pointer", fontFamily: "Rubik, sans-serif", transition: "all 0.15s",
+              cursor: "pointer", transition: "all 0.15s",
             }}>
               <span style={{ fontSize: 13, lineHeight: 1 }}>{r.emoji}</span>
               {r.label}
@@ -161,7 +161,7 @@ export default function PostCard({ post, currentUserId, onChanged, featured }) {
           display: "flex", alignItems: "center", gap: 6,
           background: showComments ? "var(--color-primary-fixed)" : "none",
           border: "none", cursor: "pointer", padding: "6px 10px",
-          borderRadius: 10, fontSize: 12, fontFamily: "Rubik, sans-serif",
+          borderRadius: 10, fontSize: 12,
           color: showComments ? "var(--color-primary)" : "var(--color-text-soft)",
           fontWeight: showComments ? 700 : 500, transition: "background 0.15s",
         }}>

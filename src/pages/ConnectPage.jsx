@@ -225,7 +225,7 @@ function MessagesTab({ userId }) {
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Search people…"
-          style={{ width: "100%", boxSizing: "border-box", padding: "10px 14px 10px 40px", borderRadius: 14, border: "1.5px solid var(--color-outline-variant)", background: "#fff", boxShadow: "0 1px 3px rgba(0,0,0,0.06)", fontSize: 13, fontFamily: "Rubik, sans-serif", outline: "none" }}
+          style={{ width: "100%", boxSizing: "border-box", padding: "10px 14px 10px 40px", borderRadius: 999, border: "1.5px solid var(--color-outline-variant)", background: "#fff", boxShadow: "0 1px 3px rgba(0,0,0,0.06)", fontSize: 13, fontFamily: "Rubik, sans-serif", outline: "none" }}
           onFocus={e => e.target.style.borderColor = "var(--color-primary)"}
           onBlur={e  => e.target.style.borderColor = "var(--color-outline-variant)"}
         />
@@ -324,7 +324,7 @@ export default function ConnectPage() {
 
       {/* ── Header ── */}
       <div style={{ padding: "22px 18px 16px" }}>
-        <div style={{ fontSize: 12, fontWeight: 700, color: "#0ea5e9", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 4 }}>🤝 Social</div>
+        <div style={{ fontSize: 12, fontWeight: 700, color: "var(--accent-connect)", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 4 }}>🤝 Social</div>
         <div style={{ fontSize: 26, fontWeight: 900, color: "var(--color-text)", letterSpacing: "-0.03em", lineHeight: 1.15 }}>
           Your people
         </div>
@@ -359,7 +359,7 @@ export default function ConnectPage() {
             {t.id === "messages" && unreadCount > 0 && (
               <span style={{
                 position: "absolute", top: 7, right: 12,
-                background: "#e84545", color: "#fff",
+                background: "var(--color-notification)", color: "#fff",
                 fontSize: 9, fontWeight: 800, minWidth: 16, height: 16,
                 borderRadius: 999, display: "flex", alignItems: "center", justifyContent: "center",
                 padding: "0 4px", border: "2px solid " + (tab === "messages" ? "var(--color-primary)" : "#fff"),

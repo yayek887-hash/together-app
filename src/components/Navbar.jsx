@@ -37,7 +37,7 @@ function SidebarItem({ item, badge }) {
           <span style={{ flex: 1 }}>{item.label}</span>
           {badge > 0 && (
             <span style={{
-              background: "#e84545", color: "#fff",
+              background: "var(--color-notification)", color: "#fff",
               borderRadius: 999, padding: "2px 7px",
               fontSize: 11, fontWeight: 800, lineHeight: 1.4,
             }}>
@@ -64,7 +64,7 @@ function NavItem({ item, badge }) {
             className={`material-symbols-outlined ${isActive ? "ms-filled" : ""}`}
             style={{
               fontSize: 26,
-              color: isActive ? "var(--color-primary)" : "#9899a6",
+              color: isActive ? "var(--color-primary)" : "var(--color-outline)",
               transition: "color 0.15s",
             }}
           >
@@ -80,7 +80,7 @@ function NavItem({ item, badge }) {
           {badge > 0 && (
             <span style={{
               position: "absolute", top: 0, right: 6,
-              background: "#e84545", color: "#fff",
+              background: "var(--color-notification)", color: "#fff",
               fontSize: 9, fontWeight: 800, minWidth: 16, height: 16,
               borderRadius: 999, display: "flex", alignItems: "center", justifyContent: "center",
               padding: "0 4px", border: "2px solid #fff", lineHeight: 1,
@@ -136,7 +136,7 @@ export default function Navbar() {
             position: "fixed", bottom: 0, left: 0, right: 0,
             maxWidth: 480, margin: "0 auto",
             display: "flex", justifyContent: "space-around", alignItems: "flex-end",
-            padding: "10px 0 24px",
+            padding: "10px 0 max(24px, env(safe-area-inset-bottom))",
             background: "var(--color-bg)",
             borderTop: "1px solid rgba(0,0,0,0.07)",
             boxShadow: "0 -8px 32px rgba(0,0,0,0.05)",
@@ -159,11 +159,11 @@ export default function Navbar() {
               style={{
                 width: 52, height: 52,
                 borderRadius: 18,
-                background: "linear-gradient(135deg, #5b3cdd 0%, #7459f7 100%)",
+                background: "linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-container) 100%)",
                 border: "none",
                 display: "flex", alignItems: "center", justifyContent: "center",
                 cursor: "pointer",
-                boxShadow: "0 4px 18px rgba(91,60,221,0.40)",
+                boxShadow: "var(--shadow-button)",
                 marginTop: -20,
                 transition: "transform 0.15s, box-shadow 0.15s",
               }}

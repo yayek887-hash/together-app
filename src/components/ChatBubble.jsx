@@ -14,7 +14,7 @@ export default function ChatBubble({ msg, otherName, otherAvatarUrl }) {
           borderRadius: 18,
           borderBottomRightRadius: mine ? 4 : 18,
           borderBottomLeftRadius: mine ? 18 : 4,
-          background: mine ? "var(--color-primary)" : "var(--color-secondary)",
+          background: mine ? "var(--color-primary)" : "var(--color-surface-container)",
           color: mine ? "#fff" : "var(--color-text)",
         }}
       >

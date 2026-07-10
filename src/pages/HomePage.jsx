@@ -300,10 +300,10 @@ export default function HomePage() {
   if (!interests.length) return null;
 
   return (
-    <div className="page-scroll scrollbar-none anim-in" style={{ paddingBottom: 120 }}>
+    <div className="page-scroll scrollbar-none anim-in">
 
       {/* ── Header ── */}
-      <div style={{ padding: "22px 18px 12px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+      <div style={{ padding: "20px 16px 12px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div>
           <div style={{ fontSize: 12, color: "var(--color-text-soft)", fontWeight: 500, marginBottom: 3 }}>
             {greeting}, <strong style={{ color: "var(--color-primary)" }}>{displayName}</strong>
@@ -315,18 +315,18 @@ export default function HomePage() {
         <div style={{ display: "flex", gap: 6 }}>
           <button onClick={() => navigate("/connect", { state: { tab: "messages" } })} className="icon-btn" style={{ position: "relative" }}>
             <span className="material-symbols-outlined" style={{ fontSize: 20, color: "var(--color-primary)" }}>chat_bubble</span>
-            {unreadCount > 0 && <span style={{ position: "absolute", top: 3, right: 3, width: 8, height: 8, borderRadius: "50%", background: "#e84545", border: "1.5px solid var(--color-bg)" }} />}
+            {unreadCount > 0 && <span style={{ position: "absolute", top: 3, right: 3, width: 8, height: 8, borderRadius: "50%", background: "var(--color-notification)", border: "1.5px solid var(--color-bg)" }} />}
           </button>
           <button onClick={() => navigate("/notifications")} className="icon-btn" style={{ position: "relative" }}>
             <span className="material-symbols-outlined" style={{ fontSize: 20, color: "var(--color-primary)" }}>notifications</span>
-            {totalNotifCount > 0 && <span style={{ position: "absolute", top: 3, right: 3, width: 8, height: 8, borderRadius: "50%", background: "#e84545", border: "1.5px solid var(--color-bg)" }} />}
+            {totalNotifCount > 0 && <span style={{ position: "absolute", top: 3, right: 3, width: 8, height: 8, borderRadius: "50%", background: "var(--color-notification)", border: "1.5px solid var(--color-bg)" }} />}
           </button>
         </div>
       </div>
 
       {/* ── Category chips ── */}
       <div style={{ position: "relative", marginBottom: 4 }}>
-        <div style={{ display: "flex", gap: 6, padding: "4px 0 10px 18px", overflowX: "auto" }} className="scrollbar-none">
+        <div style={{ display: "flex", gap: 6, padding: "4px 0 10px 16px", overflowX: "auto" }} className="scrollbar-none">
           <button onClick={() => setActiveTopic("all")} style={{
             padding: "6px 14px", borderRadius: 999, fontSize: 12, fontWeight: 700,
             border: "none", cursor: "pointer", fontFamily: "Rubik, sans-serif", whiteSpace: "nowrap",
@@ -418,7 +418,7 @@ export default function HomePage() {
             {trending.map((p, i) => (
               <div key={p.id} style={{ position: "relative" }}>
                 {i === 0 && (
-                  <div style={{ position: "absolute", top: 10, right: 10, zIndex: 1, background: "#ff6b35", color: "#fff", borderRadius: 999, padding: "3px 10px", fontSize: 10, fontWeight: 800 }}>
+                  <div style={{ position: "absolute", top: 10, right: 10, zIndex: 1, background: "var(--accent-meet)", color: "#fff", borderRadius: 999, padding: "3px 10px", fontSize: 10, fontWeight: 800 }}>
                     🔥 Trending
                   </div>
                 )}

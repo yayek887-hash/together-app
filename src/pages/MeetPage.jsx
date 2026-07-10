@@ -64,7 +64,7 @@ function ActivityCard({ activity, userId, onChanged }) {
     >
       {/* Color top bar */}
       <div style={{
-        height: 5,
+        height: 4,
         background: interest
           ? `linear-gradient(90deg, ${interest.color} 0%, ${interest.color}88 100%)`
           : "var(--color-primary)",
@@ -169,7 +169,7 @@ export default function MeetPage() {
       {/* Header */}
       <div style={{ padding: "18px 16px 14px", display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
         <div>
-          <div style={{ fontSize: 12, fontWeight: 700, color: "#f97316", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 4 }}>📍 Real life · IRL</div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "var(--accent-meet)", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 4 }}>📍 Real life · IRL</div>
           <div style={{ fontSize: 26, fontWeight: 900, color: "var(--color-text)", letterSpacing: "-0.03em", lineHeight: 1.15 }}>Meet &amp; hang out</div>
           <div style={{ fontSize: 13, color: "var(--color-text-soft)", marginTop: 6, lineHeight: 1.55 }}>
             Join activities. Make real friends.
@@ -204,7 +204,7 @@ export default function MeetPage() {
         </button>
         {myInterests.map(i => (
           <button key={i.key} onClick={() => setActiveTopic(i.key)} style={{
-            padding: "7px 16px", borderRadius: 999, fontSize: 13, fontWeight: 600,
+            padding: "8px 16px", borderRadius: 999, fontSize: 13, fontWeight: 600,
             border: "none", cursor: "pointer", fontFamily: "Rubik, sans-serif", whiteSpace: "nowrap",
             background: activeTopic === i.key ? i.color : "#fff",
             color: activeTopic === i.key ? "#fff" : "var(--color-text-soft)",
@@ -237,7 +237,7 @@ export default function MeetPage() {
             <button
               onClick={() => navigate("/create-activity")}
               style={{
-                background: "#f97316", color: "#fff",
+                background: "var(--accent-meet)", color: "#fff",
                 border: "none", borderRadius: 999, padding: "13px 28px",
                 fontSize: 14, fontWeight: 700, cursor: "pointer",
                 fontFamily: "Rubik, sans-serif",
