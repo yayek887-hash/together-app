@@ -586,6 +586,15 @@ a:focus-visible {
 
   /* No bottom nav to avoid */
   .page-scroll { padding-bottom: 40px; }
+
+  /* Desktop: more breathing room in cards and page headers */
+  .card { padding: 24px; }
+
+  /* Desktop: sidebar elevation */
+  .navbar-sidebar {
+    box-shadow: 2px 0 24px rgba(0,0,0,0.04);
+    border-right: 1px solid var(--color-outline-variant);
+  }
 }
 
 /* ─── Sidebar item styles ────────────────────── */

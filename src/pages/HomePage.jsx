@@ -215,15 +215,9 @@ function CommunityCard({ group, onClick }) {
 /* ── Section header ──────────────────────────────── */
 function SectionHeader({ emoji, title, action, onAction }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, paddingLeft: 2 }}>
-      <div style={{ fontSize: 14, fontWeight: 800, color: "var(--color-text)", display: "flex", alignItems: "center", gap: 6 }}>
-        <span>{emoji}</span> {title}
-      </div>
-      {action && (
-        <button onClick={onAction} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "var(--color-primary)", fontWeight: 700, fontFamily: "Rubik, sans-serif", padding: 0 }}>
-          {action}
-        </button>
-      )}
+    <div className="sec-header" style={{ paddingLeft: 2 }}>
+      <span className="sec-title"><span>{emoji}</span> {title}</span>
+      {action && <button onClick={onAction} className="sec-action">{action}</button>}
     </div>
   );
 }

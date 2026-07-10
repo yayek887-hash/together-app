@@ -170,7 +170,7 @@ function PersonCard({ person, type, myInterests, busy, onMessage, onAdd, onRemov
 /* ── Incoming request card ──────────────────────── */
 function RequestCard({ req, busy, onAccept, onDecline }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 12, background: "var(--color-primary-fixed)", borderRadius: 20, padding: "13px 14px", marginBottom: 10, border: "1.5px solid rgba(91,60,221,0.15)" }}>
+    <div style={{ display: "flex", alignItems: "center", gap: 12, background: "var(--color-primary-fixed)", borderRadius: 20, padding: "12px 14px", marginBottom: 10, border: "1.5px solid rgba(91,60,221,0.15)" }}>
       <UserAvatar name={req.profiles?.display_name || req.profiles?.username || "?"} size={44} avatarUrl={req.profiles?.avatar_url || undefined} />
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: "var(--color-text)" }}>{req.profiles?.display_name || req.profiles?.username || "Someone"}</div>
@@ -343,7 +343,7 @@ export default function ConnectPage() {
             key={t.id}
             onClick={() => setTab(t.id)}
             style={{
-              flex: 1, padding: "11px 0", borderRadius: 14,
+              flex: 1, padding: "11px 0", borderRadius: 12,
               border: "none", cursor: "pointer",
               fontFamily: "Rubik, sans-serif", fontWeight: 700, fontSize: 14,
               background: tab === t.id ? "var(--color-primary)" : "#fff",

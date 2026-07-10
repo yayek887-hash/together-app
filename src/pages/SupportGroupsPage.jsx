@@ -250,7 +250,7 @@ export default function SupportGroupsPage() {
                 key={c}
                 onClick={() => setActiveFilter(c)}
                 style={{
-                  padding: "8px 14px", borderRadius: 12, fontSize: 13, whiteSpace: "nowrap",
+                  padding: "8px 14px", borderRadius: 999, fontSize: 13, whiteSpace: "nowrap",
                   border: "none", cursor: "pointer", fontFamily: "Rubik, sans-serif", fontWeight: 700,
                   background: active ? (c === "All" ? "var(--color-primary)" : color) : "#fff",
                   color: active ? "#fff" : "var(--color-text)",
@@ -271,7 +271,7 @@ export default function SupportGroupsPage() {
         }} />
       </div>
 
-      <div style={{ padding: "0 18px" }}>
+      <div style={{ padding: "0 16px" }}>
 
         {loading && (
           <div style={{ textAlign: "center", padding: "44px 0" }}>

@@ -320,8 +320,8 @@ export default function ProfilePage() {
         {/* ── Stats row ── */}
         <div style={{
           display: "flex", gap: 0,
-          background: "#fff", borderRadius: 18,
-          boxShadow: "0 2px 10px rgba(91,60,221,0.06)",
+          background: "var(--color-card)", borderRadius: 20,
+          boxShadow: "var(--shadow-card)",
           marginBottom: 16, overflow: "hidden",
         }}>
           {[
@@ -353,7 +353,7 @@ export default function ProfilePage() {
               key={tab}
               onClick={() => setActiveTab(tab)}
               style={{
-                flex: 1, padding: "10px", borderRadius: 14,
+                flex: 1, padding: "10px", borderRadius: 12,
                 border: "none", cursor: "pointer", fontFamily: "Rubik, sans-serif",
                 fontSize: 13, fontWeight: 700,
                 background: activeTab === tab ? "var(--color-primary)" : "#fff",
