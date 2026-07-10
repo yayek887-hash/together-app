@@ -1,9 +1,54 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import UserAvatar from "../components/UserAvatar.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import { INTERESTS } from "../data/inspireContent.js";
 import { fetchActivities, joinActivity, leaveActivity, deleteActivity } from "../lib/api.js";
+
+/* ── Haversine distance (km) ─────────────────────── */
+function haversine(lat1, lon1, lat2, lon2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) ** 2 +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function fmtDistance(km) {
+  if (km < 1) return `${Math.round(km * 1000)} m`;
+  if (km < 10) return `${km.toFixed(1)} km`;
+  return `${Math.round(km)} km`;
+}
+
+/* ── Nominatim geocoding with localStorage cache ──── */
+const GEO_CACHE_KEY = "together_geo_cache";
+function loadCache() {
+  try { return JSON.parse(localStorage.getItem(GEO_CACHE_KEY) || "{}"); } catch { return {}; }
+}
+function saveCache(cache) {
+  try { localStorage.setItem(GEO_CACHE_KEY, JSON.stringify(cache)); } catch {}
+}
+
+async function geocodeLocation(location) {
+  const cache = loadCache();
+  if (cache[location]) return cache[location];
+  try {
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(location)}&format=json&limit=1`,
+      { headers: { "Accept-Language": "en" } }
+    );
+    const data = await res.json();
+    if (data[0]) {
+      const coords = { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
+      cache[location] = coords;
+      saveCache(cache);
+      return coords;
+    }
+  } catch {}
+  return null;
+}
 
 function formatDate(dateStr) {
   const d = new Date(dateStr);
@@ -19,7 +64,7 @@ function formatDate(dateStr) {
   return `${months[d.getMonth()]} ${d.getDate()} · ${time}`;
 }
 
-function ActivityCard({ activity, userId, onChanged }) {
+function ActivityCard({ activity, userId, onChanged, distance }) {
   const [busy, setBusy] = useState(false);
   const navigate = useNavigate();
 
@@ -102,6 +147,15 @@ function ActivityCard({ activity, userId, onChanged }) {
         <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 12 }}>
           <span className="material-symbols-outlined" style={{ fontSize: 15, color: "var(--color-primary)" }}>location_on</span>
           <span style={{ fontSize: 12, color: "var(--color-text-soft)", fontWeight: 500 }}>{activity.location}</span>
+          {distance != null && (
+            <span style={{
+              marginLeft: 4, fontSize: 11, fontWeight: 700,
+              background: "var(--accent-meet)", color: "#fff",
+              borderRadius: 999, padding: "2px 8px",
+            }}>
+              {fmtDistance(distance)}
+            </span>
+          )}
         </div>
 
         {/* Footer: creator + participants + button */}
@@ -147,9 +201,18 @@ export default function MeetPage() {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
 
-  const [activities, setActivities] = useState([]);
-  const [loading, setLoading]       = useState(true);
+  const [activities, setActivities]   = useState([]);
+  const [loading, setLoading]         = useState(true);
   const [activeTopic, setActiveTopic] = useState("all");
+
+  /* Near-me state */
+  const [nearMe, setNearMe]         = useState(false);
+  const [userCoords, setUserCoords] = useState(null);
+  const [geoLoading, setGeoLoading] = useState(false);
+  const [geoError, setGeoError]     = useState(null);
+  const [distances, setDistances]   = useState({});   // { [activity.id]: km }
+  const geocodingRef = useRef(false);
+
   const myInterests = INTERESTS.filter(i => (profile?.interests || []).includes(i.key));
 
   const load = useCallback(async () => {
@@ -163,6 +226,70 @@ export default function MeetPage() {
 
   useEffect(() => { load(); }, [load]);
 
+  /* Geocode activities and compute distances when nearMe + userCoords + activities are ready */
+  useEffect(() => {
+    if (!nearMe || !userCoords || activities.length === 0) return;
+    if (geocodingRef.current) return;
+    geocodingRef.current = true;
+    setGeoLoading(true);
+
+    const run = async () => {
+      const result = {};
+      for (const act of activities) {
+        if (!act.location) continue;
+        const cached = loadCache();
+        const key = act.location.trim().toLowerCase();
+        let coords = cached[key];
+        if (!coords) {
+          coords = await geocodeLocation(act.location);
+          await new Promise(r => setTimeout(r, 1100)); // respect Nominatim 1 req/sec
+        }
+        if (coords) {
+          result[act.id] = haversine(userCoords.lat, userCoords.lon, coords.lat, coords.lon);
+        }
+      }
+      setDistances(result);
+      setGeoLoading(false);
+      geocodingRef.current = false;
+    };
+    run();
+  }, [nearMe, userCoords, activities]);
+
+  const handleNearMe = () => {
+    if (nearMe) {
+      setNearMe(false);
+      setDistances({});
+      setGeoError(null);
+      return;
+    }
+    if (!navigator.geolocation) {
+      setGeoError("Geolocation not supported");
+      return;
+    }
+    setGeoLoading(true);
+    setGeoError(null);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setUserCoords({ lat: pos.coords.latitude, lon: pos.coords.longitude });
+        setNearMe(true);
+        setGeoLoading(false);
+      },
+      () => {
+        setGeoError("Location access denied");
+        setGeoLoading(false);
+      }
+    );
+  };
+
+  /* Sort activities by distance when nearMe is active */
+  const displayActivities = nearMe && Object.keys(distances).length > 0
+    ? [...activities].sort((a, b) => {
+        const da = distances[a.id] ?? Infinity;
+        const db = distances[b.id] ?? Infinity;
+        return da - db;
+      })
+    : activities;
+
   return (
     <div className="page-scroll scrollbar-none anim-in" style={{ paddingBottom: 100 }}>
 
@@ -175,20 +302,42 @@ export default function MeetPage() {
             Join activities. Make real friends.
           </div>
         </div>
-        <button
-          onClick={() => navigate("/create-activity")}
-          style={{
-            background: "var(--color-primary)", color: "#fff",
-            border: "none", borderRadius: 999, padding: "10px 18px",
-            fontSize: 13, fontWeight: 700, cursor: "pointer",
-            fontFamily: "Rubik, sans-serif",
-            boxShadow: "var(--shadow-button)", display: "flex", alignItems: "center", gap: 6,
-            flexShrink: 0,
-          }}
-        >
-          <span className="material-symbols-outlined" style={{ fontSize: 16 }}>add</span>
-          Create
-        </button>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8 }}>
+          <button
+            onClick={() => navigate("/create-activity")}
+            style={{
+              background: "var(--color-primary)", color: "#fff",
+              border: "none", borderRadius: 999, padding: "10px 18px",
+              fontSize: 13, fontWeight: 700, cursor: "pointer",
+              fontFamily: "Rubik, sans-serif",
+              boxShadow: "var(--shadow-button)", display: "flex", alignItems: "center", gap: 6,
+              flexShrink: 0,
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: 16 }}>add</span>
+            Create
+          </button>
+          <button
+            onClick={handleNearMe}
+            disabled={geoLoading}
+            style={{
+              background: nearMe ? "var(--accent-meet)" : "var(--color-card)",
+              color: nearMe ? "#fff" : "var(--color-text-soft)",
+              border: nearMe ? "none" : "1.5px solid var(--color-outline-variant)",
+              borderRadius: 999, padding: "7px 14px",
+              fontSize: 12, fontWeight: 700, cursor: geoLoading ? "default" : "pointer",
+              fontFamily: "Rubik, sans-serif",
+              display: "flex", alignItems: "center", gap: 5,
+              boxShadow: nearMe ? "0 4px 12px rgba(249,115,22,0.3)" : "none",
+              transition: "all 0.18s", opacity: geoLoading ? 0.7 : 1,
+            }}
+          >
+            {geoLoading ? "📍 Locating…" : nearMe ? "📍 Near me ✓" : "📍 Near me"}
+          </button>
+          {geoError && (
+            <span style={{ fontSize: 11, color: "var(--color-error)", textAlign: "right" }}>{geoError}</span>
+          )}
+        </div>
       </div>
 
       {/* Category chips */}
@@ -249,8 +398,26 @@ export default function MeetPage() {
           </div>
         )}
 
-        {!loading && activities.map(a => (
-          <ActivityCard key={a.id} activity={a} userId={user?.id} onChanged={load} />
+        {nearMe && geoLoading && activities.length > 0 && (
+          <div style={{
+            display: "flex", alignItems: "center", gap: 8,
+            padding: "10px 14px", marginBottom: 12, borderRadius: 14,
+            background: "var(--color-surface-container)", fontSize: 13,
+            color: "var(--color-text-soft)",
+          }}>
+            <div className="loading-dots"><span /><span /><span /></div>
+            Geocoding locations…
+          </div>
+        )}
+
+        {!loading && displayActivities.map(a => (
+          <ActivityCard
+            key={a.id}
+            activity={a}
+            userId={user?.id}
+            onChanged={load}
+            distance={distances[a.id] ?? null}
+          />
         ))}
       </div>
     </div>
