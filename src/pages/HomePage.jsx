@@ -228,6 +228,32 @@ function SectionHeader({ emoji, title, action, onAction }) {
   );
 }
 
+/* ── Mini inspire cards with expand on click ─────── */
+function MiniInspireCards({ topics }) {
+  const [expanded, setExpanded] = useState(null);
+  return (
+    <div style={{ marginBottom: 20 }}>
+      {expanded !== null && (
+        <div style={{ marginBottom: 12 }}>
+          <InspireCard topic={topics[expanded]} featured />
+          <button onClick={() => setExpanded(null)} style={{
+            marginTop: 8, background: "none", border: "none",
+            fontSize: 12, color: "var(--color-text-soft)", cursor: "pointer",
+            fontFamily: "Rubik, sans-serif", padding: "4px 0",
+          }}>✕ Close</button>
+        </div>
+      )}
+      <div style={{ display: "flex", gap: 10, overflowX: "auto" }} className="scrollbar-none">
+        {topics.map((t, i) => (
+          <div key={t} onClick={() => setExpanded(expanded === i ? null : i)} style={{ cursor: "pointer" }}>
+            <InspireCard topic={t} small />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /* ── Main page ───────────────────────────────────── */
 export default function HomePage() {
   const navigate = useNavigate();
@@ -336,11 +362,7 @@ export default function HomePage() {
 
         {/* ── Mini inspire cards (secondary interests) ── */}
         {secondaryTopics.length > 0 && (
-          <div style={{ display: "flex", gap: 10, marginBottom: 20, overflowX: "auto" }} className="scrollbar-none">
-            {secondaryTopics.map(t => (
-              <InspireCard key={t} topic={t} small />
-            ))}
-          </div>
+          <MiniInspireCards topics={secondaryTopics} />
         )}
 
         {/* ── Compose card ── */}
